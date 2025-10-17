@@ -29,7 +29,7 @@
             @endphp
         
             <div class="item">
-                <img src="{{ asset('/images/' . $product['gambar']) }}" width="250px" height="150px" alt="{{ $product['namaproduk'] }}">
+                <img src="{{ asset('images/esa/' . $product['gambar']) }}" width="250px" height="150px" alt="{{ $product['namaproduk'] }}">
                 <h2>{{ $product['namaproduk'] }}</h2><br><br>
                 <div class="harga">Rp.{{ number_format($product['harga'], 0, ',', '.') }}</div>
                 <div class="stok">Stok: {{ $product['stok'] }}</div>
