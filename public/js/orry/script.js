@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setupButton('myButton', 'https://youtu.be/FPALstZU7fI?si=i_tNPEYZpE1yItQh');
     setupButton('myButtonn', '/contact');
     setupButton('myButtonnn', '/blog');
-    setupButton('myButonnnn', '/portfolio');
+    setupButton('myButonnnn', '/galeri');
 });
 
 // --- STAR RATING ---

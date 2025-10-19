@@ -117,7 +117,7 @@ Route::post('/managesetting', [ManageSettingController::class, 'update'])->name(
 
 
 // Halaman utama (daftar produk)
-Route::get('/', [ProductController::class, 'index'])->name('product.index');
+Route::get('/prd', [ProductController::class, 'index'])->name('product.index');
 
 // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
@@ -146,7 +146,7 @@ Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
 Route::get('/qna', [QnaController::class, 'index'])->name('qna');
 
 // ROUTE GALERI
-Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery.gallery');
+Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');
 
 // Gunakan ArticleController untuk artikel detail
 Route::get('/artikel/{slug}', [ArticleController::class, 'show'])->name('article.show'); // SOLUSI WAJIB

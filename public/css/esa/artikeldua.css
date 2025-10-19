@@ -122,6 +122,7 @@ header {
     font-weight: 500;
     color: #ffffff;
     font-family: "Kaushan Script", serif;
+    text-decoration: none;
 }
 .navbar .logo a span {
     color: rgb(121, 185, 0);
@@ -142,6 +143,7 @@ header {
     color: #ffffff;
     font-size: 17px;
     transition: color 0.3s;
+    text-decoration: none;
 }
 
 .navbar ul li a:hover {
