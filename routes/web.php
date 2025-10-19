@@ -26,14 +26,14 @@ use App\Http\Controllers\ManageSettingController;
 
 // --- ROUTE UMUM ---
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+
 
 // bawaan 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Dashboard 
+// Dashboard Admin
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
 // Analytics
