@@ -73,7 +73,7 @@
         <div class="product-info">
           <h4 class="product-title">Maggot Siap Pakai</h4>
           <p class="product-price">Rp. 70.000/150gr</p>
-          <a class="product-btn" href="{{ route('cart') }}">Buy Now</a>
+          <a class="product-btn" href="{{ route('product.index') }}">Buy Now</a>
         </div>
       </div>
       <div class="product">
@@ -81,7 +81,7 @@
         <div class="product-info">
           <h4 class="product-title">Paket Bundling</h4>
           <p class="product-price">Rp. 170.000</p>
-          <a class="product-btn" href="{{ route('cart') }}">Buy Now</a>
+         <a class="product-btn" href="{{ route('product.index') }}">Buy Now</a>
         </div>
       </div>
       <div class="product">
@@ -89,7 +89,7 @@
         <div class="product-info">
           <h4 class="product-title">Pupuk</h4>
           <p class="product-price">Rp. 25.000/500gr</p>
-          <a class="product-btn" href="{{ route('cart') }}">Buy Now</a>
+          <a class="product-btn" href="{{ route('product.index') }}">Buy Now</a>
         </div>
       </div>
       <div class="product">
@@ -97,14 +97,12 @@
         <div class="product-info">
           <h4 class="product-title">Bibit Maggot</h4>
           <p class="product-price">Rp. 50.000/200gr</p>
-          <a class="product-btn" href="{{ route('cart') }}">Buy Now</a>
+          <a class="product-btn" href="{{ route('product.index') }}">Buy Now</a>
         </div>
       </div>
     </div>
   </section>
 
-  {{-- FEEDBACK SECTION + GALERI biarin sama kaya sebelumnya --}}
-   {{-- FEEDBACK / TESTIMONIALS (kembali dimasukkan) --}}
   <section id="testimonials">
     <div class="testimonial-heading">
       <h1>Our Testimonials</h1>

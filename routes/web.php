@@ -24,7 +24,6 @@ use App\Http\Controllers\ManageSettingController;
 
 
 // --- ROUTE UMUM ---
-Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 # Home
 Route::get('/home', [HomeController::class, 'index'])->name('home');
