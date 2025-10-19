@@ -10,7 +10,7 @@ class ManageReviewController extends Controller
     // Struktur data review
     private $initialReviews = [
         ['id' => 1, 'product_name' => 'Pupuk Kompos A', 'reviewer_name' => 'Wirda', 'rating' => 5, 'komentar' => 'Kulitas pupuk bagus', 'status' => 'approved', 'tanggal' => '13/06/2025', 'product_image' => 'maggot-fresh.jpg'],
-        ['id' => 2, 'product_name' => 'Pelet Maggot', 'reviewer_name' => 'Ahmad', 'rating' => 5, 'komentar' => 'Produknya bagus', 'status' => 'approved', 'tanggal' => '13/06/2025', 'product_image' => 'pupuk-kompos.jpg'],
+        ['id' => 2, 'product_name' => 'Pelet Maggot', 'reviewer_name' => 'Ahmad', 'rating' => 5, 'komentar' => 'Produknya bagus', 'status' => 'approved', 'tanggal' => '13/06/2025', 'product_image' => 'Kompos.jpg'],
         ['id' => 3, 'product_name' => 'Maggot Segar', 'reviewer_name' => 'Amelia', 'rating' => 4, 'komentar' => 'mantap', 'status' => 'approved', 'tanggal' => '13/06/2025', 'product_image' => 'pelet-maggot.jpg'],
         ['id' => 4, 'product_name' => 'Pupuk Kompos B', 'reviewer_name' => 'Roro', 'rating' => 5, 'komentar' => 'bagus', 'status' => 'approved', 'tanggal' => '13/06/2025', 'product_image' => 'maggot-fresh.jpg'],
         ['id' => 5, 'product_name' => 'Maggot Segar', 'reviewer_name' => 'Annisa', 'rating' => 2, 'komentar' => 'Maggotnya pas nyampe mati', 'status' => 'rejected', 'tanggal' => '13/06/2025', 'product_image' => 'pupuk-kompos.jpg'],
@@ -123,15 +123,15 @@ class ManageReviewController extends Controller
      */
     public function destroy($id)
     {
-        $id = (int) $id; // Pastikan ID adalah integer
+        $id = (int) $id; 
         $reviews = $this->getReviews();
         $initialCount = count($reviews);
 
-        // Filter array, hanya simpan item yang ID-nya tidak sama dengan yang ingin dihapus
+        
         $reviews = array_filter($reviews, fn($review) => $review['id'] !== $id);
 
         if (count($reviews) < $initialCount) {
-            // Gunakan array_values() untuk mereset kunci array
+           
             $this->saveReviews(array_values($reviews)); 
             return redirect()->route('managereview')->with('status_message', "Review ID **$id** berhasil dihapus!");
         }

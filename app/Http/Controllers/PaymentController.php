@@ -7,10 +7,7 @@ use Illuminate\Support\Facades\Session; // Import Facade Session
 
 class PaymentController extends Controller
 {
-    /**
-     * Data Dummy Pesanan
-     * 
-     */
+    
     protected $dummyOrder = [
         'id_pelanggan' => 123,
         'nama_pelanggan' => 'Budi Santoso',

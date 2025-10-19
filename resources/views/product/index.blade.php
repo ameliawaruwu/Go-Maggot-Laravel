@@ -11,8 +11,6 @@
 <div class="container">
     <header></header>
     <div class="listProduct"> 
-        
-        <!-- {{-- Mulai Perulangan --}} -->
         @foreach ($products as $product)
             @php
                 $productData = json_encode([

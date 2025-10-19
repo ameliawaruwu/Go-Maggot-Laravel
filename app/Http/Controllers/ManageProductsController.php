@@ -115,13 +115,11 @@ class ManageProductsController extends Controller
         $dataProduk = $this->getProducts();
         $fixedCategories = $this->fixedCategories; 
         $categories = collect($dataProduk)->pluck('kategori')->unique()->map(fn($item) => ['kategori' => $item])->all();
-        // $availableImages = $this->getAvailableImages(); // Tidak perlu di index view
-
-        // Hapus availableImages dari compact di index view
+        
         return view('manage-products.index', compact('dataProduk', 'categories', 'fixedCategories')); 
     }
 
-    // FIX: Mengirim availableImages ke view create
+   
     public function create()
     {
         return view('manage-products.create-product-admin', [

@@ -58,27 +58,21 @@ class ManageUserController extends Controller
         return array_unique($imageFiles);
     }
 
-    /**
-     * CRUD: READ (Index)
-     */
+    
     public function index()
     {
         $users = $this->getUsers();
         return view('manage-user.index', compact('users'));
     }
 
-    /**
-     * CRUD: CREATE (Form)
-     */
+   
     public function create()
     {
         $availableImages = $this->getAvailableImages();
         return view('manage-user.create', compact('availableImages'));
     }
 
-    /**
-     * CRUD: STORE
-     */
+   
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -107,9 +101,7 @@ class ManageUserController extends Controller
         return redirect()->route('user.index')->with('status_message', 'User **' . $validated['username'] . '** berhasil ditambahkan!');
     }
 
-    /**
-     * CRUD: EDIT (Form)
-     */
+   
     public function edit($id)
     {
         $id = (int) $id;
@@ -125,9 +117,7 @@ class ManageUserController extends Controller
         return view('manage-user.edit', compact('user', 'availableImages'));
     }
 
-    /**
-     * CRUD: UPDATE
-     */
+    
     public function update(Request $request, $id)
     {
         $id = (int) $id;
@@ -169,9 +159,7 @@ class ManageUserController extends Controller
         return redirect()->route('user.index')->with('status_message', 'User **' . $validated['username'] . '** berhasil diperbarui!');
     }
 
-    /**
-     * CRUD: DELETE (Destroy)
-     */
+    
     public function destroy($id)
     {
         $id = (int) $id;
