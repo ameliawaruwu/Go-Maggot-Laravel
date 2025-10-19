@@ -15,9 +15,24 @@
                         <p class="lead">{{ session('success') }}</p>
                     @endif
 
+                    @php
+                        // Cegah error undefined variable jika $lastOrder tidak dikirim dari controller
+                        $lastOrder = $lastOrder ?? [
+                            'order_id_simulasi' => 'ORD-MAGGOT-01',
+                            'total_harga' => 310000,
+                            'penerima' => [
+                                'metode_pembayaran' => 'Transfer Bank (Simulasi)',
+                                'nama_penerima' => 'Nama Simulasi',
+                                'nomor_telepon' => '081234567890',
+                                'alamat_lengkap' => 'Jl. Contoh No. 1',
+                                'kota' => 'Bandung'
+                            ]
+                        ];
+                    @endphp
+
                     @if($lastOrder)
                         <hr>
-                        <h4 class="mb-3">Detail Pesanan Anda (Simulasi)</h4>
+                        <h4 class="mb-3">Detail Pesanan Anda</h4>
                         
                         <ul class="list-group list-group-flush mb-4 text-start">
                             <li class="list-group-item"><strong>ID Pesanan:</strong> {{ $lastOrder['order_id_simulasi'] }}</li>

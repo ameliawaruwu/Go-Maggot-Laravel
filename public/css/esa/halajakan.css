@@ -34,18 +34,15 @@ header {
     background-color: transparent;
 }
 
-.container .logo a {
+.logo a {
     font-size: 30px;
     font-weight: 500;
     color: #ffffff;
     font-family: "Kaushan Script", serif;
-    text-decoration: none;
 }
-
-.container .logo span {
+.logo a span {
     color: rgb(121, 185, 0);
     font-family: "Kaushan Script", serif;
-    text-decoration: none;
 }
 
 .navbar {
