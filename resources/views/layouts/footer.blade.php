@@ -27,15 +27,15 @@
       <h2>Company</h2>
       <a href="{{ route('home') }}"><i class="ri-arrow-right-s-line"></i>Home</a>
       <a href="{{ route('about') }}"><i class="ri-arrow-right-s-line"></i>About</a>
-      <a href="{{ route('products') }}"><i class="ri-arrow-right-s-line"></i>Products</a>
-      <a href="{{ route('home') }}"><i class="ri-arrow-right-s-line"></i>Blog</a>
+      <a href="{{ route('product.index') }}"><i class="ri-arrow-right-s-line"></i>Products</a>
+      <a href="{{ route('study.index') }}"><i class="ri-arrow-right-s-line"></i>Blog</a>
       <a href="{{ route('login') }}"><i class="ri-arrow-right-s-line"></i>Logout</a>
     </div>
 
     <div class="footer_col">
       <h2>Quick Links</h2>
       <a href="{{ route('contact') }}"><i class="ri-arrow-right-s-line"></i>Contact Us</a>
-      <a href="{{ route('home') }}"><i class="ri-arrow-right-s-line"></i>FAQ's</a>
+      <a href="{{ route('qna') }}"><i class="ri-arrow-right-s-line"></i>FAQ's</a>
       <a href="{{ route('help') }}"><i class="ri-arrow-right-s-line"></i>Help Center</a>
       <a href="{{ route('feedback') }}"><i class="ri-arrow-right-s-line"></i>Feedback</a>
       <a href="{{ route('portfolio') }}"><i class="ri-arrow-right-s-line"></i>Portofolios</a>

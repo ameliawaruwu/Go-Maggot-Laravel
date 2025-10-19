@@ -1,5 +1,6 @@
-@extends('layouts.faq-user')
+@extends('layouts.app')
 @section('content')
+
 
 <h1>Frequently Asked Question</h1>
 
