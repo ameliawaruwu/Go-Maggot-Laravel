@@ -49,7 +49,7 @@ class ArticleController extends Controller
                             <br>
 
                             <div id='image2' style='text-align:center;'>
-                                <img src='" . asset('images/esa/Maggot1.jpg') . "' alt='Gambar Maggot BSF' width='300' height='250'>
+                                <img src='" . asset('images/Maggot1.jpg') . "' alt='Gambar Maggot BSF' width='300' height='250'>
                             </div>
                             <br>
 
@@ -132,7 +132,7 @@ class ArticleController extends Controller
                             <br>
 
                             <div id='image2' style='text-align:center;'>
-                                <img src='" . asset('images/esa/pakan ayam.jpg') . "' alt='Pakan Ayam' width='300' height='250'>
+                                <img src='" . asset('images/pakan ayam.jpg') . "' alt='Pakan Ayam' width='300' height='250'>
                             </div>
                             <br>
 
@@ -190,9 +190,9 @@ class ArticleController extends Controller
                             <br>
 
                             <div id='image2' style='text-align:center;'>
-                                <img src='" . asset('images/esa/hama.jpg') . "' alt='Hama' width='250' height='200'>
-                                <img src='" . asset('images/esa/limbah.jpg') . "' alt='Limbah' width='250' height='200'>
-                                <img src='" . asset('images/esa/ayam.jpg') . "' alt='Ayam' width='250' height='200'>
+                                <img src='" . asset('images/hama.jpg') . "' alt='Hama' width='250' height='200'>
+                                <img src='" . asset('images/limbah.jpg') . "' alt='Limbah' width='250' height='200'>
+                                <img src='" . asset('images/ayam.jpg') . "' alt='Ayam' width='250' height='200'>
                             </div>
                             <br>
 

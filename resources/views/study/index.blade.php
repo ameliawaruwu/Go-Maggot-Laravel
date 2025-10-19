@@ -5,7 +5,7 @@
 @section('content')
 
 <div id="image">
-    <img src="{{ asset('images/esa/Logo Artikel Fix.png') }}" alt="Logo Artikel" width="500" height="400">
+    <img src="{{ asset('images/Logo Artikel Fix.png') }}" alt="Logo Artikel" width="500" height="400">
 </div>
 
 <div class="Sub-topik">
@@ -32,14 +32,14 @@
     </ul>
 </div>
 
-<h2 class="text-center mt-5">Artikel Kami</h2>
+<h4 class="text-center mt-5">Artikel Kami</h4>
 
 <div class="container my-4">
     <div class="row justify-content-center">
         @foreach ($articles as $article)
             <div class="col-md-3 mx-2 mb-4">
                 <div class="card shadow-sm" style="border-radius: 15px; overflow:hidden;">
-                    <img src="{{ asset('images/esa/' . $article['image']) }}" 
+                    <img src="{{ asset('images/' . $article['image']) }}" 
                          class="card-img-top" 
                          alt="{{ $article['title'] }}" 
                          style="height:200px; object-fit:cover;">
