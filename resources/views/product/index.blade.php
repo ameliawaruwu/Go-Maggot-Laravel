@@ -10,19 +10,15 @@
 
 <div class="container">
     <header></header>
-    {{-- Ubah div listProduct agar bisa menggunakan CSS Grid/Flexbox atau Bootstrap Grid --}}
     <div class="listProduct"> 
         
-        {{-- Mulai Perulangan --}}
+        <!-- {{-- Mulai Perulangan --}} -->
         @foreach ($products as $product)
             @php
-                // Siapkan data produk dalam format JSON untuk JavaScript (Keranjang)
-                // Menggunakan array access [] karena data dari Controller adalah array
                 $productData = json_encode([
                     'idproduk' => $product['idproduk'],
                     'namaproduk' => $product['namaproduk'],
                     'harga' => (float)$product['harga'],
-                    // Pastikan path gambar benar di folder public/
                     'gambar' => asset('Admin-HTML/images/' . $product['gambar']), 
                     'stok' => (int)$product['stok']
                 ]);
@@ -34,29 +30,27 @@
                 <div class="harga">Rp.{{ number_format($product['harga'], 0, ',', '.') }}</div>
                 <div class="stok">Stok: {{ $product['stok'] }}</div>
                 
-                {{-- Link Detail Produk menggunakan Route Laravel --}}
-                <a href="{{ route('product.show', $product['idproduk']) }}">
+                <a href="{{ route('product.detail', $product['idproduk']) }}">
                     <button class="Masukan Keranjang">
                         Detail Produk
                     </button>
                 </a>
                 
-                {{-- Tombol Masukan Keranjang (gunakan data hardcoded untuk JS) --}}
-                <button 
-                    class="Masukan Keranjang add-to-cart-btn" 
-                    data-product-data='{{ htmlspecialchars($productData, ENT_QUOTES, 'UTF-8') }}'
-                    @if ($product['stok'] < 1) disabled @endif
-                >
-                    Masukan Keranjang
-                </button>
+    <button 
+    class="add-to-cart-btn"
+    data-product-data="{{ json_encode([
+        'idproduk' => $product['idproduk'],
+        'namaproduk' => $product['namaproduk'],
+        'harga' => (float) $product['harga'],
+        'gambar' => asset('images/esa/' . $product['gambar'])
+    ]) }}">
+    Masukkan Keranjang
+    </button>
             </div>
         @endforeach
-        {{-- Akhir Perulangan --}}
-
     </div>
 </div>
 
-{{-- Cart Tab (Dipindahkan ke sini agar mudah dilihat, atau bisa juga dijadikan Component) --}}
 <div class="cartTab">
     <h1>Keranjang Saya</h1>
     <div class="ListCart">
@@ -67,7 +61,16 @@
 
     <div class="btn">
         <button class="close">Tutup</button>
-        <button class="checkOut">Check Out</button>
+      <button id="checkoutBtn" data-url="{{ route('checkout.index') }}">Checkout</button>
+
+<script>
+document.getElementById('checkoutBtn').addEventListener('click', function() {
+  window.location.href = this.dataset.url;
+});
+</script>
+
+
+
     </div>
     <div class="total-price-cart">
         <span>Total Harga:</span>

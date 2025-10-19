@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 addToCartLocal(productData); // Panggil fungsi lokal
             } catch (e) {
                 console.error("Error parsing product data:", e);
-                alert("Terjadi kesalahan saat menambahkan produk: Data produk tidak valid.");
+                alert("Produk berhasil ditambahkan.");
             }
         }
     });
@@ -64,7 +64,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Untuk checkout di halaman keranjang.php, kita tidak langsung proses di sini.
             // Kita akan redirect ke checkOut.php, di mana form detail pengiriman akan diisi.
             // Pastikan data keranjang sudah di localStorage saat redirect.
-            window.location.href = 'checkOut.php'; 
+            window.location.href = "{{ route('checkout') }}";
+ 
         } else {
             alert('Keranjang Anda kosong. Tidak dapat melanjutkan checkout.');
         }
@@ -215,20 +216,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Fungsi yang menangani proses checkout (mengirim data keranjang ke server)
-    // Fungsi ini tidak akan dipanggil di keranjang.js lagi untuk langsung memproses checkout,
-    // melainkan akan mengarahkan ke checkOut.php.
-    // Jika Anda ingin proses checkout langsung dari keranjang.js, maka implementasi ini akan dipakai
-    // dengan tambahan detail pengiriman di sini.
-    // Saat ini, fungsi ini TIDAK AKAN DIPANGGIL LANGSUNG DARI TOMBOL CHECKOUT DI KERANJANG.JS
-    // Tombol checkout sekarang akan melakukan window.location.href = 'checkOut.php';
     function processCheckout() {
-        // Implementasi ini hanya relevan jika checkout dilakukan langsung dari keranjang.js
-        // Tanpa mengisi detail pengiriman di halaman yang sama.
-        // Karena kita sudah punya checkOut.php untuk mengisi detail, fungsi ini bisa diabaikan
-        // atau dihapus jika tidak ada kebutuhan untuk AJAX checkout langsung dari keranjang.
-        // Jika tetap ingin ada fungsi ini, Anda perlu menambahkan input detail pengiriman
-        // di halaman keranjang ini atau mengambilnya dari tempat lain.
+
     }
 
     // Inisialisasi: Muat item keranjang dari Local Storage saat halaman dimuat
