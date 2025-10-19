@@ -5,7 +5,7 @@
             $subtotal = $item['jumlah'] * $item['harga'];
         @endphp
         <div class="checkout-item">
-            <img src="{{ asset('images/esa/' . $item['gambar']) }}" alt="{{ $item['namaproduk'] }}">
+            <img src="{{ asset('images/' . $item['gambar']) }}" alt="{{ $item['namaproduk'] }}">
             <div class="item-details">
                 <div class="item-name">{{ $item['namaproduk'] }}</div>
                 <div class="item-quantity">x {{ $item['jumlah'] }}</div>

@@ -15,11 +15,11 @@ margin-top: 30px;
 padding: 20px 0;
 position: relative;
 / Memberi ruang di sekitar tracker */
+status-tracker{
 max-width: 90%;
 margin-left: auto;
 margin-right: auto;
 }
-
 .status-tracker::before {
 content: '';
 position: absolute;
@@ -94,9 +94,9 @@ width: 4px;
 height: 80%;
 top: 10%;
 left: 20px;
-right: auto; / Menonaktifkan right */
-transform: none;
-}
+right: auto; / Menonaktifkan right 
+transform: none;  */
+
 .step {
 flex-direction: row;
 text-align: left;
@@ -107,6 +107,6 @@ width: 100%;
 margin-right: 15px;
 margin-bottom: 0;
 }
-}
+
 
 </style>

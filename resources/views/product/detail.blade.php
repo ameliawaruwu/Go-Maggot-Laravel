@@ -18,13 +18,13 @@
         <div class="container flex">
             <div class="left">
                 <div class="main_image">
-                    <img src="{{ asset('images/esa/' . $productImage) }}" class="slide" width="360" height="300" alt="{{ $productName }}">
+                    <img src="{{ asset('images/' . $productImage) }}" class="slide" width="360" height="300" alt="{{ $productName }}">
                 </div>
                 <div class="option flex">
-                    <img src="{{ asset('images/esa/kompos remove bg.png') }}" onclick="img('image/p1.jpg')" alt="Thumbnail 1">
-                    <img src="{{ asset('images/esa/Bibit-remove bg.png') }}" onclick="img('image/p2.jpg')" alt="Thumbnail 2">
-                    <img src="{{ asset('images/esa/Bundling Maggot.png') }}" onclick="img('image/p3.jpg')" alt="Thumbnail 3">
-                    <img src="{{ asset('images/esa/maggot removebg.png') }}" onclick="img('image/p4.jpg')" alt="Thumbnail 4">
+                    <img src="{{ asset('images/kompos remove bg.png') }}" onclick="img('image/p1.jpg')" alt="Thumbnail 1">
+                    <img src="{{ asset('images/Bibit-remove bg.png') }}" onclick="img('image/p2.jpg')" alt="Thumbnail 2">
+                    <img src="{{ asset('images/Bundling Maggot.png') }}" onclick="img('image/p3.jpg')" alt="Thumbnail 3">
+                    <img src="{{ asset('images/maggot removebg.png') }}" onclick="img('image/p4.jpg')" alt="Thumbnail 4">
                 </div>
             </div>
             <div class="right">
@@ -62,7 +62,7 @@
     <div class="bagianprofil">
         <div class="profile">
             <div class="profile-image">
-                <img src="{{ asset('images/esa/SS LOGO.png') }}" alt="GoMaggot Logo" width="100" height="70">
+                <img src="{{ asset('images/SS LOGO.png') }}" alt="GoMaggot Logo" width="100" height="70">
             </div>
             <div class="profile-info">
                 <h2>GoMaggot</h2>
@@ -101,35 +101,35 @@
     </div><br><br>
     <div class="review">
         <div class="user">
-             <img src="{{ asset('images/esa/billie.jpg') }}" alt="Avatar" class="avatar">
+             <img src="{{ asset('images/billie.jpg') }}" alt="Avatar" class="avatar">
             <div class="name">Billie Eilish</div>
         </div>
         <div class="text">Kandang nya ringan, saya kira akan berat woww!</div>
     </div>
     <div class="review">
         <div class="user">
-            <img src="{{ asset('images/esa/jungkook.jpg') }}" alt="Avatar" class="avatar">
+            <img src="{{ asset('images/jungkook.jpg') }}" alt="Avatar" class="avatar">
             <div class="name">Jeon Jungkook</div>
         </div>
         <div class="text">Ternak ayam saya sangat lahap makanya berkat maggot ini.</div>
     </div>
     <div class="review">
         <div class="user">
-            <img src="{{ asset('images/esa/cha eun woo.jpg') }}"alt="Avatar" class="avatar">
+            <img src="{{ asset('images/cha eun woo.jpg') }}"alt="Avatar" class="avatar">
             <div class="name">Cha Eun Woo</div>
         </div>
         <div class="text">Toko ini memang tidak pernah mengecewakan.</div>
     </div>
         <div class="review">
         <div class="user">
-            <img src="{{ asset('images/esa/taylor.jpg') }}"alt="Avatar" class="avatar">
+            <img src="{{ asset('images/taylor.jpg') }}"alt="Avatar" class="avatar">
             <div class="name">Taylor Swift</div>
         </div>
         <div class="text">Tanaman ku tumbuh subur berkat pupuk maggot ini, terimakasih GoMaggot!</div>
     </div>
     <div class="review">
           <div class="user">
-            <img src="{{ asset('images/esa/olivia.jpg') }}"alt="Avatar" class="avatar">
+            <img src="{{ asset('images/olivia.jpg') }}"alt="Avatar" class="avatar">
             <div class="name">Olivia Rodigro</div>
           </div>
           <div class="text">Wah, harganya terjangkau sekali saya suka! Next beli lagi ah..</div>

@@ -61,7 +61,7 @@
                     @csrf {{-- Token CSRF wajib --}}
 
                     <center><h2>Scan QR Code</h2></center>
-                    <center><img src="{{ asset('images/esa/Contoh QR.jpeg') }}" alt="QR Code" width="200" height="200"></center>
+                    <center><img src="{{ asset('images/Contoh QR.jpeg') }}" alt="QR Code" width="200" height="200"></center>
 
                     <!-- Data Detail Pengirim (Menggunakan variabel yang dikirim Controller  -->
                     <label for="name">Nama Pengirim/Pemilik Rekening</label>
