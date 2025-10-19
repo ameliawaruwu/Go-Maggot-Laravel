@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+*{ margin:0; padding:0; box-sizing:border-box; list-style:none; text-decoration:none; font-family:'Poppins'; scroll-behavior:smooth; }
+
+.section{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:80px 12%;
+}
+
+button{
+  width:150px; padding:10px; border:none; border-radius:30px;
+  background:#79b900; color:#fff; font-size:16px; cursor:pointer; transition:.6s;
+}
+button:hover{ box-shadow:inset 5px 5px 10px #79b900; background:#008000; }
+
+/* ===== ABOUT ===== */
+.about{
+  justify-content:center; gap:90px; min-height:100vh;
+  background-image:url(../../images/bg\ ijo.png);
+  background-size:cover; background-position:center;
+}
+.about-content span{ color:#79b900; }
+.about-content h1{ margin-top:20px; font-size:45px; line-height:70px; margin-bottom:1rem; }
+.about-content button{ margin-top:20px; }
+.about-text{ color:#fff; }
+.about-card{ display:flex; gap:50px; margin-top:40px; margin-bottom:25px; }
+
+/* ===== STORY ===== */
+.story{
+  justify-content:center; gap:100px;
+  background-image:url(../../images/bg\ img.png);
+  background-size:cover; background-position:center;
+}
+.story-content span{ color:#79b900; }
+.story-content h1{ margin-top:60px; font-size:45px; line-height:60px; margin-bottom:3rem; }
+.story-image{ text-align:right; }
+.story-teks{ flex:2; }
+.story-content button{ margin-top:50px; }
+.story-card{ display:flex; gap:30px; margin-top:30px; margin-bottom:30px; }
+
+/* ⛔️ Tidak ada CSS .footer di file ini — biarkan footer.css yang atur footer global */
