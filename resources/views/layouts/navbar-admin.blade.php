@@ -39,12 +39,12 @@
           
             <div class="dropdown">
                 <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{ asset('Admin-HTML/images/FOTO Amelia Waruwu.jpg') }}" alt="Admin Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                    <img src="{{ asset('images/FOTO Amelia Waruwu.jpg') }}" alt="Admin Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
                     <li><a class="dropdown-item" href="#">Edit Profile</a></li>
-                    <li><a class="dropdown-item" href="{{ url('/') }}">Home</a></li>
-                    <li><a class="dropdown-item" href="{{ url('settings') }}">Settings</a></li>
+                    <li><a class="dropdown-item" href="{{ url('/home') }}">Home</a></li>
+                    <li><a class="dropdown-item" href="{{ url('/managesetting') }}">Settings</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="{{ url('logout') }}">Logout</a></li>
                 </ul>

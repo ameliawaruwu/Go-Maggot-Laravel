@@ -1,0 +1,6 @@
+/* admin.css: Toast notification */
+.toast-notification {
+    /* ... styling posisi lainnya ... */
+    
+    display: none !important; /* <--- PASTIKAN INI ADA */
+}

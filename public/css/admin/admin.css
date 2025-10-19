@@ -481,59 +481,6 @@ input:checked + .switch-mode {
 	}
 }
 
-
-/* TABLE STYLES
-.table-data {
-	background: var(--light);
-	padding: 24px;
-	border-radius: 20px;
-	box-shadow: var(--shadow-md);
-	margin: 24px 0;
-}
-
-.table-data .head {
-	display: flex;
-	align-items: center;
-	gap: 16px;
-	margin-bottom: 24px;
-}
-
-.table-data .head h3 {
-	margin-right: auto;
-	font-size: 24px;
-	font-weight: 600;
-}
-
-.table-data .head .bx {
-	cursor: pointer;
-	font-size: 20px;
-	color: var(--dark-grey);
-}
-
-.table-data table {
-	width: 100%;
-	border-collapse: collapse;
-}
-
-.table-data table th {
-	padding: 12px 16px;
-	text-align: left;
-	border-bottom: 2px solid var(--grey);
-	color: var(--dark);
-	font-weight: 600;
-	font-size: 16px;
-}
-
-.table-data table td {
-	padding: 16px;
-	border-bottom: 1px solid var(--grey);
-	vertical-align: middle;
-}
-
-.table-data table tr:hover {
-	background: var(--grey);
-}
-
 /* Table user column */
 .table-data table tr td:first-child {
 	display: flex;
@@ -580,48 +527,44 @@ input:checked + .switch-mode {
 .btn-delete:hover {
 	background: var(--grey);
 	transform: translateY(-2px);
-} */
-
-/* DASHBOARD CARDS */
-/* Dalam file CSS Anda, misalnya admin.css */
-
-
+} 
 
 @media screen and (max-width: 576px) {
-	#sidebar {
-		width: 0;
-		padding: 0;
-	}
+    #sidebar {
+        width: 0;
+        padding: 0;
+    }
 
-	#content {
-		width: 100%;
-		left: 0;
-		padding: 16px;
-	}
+    #content {
+        width: 100%;
+        left: 0;
+        padding: 16px;
+    }
 
-	#sidebar.show {
-		width: 200px;
-	}
+    #sidebar.show {
+        width: 200px;
+    }
 
-	.box-info {
-		grid-template-columns: 1fr;
-	}
+    .box-info {
+        grid-template-columns: 1fr;
+    }
 
-	.form-input input {
-		display: none;
-	}
+    .form-input input {
+        display: none;
+    }
 
-	.form-input.show input {
-		display: block;
-	}
+    .form-input.show input {
+        display: block;
+    }
 
-	.table-data .head {
-		min-width: 420px;
-	}
+    .table-data .head {
+        min-width: 420px;
+    }
 
-	.table-data table {
-		min-width: 420px;
-	}
+    .table-data table {
+        table-layout: fixed; /* Mencegah kolom melebar berdasarkan konten */
+        width: 100%; /* Memastikan tabel mengisi wadahnya */
+    }
 }
 
 /* SETTINGS PAGE STYLES */

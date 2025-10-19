@@ -1,48 +1,60 @@
-
 <section id="sidebar">
     <div class="logo">
-        <a href="{{ url('dashboard') }}">Go<span>Maggot</span></a>
+        {{-- Menghilangkan garis bawah pada logo --}}
+        <a href="{{ url('dashboard') }}" class="text-decoration-none">Go<span>Maggot</span></a>
     </div>
     <ul class="side-menu top">
-       
+        
         <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
-            <a href="{{ url('dashboard') }}">
+            {{-- Menghilangkan garis bawah pada menu --}}
+            <a href="{{ url('dashboard') }}" class="text-decoration-none">
                 <i class='bx bxs-dashboard'></i>
                 <span class="text">Dashboard</span>
             </a>
         </li>
-        <li class="{{ Request::is('galery') ? 'active' : '' }}">
-            <a href="{{ url('galery') }}">
+        <li>
+            <a href="{{ url('analytics') }}" class="text-decoration-none">
+                <i class='bx bx-bar-chart-alt-2'></i> 
+                <span class="text">Analytics</span>
+            </a>
+        </li>
+        <li class="{{ Request::routeIs('gallery.index') ? 'active' : '' }}">
+            <a href="{{ route('gallery.index') }}" class="text-decoration-none"> 
                 <i class='bx bx-images'></i>
-                <span class="text">Galery</span>
+                <span class="text">Galleries</span>
             </a>
         </li>
         
         <li>
-            <a href="{{ url('publication') }}">
+            <a href="{{ route('publication.index') }}" class="text-decoration-none">
                 <i class='bx bx-library' ></i>
-                <span class="text">Publication</span>
+                <span class="text">Publications</span>
             </a>
         </li>
         <li>
-            <a href="{{ url('product') }}">
+            <a href="{{ url('manageprod') }}" class="text-decoration-none">
                 <i class='bx bxs-shopping-bag-alt'></i>
-                <span class="text">Product</span>
+                <span class="text">Products</span>
             </a>
         </li>
         <li>
-            <a href="{{ url('user') }}">
+            <a href="{{ url('manageuser') }}" class="text-decoration-none">
                 <i class='bx bxs-user'></i>
-                <span class="text">User</span>
+                <span class="text">Users</span>
             </a>
         </li>
         <li>
-            <a href="{{ url('chat') }}">
+            <a href="{{ url('managereview') }}" class="text-decoration-none">
+                <i class='bx  bx-edit'  ></i> 
+                <span class="text">Reviews</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url('managefaq') }}" class="text-decoration-none">
                 <i class='bx bxs-message-dots'></i>
-                <span class="text">Chat</span>
+                <span class="text">FAQS</span>
             </a>
         </li>
     </ul>
 
 </section>
-
