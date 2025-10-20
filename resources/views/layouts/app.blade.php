@@ -1,4 +1,3 @@
-{{-- resources/views/layouts/app.blade.php --}}
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,7 +10,6 @@
   <link rel="stylesheet" href="{{ asset('css/orry/home.css') }}">
   <link rel="stylesheet" href="{{ asset('css/orry/footer.css') }}">
 
- 
   @stack('styles')
 </head>
 <body>
