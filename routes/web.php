@@ -20,19 +20,13 @@ use App\Http\Controllers\ManageReviewController;
 use App\Http\Controllers\ManageFaqController;
 use App\Http\Controllers\ManageSettingController;
 
-
-
-
-// --- ROUTE UMUM ---
-Route::get('/home', [HomeController::class, 'index'])->name('home');
-
 # Home
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/', fn() => redirect()->route('home'));
 
 # Halaman lain (sementara pakai view placeholder biar link navbar/footer jalan)
 Route::view('/about', 'about')->name('about');
-Route::view('/products', 'products')->name('products');
+Route::view('/products', 'products')->name('products'); 
 Route::view('/contact', 'contact')->name('contact');
 Route::view('/help', 'help')->name('help');
 Route::view('/login', 'auth.login')->name('login');
@@ -93,8 +87,6 @@ Route::prefix('manageuser')->name('user.')->group(function () {
 });
 
 // Manage Review
-
-// Menggunakan prefix URL 'managereview'
 Route::prefix('managereview')->name('review.')->group(function () {
     Route::get('/', [ManageReviewController::class, 'index'])->name('index');
     Route::put('/{id}/status', [ManageReviewController::class, 'updateStatus'])->name('updateStatus');
@@ -113,11 +105,6 @@ Route::resource('managefaq', ManageFaqController::class)->names([
 Route::get('/managesetting', [ManageSettingController::class, 'index'])->name('settings.index');
 Route::post('/managesetting', [ManageSettingController::class, 'update'])->name('settings.update');
 
-
-
-
-// Halaman utama (daftar produk)
-Route::get('/prd', [ProductController::class, 'index'])->name('product.index');
 
 // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
@@ -153,5 +140,5 @@ Route::get('/artikel/{slug}', [ArticleController::class, 'show'])->name('article
 
 // --- FALLBACK ---
 Route::fallback(function () {
-    return redirect()->route('product.index');
+    return redirect()->route('home.index');
 });
