@@ -56,7 +56,31 @@ Route::get('/manageProduk', [ManageProductsController::class, 'index']);
 
 // Manage Publication
 
+// TAMPIL
+Route::get('/publication', [ManagePublicationController::class, 'tampil'])
+    ->name('publication.index');
 
+// FORM INPUT
+Route::get('/publication/input', [ManagePublicationController::class, 'input'])
+    ->name('publication.create');
+
+// SIMPAN
+Route::post('/publication/simpan', [ManagePublicationController::class, 'simpan'])
+    ->name('publication.store');
+
+// EDIT
+Route::get('/publication/edit/{id}', [ManagePublicationController::class, 'edit'])
+    ->name('publication.edit');
+
+// UPDATE (HANYA INI)
+Route::put('/publication/update/{id}', [ManagePublicationController::class, 'update'])
+    ->name('publication.update');
+
+// HAPUS
+Route::delete('/publication/hapus/{id}', [ManagePublicationController::class, 'hapus'])
+    ->name('publication.destroy');
+
+    
 // Manage User
 
 
@@ -67,6 +91,16 @@ Route::get('/manageProduk', [ManageProductsController::class, 'index']);
 // Manage Setting
 Route::get('/managesetting', [ManageSettingController::class, 'index'])->name('settings.index');
 Route::post('/managesetting', [ManageSettingController::class, 'update'])->name('settings.update');
+
+// Produk
+Route::get('/daftar-produk', [ProductController::class, 'index'])->name('product.index');
+Route::get('/product-detail/{id_produk}', [ProductController::class, 'show']);
+
+// Checkout
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
 
 
 // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)

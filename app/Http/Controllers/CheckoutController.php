@@ -3,99 +3,94 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\ProductController; 
+use App\Models\Pesanan;
 
 class CheckoutController extends Controller
 {
-    /**
-     * Fungsi untuk mendapatkan item keranjang uji coba
-     *
-     * @return array
-     */
-    private function getTestCartItems()
+    // ===========================
+    // TAMPILKAN HALAMAN CHECKOUT
+    // ===========================
+    function index()
     {
-        // Mengambil data produk lengkap dari ProductController
-        $allProducts = collect(ProductController::getAllProducts());
+        // ambil keranjang dari session
+        $cart = session('cart', []);
 
-        //Mendefinisikan ID dan Jumlah yang akan dibeli
-        $itemsToBuy = [
-            1 => 2, // Maggot Siap Pakai (ID 1) sebanyak 2 unit
-            3 => 1, // Paket Bundling (ID 3) sebanyak 1 unit
-        ];
-        
-        $cartItems = [];
-
-        //Menggabungkan detail produk (termasuk 'gambar') dengan jumlah pembelian
-        foreach ($itemsToBuy as $idproduk => $jumlah) {
-            $product = $allProducts->firstWhere('idproduk', $idproduk);
-
-            if ($product) {
-                $cartItems[] = [
-                    'idproduk' => $product['idproduk'],
-                    'namaproduk' => $product['namaproduk'],
-                    'harga' => $product['harga'],
-                    'gambar' => $product['gambar'], 
-                    'jumlah' => $jumlah
-                ];
-            }
+        // jika kosong
+        if (empty($cart)) {
+            return redirect('/daftar-produk')->with('error', 'Keranjang masih kosong.');
         }
-        
-        return $cartItems;
-    }
 
-    public function index()
-    {
-         session()->forget('cart');
-        $cartItems = session('cart', $this->getTestCartItems());
-
-       
-        if (empty(session('cart')) && !empty($cartItems)) {
-             session(['cart' => $cartItems]);
-        }
-        
-        // Menghitung total harga dan total jumlah
+        // Hitung total
         $totalPrice = 0;
-        $totalQuantity = 0;
+        $totalQty = 0;
 
-        foreach ($cartItems as $item) {
+        foreach ($cart as $item) {
             $totalPrice += $item['harga'] * $item['jumlah'];
-            $totalQuantity += $item['jumlah'];
+            $totalQty += $item['jumlah'];
         }
 
-        // Kirim semua data ke view checkout
         return view('checkout.index', [
-            'cartItems' => $cartItems,
+            'cartItems' => $cart,
             'totalPrice' => $totalPrice,
-            'totalQuantity' => $totalQuantity
+            'totalQuantity' => $totalQty
         ]);
     }
 
-    public function process(Request $request)
+    // ===========================
+    // SIMPAN PESANAN KE DATABASE
+    // ===========================
+    function process(Request $request)
     {
-        // Total Harga dari keranjang 
-        $totalPrice = 310000; 
-
-        // Melakukan pembuatan ID Pesanan yang konsisten
-        $orderId = 'ORD-MAGGOT-01'; 
-
-        // Redirect ke Form Pembayaran (payment.form)
-        return redirect()->route('payment.form', [
-            'order_id' => $orderId,
-            'total' => $totalPrice
+        // Validasi
+        $request->validate([
+            'nama_penerima'     => 'required',
+            'nomor_telepon'     => 'required',
+            'alamat_lengkap'    => 'required',
+            'kota'              => 'required',
+            'metode_pembayaran' => 'required'
         ]);
-    }
 
-    public function success()
-    {
-         // Contoh data pesanan terakhir (bisa diganti dengan data nyata dari database nanti)
-         $lastOrder = [
-        'id' => 'ORD-MAGGOT-01',
-        'total' => 310000,
-        'tanggal' => now()->format('d-m-Y H:i:s'),
-        'status' => 'Menunggu Pembayaran',
-        ];
-
-        // Kirim variabel $lastOrder ke view
-        return view('checkout.success', compact('lastOrder'));
+        $cart = session('cart', []);
+        if (empty($cart)) {
+            return back()->with('error', 'Keranjang kosong.');
         }
+
+        // Hitung total harga
+        $totalHarga = 0;
+        foreach ($cart as $item){
+            $totalHarga += $item['harga'] * $item['jumlah'];
+        }
+
+        // Generate ID pesanan
+        $idPesanan = 'ORD-' . time();
+
+        // Simpan ke database
+        Pesanan::create([
+            'id_pesanan'       => $idPesanan,
+            'id_pengguna'      => auth()->user()->id_pengguna ?? 'GUEST',
+            'nama_penerima'    => $request->nama_penerima,
+            'alamat_pengiriman'=> $request->alamat_lengkap . ', ' . $request->kota,
+            'nomor_telepon'    => $request->nomor_telepon,
+            'metode_pembayaran'=> strtoupper($request->metode_pembayaran),
+            'total_harga'      => $totalHarga,
+        ]);
+
+        // hapus session cart
+        session()->forget('cart');
+
+        return redirect()->route('checkout.success')
+            ->with('success', 'Pesanan berhasil dibuat!')
+            ->with('order_id', $idPesanan);
+    }
+
+    // ===========================
+    // HALAMAN SUCCESS
+    // ===========================
+    function success()
+    {
+        return view('checkout.success', [
+            'order_id' => session('order_id'),
+            'message' => session('success')
+        ]);
+    }
 }

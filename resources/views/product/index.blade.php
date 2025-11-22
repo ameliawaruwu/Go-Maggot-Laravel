@@ -9,71 +9,73 @@
 </div>
 
 <div class="container">
-    <header></header>
-    <div class="listProduct"> 
-        @foreach ($products as $product)
-            @php
-                $productData = json_encode([
-                    'idproduk' => $product['idproduk'],
-                    'namaproduk' => $product['namaproduk'],
-                    'harga' => (float)$product['harga'],
-                    'gambar' => asset('images/' . $product['gambar']), 
-                    'stok' => (int)$product['stok']
-                ]);
-            @endphp
-        
+    <div class="listProduct">
+
+        @foreach ($produk as $p)
             <div class="item">
-                <img src="{{ asset('images/' . $product['gambar']) }}" width="250px" height="150px" alt="{{ $product['namaproduk'] }}">
-                <h2>{{ $product['namaproduk'] }}</h2><br><br>
-                <div class="harga">Rp.{{ number_format($product['harga'], 0, ',', '.') }}</div>
-                <div class="stok">Stok: {{ $product['stok'] }}</div>
-                
-                <a href="{{ route('product.detail', $product['idproduk']) }}">
-                    <button class="Masukan Keranjang">
+
+                {{-- Gambar produk --}}
+                <img src="{{ asset('photo/' . $p->gambar) }}" 
+                     width="250" height="150"
+                     alt="{{ $p->nama_produk }}">
+
+                <h2>{{ $p->nama_produk }}</h2><br>
+
+                <div class="harga">
+                    Rp {{ number_format($p->harga, 0, ',', '.') }}
+                </div>
+
+                <div class="stok">
+                    Stok: {{ $p->stok }}
+                </div>
+
+                {{-- Tombol menuju detail --}}
+                <a href="{{ url('/product-detail/' . $p->id_produk) }}">
+                    <button class="btn-detail">
                         Detail Produk
                     </button>
                 </a>
-                
-    <button 
-    class="add-to-cart-btn"
-    data-product-data="{{ json_encode([
-        'idproduk' => $product['idproduk'],
-        'namaproduk' => $product['namaproduk'],
-        'harga' => (float) $product['harga'],
-        'gambar' => asset('images/' . $product['gambar'])
-    ]) }}">
-    Masukkan Keranjang
-    </button>
+
+                {{-- Tombol tambah ke keranjang --}}
+                <button class="add-to-cart-btn"
+                        data-product-data="{{ json_encode([
+                            'id_produk' => $p->id_produk,
+                            'nama_produk' => $p->nama_produk,
+                            'harga' => (float) $p->harga,
+                            'gambar' => asset('photo/' . $p->gambar)
+                        ]) }}">
+                    Masukkan Keranjang
+                </button>
             </div>
         @endforeach
+
     </div>
 </div>
 
+{{-- Cart Popup --}}
 <div class="cartTab">
     <h1>Keranjang Saya</h1>
     <div class="ListCart">
-        <p id="loadingCartMessage" style="text-align: center; color: gray;">Memuat keranjang...</p>
+        <p id="loadingCartMessage" style="text-align:center;">Memuat keranjang...</p>
     </div>
 
-    <p id="emptyCartMessage" style="display: none; text-align: center;">Keranjang Anda kosong.</p>
+    <p id="emptyCartMessage" style="display:none; text-align:center;">Keranjang Anda kosong.</p>
 
     <div class="btn">
         <button class="close">Tutup</button>
-      <button id="checkoutBtn" data-url="{{ route('checkout.index') }}">Checkout</button>
-
-<script>
-document.getElementById('checkoutBtn').addEventListener('click', function() {
-  window.location.href = this.dataset.url;
-});
-</script>
-
-
-
+        <button id="checkoutBtn" data-url="{{ route('checkout.index') }}">Checkout</button>
     </div>
+
     <div class="total-price-cart">
         <span>Total Harga:</span>
-        <span id="totalPriceDisplay">Rp.0</span>
+        <span id="totalPriceDisplay">Rp 0</span>
     </div>
 </div>
+
+<script>
+document.getElementById('checkoutBtn').onclick = function() {
+    window.location.href = this.dataset.url;
+};
+</script>
 
 @endsection
