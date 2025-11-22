@@ -46,8 +46,14 @@ Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashb
 // Analytics
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
-// Manage Produk Admin
+// Manajemen Produk Admin
 Route::get('/manageProduk', [ManageProductsController::class, 'index']);
+Route::get('/manageProduk-input', [ManageProductsController::class, 'input']);
+Route::post('/manageProduk-simpan', [ManageProductsController::class, 'simpan']);
+Route::get('/manageProduk-edit/{id_produk}', [ManageProductsController::class, 'edit']);
+Route::post('/manageProduk-update/{id_produk}', [ManageProductsController::class, 'update']);
+Route::get('/manageProduk-hapus/{id_produk}', [ManageProductsController::class, 'delete']);
+
 
 
 
@@ -97,11 +103,3 @@ Route::get('/qna', [QnaController::class, 'index'])->name('qna');
 
 // ROUTE GALERI
 Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');
-
-// Gunakan ArticleController untuk artikel detail
-Route::get('/artikel/{slug}', [ArticleController::class, 'show'])->name('article.show'); // SOLUSI WAJIB
-
-// --- FALLBACK ---
-Route::fallback(function () {
-    return redirect()->route('home.index');
-});

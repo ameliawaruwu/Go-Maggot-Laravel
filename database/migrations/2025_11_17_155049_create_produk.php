@@ -19,10 +19,10 @@ return new class extends Migration
             $table->string('merk');
             $table->string('masa_penyimpanan');
             $table->string('pengiriman');
-            $table->enum('berat', ['500gr', '1kg']);
+            $table->string('berat');
             $table->integer('harga')->default(0);
             $table->integer('stok')->default(0);
-            $table->string('gambar'); 
+            $table->string('gambar')->nullable(); 
             $table->timestamps();
         });
     }
