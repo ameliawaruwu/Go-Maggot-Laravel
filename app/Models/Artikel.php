@@ -8,6 +8,7 @@ class Artikel extends Model
 {
     protected $table = 'artikel';
     protected $primaryKey = 'id_artikel';
+    public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = ['id_artikel', 'judul', 'penulis', 'tanggal', 'gambar', 'konten', 'hak_cipta'];
 }
