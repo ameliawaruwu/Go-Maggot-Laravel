@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('video')->nullable();
             $table->string('kualitas');
             $table->string('kegunaan');
-            $table->String('tampilkan_username');
-            $table->int('rating_seller');
+            $table->string('tampilkan_username');
+            $table->integer('rating_seller');
             $table->date('tanggal_review');
             $table->enum('status', ['tolak', 'setujui'])->default('setujui');
             $table->timestamps();

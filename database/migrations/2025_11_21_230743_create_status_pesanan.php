@@ -13,15 +13,7 @@ return new class extends Migration
     {
         Schema::create('status_pesanan', function (Blueprint $table) {
             $table->string('id_status_pesanan');
-            $table->enum('status', [
-                'Menunggu Pembayaran',
-                'Pembayaran Dikonfirmasi',
-                'Sedang Dikemas',
-                'Sedang Dikirim',
-                'Sudah Sampai',
-                'Dibatalkan',
-                'Gagal Pengiriman'
-            ])->default('Menunggu Pembayaran');
+            $table->string('status')->default('Menunggu Pembayaran');
             $table->string('deskripsi');
             $table->int('urutan_tampilan');
             $table->timestamps();

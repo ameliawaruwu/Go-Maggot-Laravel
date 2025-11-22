@@ -13,6 +13,7 @@ class Reviews extends Model
                             'foto', 'video', 'kualitas', 'kegunaan', 'tampilkan_username',
                             'rating_seller', 'tanggal_review', 'status'];
 
+    protected $dates = ['tanggal_review'];
 
     public function pengguna() {
         return $this->belongsTo(Pengguna::class, 'id_pengguna', 'id_pengguna');
