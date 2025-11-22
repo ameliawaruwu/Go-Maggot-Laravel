@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Produk extends Model
 {
+    use HasFactory;
     protected $table = 'produk';
     protected $primaryKey = 'id_produk';
     public $incrementing = false;
@@ -24,6 +27,7 @@ class Produk extends Model
         'stok',
         'gambar'
     ];
+
 
     public function produk() {
         return $this->hasMany(Reviews::class, 'id_produk');
