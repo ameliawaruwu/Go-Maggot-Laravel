@@ -1,4 +1,4 @@
-{{-- resources/views/dashboard/index.blade.php (Final) --}}
+
 @extends('layouts.admin')
 
 @section('title', 'Dashboard Utama')

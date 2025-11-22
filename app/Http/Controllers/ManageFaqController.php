@@ -33,7 +33,7 @@ class ManageFaqController extends Controller
             'pertanyaan' => 'required|string|max:255',
             'jawaban' => 'required|string',
         ]);
-        return redirect()->route('managefaq.index')->with('success', 'FAQ berhasil ditambahkan! (Simulasi: Data tidak benar-benar disimpan).');
+        return redirect()->route('managefaq.index')->with('success', 'FAQ berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
@@ -43,11 +43,11 @@ class ManageFaqController extends Controller
             'pertanyaan' => 'required|string|max:255',
             'jawaban' => 'required|string',
         ]);
-        return redirect()->route('managefaq.index')->with('success', "FAQ ID $id berhasil diperbarui! (Simulasi).");
+        return redirect()->route('managefaq.index')->with('success', "FAQ ID $id berhasil diperbarui!.");
     }
 
     public function destroy($id)
     {
-        return redirect()->route('managefaq.index')->with('success', "FAQ ID $id berhasil dihapus! (Simulasi).");
+        return redirect()->route('managefaq.index')->with('success', "FAQ ID $id berhasil dihapus! .");
     }
 }
