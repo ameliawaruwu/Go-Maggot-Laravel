@@ -89,8 +89,7 @@ class ManagePublicationController extends Controller
             'id_artikel' => $newId,
             'judul' => $validated['judul'],
             'penulis' => $validated['penulis'],
-            'tanggal' => Carbon::now()->toDateString(), 
-            // Konten di-sanitize ringan (opsional)
+            'tanggal' => Carbon::now()->toDateString,
             'konten' => $validated['konten'], 
             'hak_cipta' => $validated['hak_cipta'],
         ];

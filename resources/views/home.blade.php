@@ -205,6 +205,7 @@
   {{-- GALERY --}}
   <div class="portofolio-wrapper"></div>
   <div class="portofolio-btn">
+    <a href="{{ route('gallery.gallery') }}"></a>
     <button id="myButonnnn">Let's See<i class="ri-leaf-line"></i></button>
   </div>
 @endsection

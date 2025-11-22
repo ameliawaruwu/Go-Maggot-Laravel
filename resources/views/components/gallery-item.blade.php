@@ -1,5 +1,4 @@
 {{-- Menerima variabel $item dari foreach loop --}}
-
 <div class="item" style="background-image: url('{{ $item['imageUrl'] }}');">
     <div class="content">
         <div class="name">{{ $item['name'] }}</div>

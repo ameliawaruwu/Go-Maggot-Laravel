@@ -12,4 +12,5 @@ class HomeController extends Controller
             'title' => 'GoMaggot',
         ]);
     }
+
 }

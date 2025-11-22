@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app2')
 
 @section('title', 'Daftar Produk')
 
@@ -11,8 +11,6 @@
 <div class="container">
     <header></header>
     <div class="listProduct"> 
-        
-        <!-- {{-- Mulai Perulangan --}} -->
         @foreach ($products as $product)
             @php
                 $productData = json_encode([

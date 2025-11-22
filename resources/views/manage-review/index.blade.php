@@ -173,6 +173,5 @@
 @endsection
 
 @push('scripts')
-{{-- Memuat script aksi (Approve/Reject) --}}
 <script src="{{ asset('js/admin/manage-reviews.js') }}"></script> 
 @endpush

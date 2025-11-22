@@ -5,7 +5,7 @@
 @section('content')
 
 <div id="image">
-    <img src="{{ asset('images/esa/Logo Artikel Fix.png') }}" alt="Logo Artikel" width="500" height="400">
+    <img src="{{ asset('images/Logo Artikel Fix.png') }}" alt="Logo Artikel" width="500" height="400">
 </div>
 
 <div class="Sub-topik">
@@ -32,14 +32,14 @@
     </ul>
 </div>
 
-<h2 class="text-center mt-5">Artikel Kami</h2>
+<h4 class="text-center mt-5">Artikel Kami</h4>
 
 <div class="container my-4">
     <div class="row justify-content-center">
         @foreach ($articles as $article)
             <div class="col-md-3 mx-2 mb-4">
                 <div class="card shadow-sm" style="border-radius: 15px; overflow:hidden;">
-                    <img src="{{ asset('images/esa/' . $article['image']) }}" 
+                    <img src="{{ asset('images/' . $article['image']) }}" 
                          class="card-img-top" 
                          alt="{{ $article['title'] }}" 
                          style="height:200px; object-fit:cover;">
@@ -61,14 +61,14 @@
     @foreach ($articles as $article)
         <x-article-card 
             :title="$article['title']" 
-            :image="asset('images/esa/' . $article['image'])" 
+            :image="asset('images/' . $article['image'])" 
             :slug="$article['link_slug']" 
         />
     @endforeach
 </div>
 
 @push('scripts')
-<script src="{{ asset('Admin-HTML/js/script.js') }}"></script>
+<script src="{{ asset('js/script.js') }}"></script>
 @endpush
 
 @endsection
