@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('id_status_pesanan');
             $table->string('status')->default('Menunggu Pembayaran');
             $table->string('deskripsi');
-            $table->int('urutan_tampilan');
+            $table->integer('urutan_tampilan');
             $table->timestamps();
         });
     }
