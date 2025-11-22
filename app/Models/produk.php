@@ -25,6 +25,7 @@ class Produk extends Model
         'gambar'
     ];
 
+
     public function produk() {
         return $this->hasMany(Reviews::class, 'id_produk');
     }
