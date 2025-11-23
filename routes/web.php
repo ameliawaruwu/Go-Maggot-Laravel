@@ -54,19 +54,17 @@ Route::get('/manageProduk-edit/{id_produk}', [ManageProductsController::class, '
 Route::post('/manageProduk-update/{id_produk}', [ManageProductsController::class, 'update']);
 Route::get('/manageProduk-hapus/{id_produk}', [ManageProductsController::class, 'delete']);
 
+// Manajemen Pengguna Admin
+Route::get('/manageUser', [ManageUserController::class, 'index']);
+Route::get('manageUser-input', [ManageUserController::class, 'input']);
+Route::post('/manageUser-simpan', [ManageUserController::class, 'simpan']);
+Route::get('/manageUser-edit/{id_pengguna}', [ManageUserController::class, 'edit']);
+Route::post('/manageUser-update/{id_pengguna}', [ManageUserController::class, 'update']);
+Route::get('/manageUser-hapus/{id_pengguna}', [ManageUserController::class, 'delete']);
 
+// Manage Review Admin
+Route::get('manageReview', [ManageReviewController::class, 'index']);
 
-
-// Manage Gallery
-
-
-// Manage Publication
-
-
-// Manage User
-
-
-// Manage Review
 
 // Manage Faq
 

@@ -36,9 +36,9 @@
             </a>
         </li>
         <li>
-            <a href="" class="text-decoration-none">
+            <a href="/manageUser" class="text-decoration-none">
                 <i class='bx bxs-user'></i>
-                <span class="text">Users</span>
+                <span class="text">Manajemen Pengguna</span>
             </a>
         </li>
         <li>
