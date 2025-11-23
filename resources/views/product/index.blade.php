@@ -29,21 +29,19 @@
                     Stok: {{ $p->stok }}
                 </div>
 
-                {{-- Tombol menuju detail --}}
+                {{-- Tombol detail --}}
                 <a href="{{ url('/product-detail/' . $p->id_produk) }}">
                     <button class="btn-detail">
                         Detail Produk
                     </button>
                 </a>
 
-                {{-- Tombol tambah ke keranjang --}}
+                {{-- Tombol add to cart (FORMAT SUDAH FIX UNTUK JS) --}}
                 <button class="add-to-cart-btn"
-                        data-product-data="{{ json_encode([
-                            'id_produk' => $p->id_produk,
-                            'nama_produk' => $p->nama_produk,
-                            'harga' => (float) $p->harga,
-                            'gambar' => asset('photo/' . $p->gambar)
-                        ]) }}">
+                    data-id="{{ $p->id_produk }}"
+                    data-nama="{{ $p->nama_produk }}"
+                    data-harga="{{ $p->harga }}"
+                    data-gambar="{{ asset('photo/' . $p->gambar) }}">
                     Masukkan Keranjang
                 </button>
             </div>
@@ -52,9 +50,10 @@
     </div>
 </div>
 
-{{-- Cart Popup --}}
+{{-- CART SIDEBAR --}}
 <div class="cartTab">
     <h1>Keranjang Saya</h1>
+
     <div class="ListCart">
         <p id="loadingCartMessage" style="text-align:center;">Memuat keranjang...</p>
     </div>
@@ -62,9 +61,13 @@
     <p id="emptyCartMessage" style="display:none; text-align:center;">Keranjang Anda kosong.</p>
 
     <div class="btn">
-        <button class="close">Tutup</button>
-        <button id="checkoutBtn" data-url="{{ route('checkout.index') }}">Checkout</button>
-    </div>
+    <button class="close">Tutup</button>
+
+    {{-- Gunakan data-redirect-url untuk JS --}}
+    <button id="checkoutBtn" data-redirect-url="{{ route('checkout.index') }}">
+        Checkout
+    </button>
+</div>
 
     <div class="total-price-cart">
         <span>Total Harga:</span>
@@ -72,10 +75,6 @@
     </div>
 </div>
 
-<script>
-document.getElementById('checkoutBtn').onclick = function() {
-    window.location.href = this.dataset.url;
-};
-</script>
+
 
 @endsection

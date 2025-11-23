@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Artikel; // Import Model Artikel
 
 class StudyController extends Controller
 {
     /**
-     * Data Dummy untuk Topik Pelajaran 
-     * 
+     * Data Dummy untuk Topik Pelajaran (dibiarkan tetap menggunakan array dummy)
+     * Karena data ini terlihat seperti konten statis FAQ/Belajar Sederhana.
      */
     private $studyTopics = [
         [
@@ -25,55 +26,34 @@ class StudyController extends Controller
         ],
     ];
 
-    /**
-     * Data Dummy untuk Galeri Artikel
-     * 
-     */
-    private $articleGallery = [
-        [
-            'title' => 'Mengenal Lebih Dalam Maggot BSF',
-            'image' => 'maggot.jpg',
-            'link_slug' => 'artikeltiga' 
-        ],
-        [
-            'title' => 'Manfaat Maggot Dalam Segi Pakan Ternak',
-            'image' => 'maggot kompos.jpg',
-            'link_slug' => 'artikeldua' 
-        ],
-        [
-            'title' => 'Melakukan Budidaya Maggot Sederhana',
-            'image' => 'ternak maggot.jpeg',
-            'link_slug' => 'artikelsatu' 
-        ],
-       
-    ];
-
-   
     
     public function index()
     {
-        // Kirim data dummy ke view
+        // 1. Ambil 3 artikel terbaru dari database
+        $latestArticles = Artikel::orderBy('tanggal', 'DESC')
+                                 ->limit(3) // Batasi hanya 3 artikel
+                                 ->get();
+
+        // 2. Kirim data nyata (articles) dan data dummy (topics) ke view
         return view('study.index', [
             'topics' => $this->studyTopics,
-            'articles' => $this->articleGallery
+            'articles' => $latestArticles // Mengirim data dari database
         ]);
     }
 
+    // Fungsi show yang sekarang TIDAK digunakan karena Anda memiliki ArticleController.
+    // Jika Anda ingin menggunakannya untuk menampilkan detail, pastikan route mengarah ke ArticleController.
+    public function show($id_artikel) 
+    {
+        // Peringatan: Fungsi ini seharusnya berada di ArticleController, 
+        // tapi kita sesuaikan agar mencari artikel berdasarkan id_artikel jika digunakan.
+        $article = Artikel::where('id_artikel', $id_artikel)->firstOrFail();
+        return view('study.article-detail', compact('article'));
+    }
+
+    // Fungsi gallery() tidak relevan dengan database, jadi kita biarkan saja
     public function gallery()
     {
         return redirect()->route('gallery.gallery')->with('message', 'Anda dialihkan ke halaman Ayo Belajar!');
     }
-
-    public function show($slug)
-{
-    // cari artikel berdasarkan slug
-    $article = collect($this->articleGallery)->firstWhere('link_slug', $slug);
-
-    if (!$article) {
-        abort(404, 'Artikel tidak ditemukan');
-    }
-
-    return view('study.detail', compact('article'));
-}
-
 }

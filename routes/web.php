@@ -102,12 +102,19 @@ Route::post('/managesetting', [ManageSettingController::class, 'update'])->name(
 Route::get('/daftar-produk', [ProductController::class, 'index'])->name('product.index');
 Route::get('/product-detail/{id_produk}', [ProductController::class, 'show']);
 
-// Checkout
+// Route Checkout Utama (GET untuk menampilkan form, POST untuk memproses)
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
+// ROUTE BARU: Sinkronisasi AJAX dari JavaScript ke Session
+Route::post('/checkout/sync', [CheckoutController::class, 'sync']);
 
+// Route Checkout Instan/Langsung dari Halaman Produk
+Route::post('/checkout/instant-process', [CheckoutController::class, 'instantProcess']); 
+
+// Route Sukses (sama seperti sebelumnya)
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
@@ -132,6 +139,11 @@ Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])
 Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
 // Route::get('/artikel/{slug}', [GalleryController::class, 'showArtikel'])->name('article.show');
 
+// Pastikan {id_artikel} memiliki nama yang sama dengan parameter di fungsi show($id_artikel)
+Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
+
+// Route untuk menampilkan daftar artikel (jika ada halaman indeks)
+Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
 // Halaman FAQ
 Route::get('/qna', [QnaController::class, 'index'])->name('qna');
 

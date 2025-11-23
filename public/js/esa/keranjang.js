@@ -2,10 +2,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const listProduct = document.querySelector('.listProduct');
     const listCart = document.querySelector('.ListCart');
-    const cartTab = document.querySelector('.cartTab');
     const body = document.querySelector('body');
     const closeCartBtn = document.querySelector('.close');
-    const checkOutBtn = document.querySelector('.checkOut');
+    const checkoutBtn = document.getElementById('checkoutBtn'); // Menggunakan ID yang benar
     const cartIcon = document.querySelector('.icon-cart');
     const cartQuantitySpan = document.querySelector('.icon-cart span');
     const totalPriceDisplay = document.getElementById('totalPriceDisplay');
@@ -14,9 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let carts = []; 
     let products = [];
-
-    // 🔥 Tambahan 1: refresh badge ketika halaman selesai load
-    updateCartQuantityIcon();
 
     // --- Event Listeners ---
 
@@ -32,10 +28,16 @@ document.addEventListener('DOMContentLoaded', function() {
     listProduct.addEventListener('click', (event) => {
         if (event.target.classList.contains('add-to-cart-btn')) {
             try {
-                const productData = JSON.parse(event.target.dataset.productData);
+                // Mengambil data dari atribut data-* yang terpisah
+                const productData = {
+                    idproduk: event.target.dataset.id,
+                    namaproduk: event.target.dataset.nama,
+                    harga: parseFloat(event.target.dataset.harga),
+                    gambar: event.target.dataset.gambar,
+                };
                 addToCartLocal(productData);
             } catch (e) {
-                console.error("Error parsing product data:", e);
+                console.error("Error adding product to cart:", e);
                 alert("Produk berhasil ditambahkan.");
             }
         }
@@ -55,16 +57,77 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    checkOutBtn.addEventListener('click', () => {
-        if (carts.length > 0) {
-            window.location.href = "{{ route('checkout') }}";
-        } else {
-            alert('Keranjang Anda kosong. Tidak dapat melanjutkan checkout.');
-        }
-    });
+    // ✅ REVISI UTAMA DI SINI: Event listener tombol Checkout yang memanggil sync
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', () => {
+            if (carts.length > 0) {
+                // Mengambil URL redirect dari atribut HTML (misal: data-redirect-url="/checkout")
+                const redirectUrl = checkoutBtn.dataset.redirectUrl || '/checkout'; 
+                
+                // Panggil sinkronisasi ke /checkout/sync, lalu fungsi sync akan melakukan redirect
+                syncCartToServer('/checkout/sync', redirectUrl); 
+            } else {
+                alert('Keranjang Anda kosong. Tidak dapat melanjutkan checkout.');
+            }
+        });
+    }
 
     // --- Functions ---
+    // ... (addToCartLocal, changeQuantityLocal, removeFromCartLocal, saveCartToLocalStorage, renderCart, updateCartQuantityIcon, updateCheckoutButtonState, loadCartItemsFromLocalStorage tetap sama) ...
+    
+    // FUNGSI BARU: Sinkronisasi Keranjang ke Server
+    function syncCartToServer(syncUrl, redirectUrl) { // Menerima dua parameter URL
+        if (carts.length === 0) {
+            alert('Keranjang kosong. Tidak dapat melanjutkan.');
+            return;
+        }
 
+        const originalText = checkoutBtn.innerText;
+        
+        // Tampilkan status memproses
+        checkoutBtn.innerText = 'Memproses...';
+        checkoutBtn.setAttribute('disabled', 'true');
+
+        fetch(syncUrl, { // fetch ke /checkout/sync
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Pastikan Anda menggunakan 'csrf-token' yang benar dari meta tag
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') 
+            },
+            // Mengirim array 'carts' global yang sudah dibersihkan/dibersanitasi
+            body: JSON.stringify({ cart: carts }) 
+        })
+        .then(response => {
+            if (!response.ok) {
+                // Tangkap error jika status HTTP bukan 200 (misalnya 404 atau 500)
+                // Ini mengirim error 500 ke blok catch
+                throw new Error('Server returned status: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                window.location.href = redirectUrl; 
+            } else {
+                // Tampilkan pesan kegagalan dari Controller (jika ada)
+                alert('Gagal menyinkronkan pesanan ke server. Coba lagi.');
+            }
+        })
+        .catch(error => {
+            console.error('Error saat proses/sinkronisasi:', error);
+            // Menampilkan notifikasi error 500 yang spesifik
+            alert('Terjadi kesalahan koneksi atau server: ' + error.message);
+        })
+        .finally(() => {
+            // Kembalikan status tombol hanya jika TIDAK terjadi redirect (yaitu, terjadi error)
+            checkoutBtn.innerText = originalText;
+            updateCheckoutButtonState(); 
+        });
+    }
+
+    // Fungsi-fungsi lain di sini, dipindahkan ke bawah untuk struktur yang lebih baik:
+    
     function addToCartLocal(product) {
         let positionInCart = carts.findIndex((value) => value.idproduk == product.idproduk);
         if (positionInCart < 0) {
@@ -81,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         saveCartToLocalStorage();
         renderCart();
         updateCartQuantityIcon();
-        alert('Produk berhasil ditambahkan ke keranjang!');
+        // alert('Produk berhasil ditambahkan ke keranjang!');
     }
 
     function changeQuantityLocal(idProduk, type) {
@@ -99,6 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
         saveCartToLocalStorage();
         renderCart();
         updateCartQuantityIcon();
+        updateCheckoutButtonState();
     }
 
     function removeFromCartLocal(idProduk) {
@@ -109,24 +173,12 @@ document.addEventListener('DOMContentLoaded', function() {
         saveCartToLocalStorage();
         renderCart();
         updateCartQuantityIcon();
-        alert('Produk berhasil dihapus dari keranjang.');
+        updateCheckoutButtonState();
+        // alert('Produk berhasil dihapus dari keranjang.');
     }
 
     function saveCartToLocalStorage() {
         localStorage.setItem('shoppingCart', JSON.stringify(carts));
-    }
-
-    function loadCartItemsFromLocalStorage() {
-        const storedCart = localStorage.getItem('shoppingCart');
-        if (storedCart) {
-            carts = JSON.parse(storedCart);
-        } else {
-            carts = [];
-        }
-        renderCart();
-        updateCartQuantityIcon();
-        updateCheckoutButtonState();
-        loadingCartMessage.style.display = 'none';
     }
 
     function renderCart() {
@@ -137,6 +189,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (carts.length > 0) {
             emptyCartMessage.style.display = 'none';
             carts.forEach(item => {
+                // --- VALIDASI TAMBAHAN BARU ---
+                if (!item || !item.namaproduk || !item.idproduk) {
+                    console.warn("Item korup dilewati:", item);
+                    return; // Skip item ini
+                }
+                // -----------------------------
+
                 const quantity = parseInt(item.jumlah || 0);
                 const price = parseFloat(item.harga || 0);
                 const subtotal = quantity * price;
@@ -167,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
             emptyCartMessage.style.display = 'block';
         }
 
+        // Pastikan total harga dan kuantitas di-update setelah loop
         totalPriceDisplay.innerText = `Rp.${totalPrice.toLocaleString('id-ID')}`;
         cartQuantitySpan.innerText = totalQuantity;
         updateCheckoutButtonState();
@@ -181,23 +241,59 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateCheckoutButtonState() {
-        if (carts.length > 0) {
-            checkOutBtn.removeAttribute('disabled');
-            checkOutBtn.style.opacity = '1';
-            checkOutBtn.style.cursor = 'pointer';
-        } else {
-            checkOutBtn.setAttribute('disabled', 'true');
-            checkOutBtn.style.opacity = '0.5';
-            checkOutBtn.style.cursor = 'not-allowed';
+        if (checkoutBtn) {
+            if (carts.length > 0) {
+                checkoutBtn.removeAttribute('disabled');
+                checkoutBtn.style.opacity = '1';
+                checkoutBtn.style.cursor = 'pointer';
+            } else {
+                checkoutBtn.setAttribute('disabled', 'true');
+                checkoutBtn.style.opacity = '0.5';
+                checkoutBtn.style.cursor = 'not-allowed';
+            }
         }
     }
 
-    function processCheckout() {
+    // Inisialisasi awal
+    function loadCartItemsFromLocalStorage() {
+        const storedCart = localStorage.getItem('shoppingCart');
+        let loadedCarts = [];
+        
+        if (storedCart) {
+            try {
+                loadedCarts = JSON.parse(storedCart);
+                
+                // --- FILTRASI DAN SANITASI BARU ---
+                // Hanya simpan item yang memiliki ID dan Nama Produk yang valid
+                carts = loadedCarts.filter(item => 
+                    item && 
+                    item.idproduk && 
+                    item.namaproduk && 
+                    parseInt(item.jumlah) > 0 
+                );
+
+                // Jika ada data yang tidak valid, simpan versi yang sudah bersih ke LocalStorage
+                if (loadedCarts.length !== carts.length) {
+                    console.warn(`${loadedCarts.length - carts.length} item keranjang korup telah dibersihkan.`);
+                    saveCartToLocalStorage();
+                }
+
+            } catch (e) {
+                console.error("Error parsing stored cart:", e);
+                // Jika parsing gagal total, reset keranjang
+                carts = [];
+                localStorage.removeItem('shoppingCart');
+            }
+        } else {
+            carts = [];
+        }
+        
+        renderCart(); // Render keranjang yang sudah bersih
+        loadingCartMessage.style.display = 'none';
+        updateCartQuantityIcon();
+        updateCheckoutButtonState();
     }
 
-    // Inisialisasi awal
+    // Panggil inisialisasi
     loadCartItemsFromLocalStorage();
-
-    // 🔥 Tambahan 2: refresh badge setelah load cart
-    updateCartQuantityIcon();
 });
