@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pengguna extends Authenticatable
 {
     use SoftDeletes;
-
+    use HasFactory;
     protected $table = 'pengguna';
     protected $primaryKey = 'id_pengguna';
     public $incrementing = false;
