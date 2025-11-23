@@ -1,11 +1,11 @@
 <section id="sidebar">
     <div class="logo">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none">Go<span>Maggot</span></a>
+        <a href="" class="text-decoration-none">Go<span>Maggot</span></a>
     </div>
     <ul class="side-menu top">
         
-        <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
-            <a href="{{ url('dashboard') }}" class="text-decoration-none">
+        <li class="">
+            <a href="" class="text-decoration-none">
                 <i class='bx bxs-dashboard'></i>
                 <span class="text">Dashboard</span>
             </a>
@@ -17,15 +17,19 @@
                 <span class="text">Analytics</span>
             </a>
         </li>
+<<<<<<< HEAD
 
         {{-- 
         <li class="{{ Request::routeIs('gallery.index') ? 'active' : '' }}">
             <a href="{{ route('gallery.index') }}" class="text-decoration-none">
+=======
+        <li class="{{}}">
+            <a href="" class="text-decoration-none"> 
+>>>>>>> esa
                 <i class='bx bx-images'></i>
                 <span class="text">Galleries</span>
             </a>
         </li>
-        --}}
 
         <li>
             <a href="" class="text-decoration-none">
@@ -49,8 +53,13 @@
         </li>
 
         <li>
+<<<<<<< HEAD
             <a href="{{ url('managereview') }}" class="text-decoration-none">
                 <i class='bx  bx-edit'></i> 
+=======
+            <a href="" class="text-decoration-none">
+                <i class='bx  bx-edit'  ></i> 
+>>>>>>> esa
                 <span class="text">Reviews</span>
             </a>
         </li>
