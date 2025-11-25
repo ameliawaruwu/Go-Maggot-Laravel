@@ -1,7 +1,4 @@
-
-
 @extends('layouts.admin') 
-
 
 @section('content')
 
@@ -10,105 +7,72 @@
         <div class="left">
             <h1>Manajemen FAQ</h1>
             <ul class="breadcrumb">
-                <li><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                <li><a href="" class="text-decoration-none">Dashboard</a></li>
                 <li><i class='bx bx-chevron-right'></i></li>
-                <li><a href="{{ route('managefaq.index') }}"> FAQ </a></li>
+                <li><a href="#" class="text-decoration-none">FAQ</a></li>
             </ul>
         </div>
+        
+        <a href="/manageFaq-input" class="btn-download" style="padding: 10px 15px; border-radius: 8px; font-weight: 600; text-decoration:none;">
+            <i class='bx bxs-plus-circle'></i>
+            <span class="text">Tambah FAQ</span>
+        </a>
     </div>
 
-    <div class="container-fluid py-4 ">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="mb-4 text-dark fw-bold">Daftar Pertanyaan & Jawaban</h5>
+            <div class="accordion" id="faqAccordion">
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            
-            <div class="alert alert-danger">{{ session('error') }}</div> 
-            <div class="alert alert-danger">{{ session('error' )}}</div> 
-        @endif
+                @forelse ($faq as $f)
+                <div class="accordion-item mb-2 border rounded overflow-hidden">
+                    <h2 class="accordion-header" id="heading{{ $f->id_faq }}">
+                        <button class="accordion-button collapsed fw-bold text-dark" 
+                                type="button" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#collapse{{ $f->id_faq }}" 
+                                aria-expanded="false" 
+                                aria-controls="collapse{{ $f->id_faq }}">
+                            <span class="badge bg-success me-3">Q</span> {{ $f->pertanyaan }}
+                        </button>
+                    </h2>
 
-        <div class="card shadow mb-5 border-start border-success border-5">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"> Tambah Pertanyaan dan Jawaban Baru</h5>
-            </div>
-            <div class="card-body">
-                <form action="{{ route('managefaq.store') }}" method="POST">
-                    @csrf
-                    
-                    <div class="mb-3">
-                        <label for="pertanyaan" class="form-label fw-bold">Pertanyaan (Q)</label>
-                        <input type="text" class="form-control" id="pertanyaan" name="pertanyaan" placeholder="Masukkan pertanyaan FAQ..." required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="jawaban" class="form-label fw-bold">Jawaban (A)</label>
-                        <textarea class="form-control" id="jawaban" name="jawaban" rows="5" placeholder="Tulis jawaban lengkap untuk pertanyaan di atas..." required></textarea>
-                    </div>
-
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button type="submit" class="btn btn-success"><i class='bx bx-save'></i> Simpan FAQ Baru</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <hr>
-        
-        <h5 class="mb-3 text-dark">Daftar FAQ Yang Sudah Ada (Klik untuk Edit)</h5>
-        
-        <div class="accordion" id="faqAccordion">
-            @forelse ($faqs as $faq)
-            <div class="accordion-item shadow-sm mb-2">
-                <h2 class="accordion-header" id="heading{{ $faq->id }}">
-                    <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $faq->id }}" aria-expanded="false" aria-controls="collapse{{ $faq->id }}">
-                        <span class="fw-bold me-3 text-success">Q:</span> {{ $faq->pertanyaan }}
-                    </button>
-                </h2>
-                <div id="collapse{{ $faq->id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $faq->id }}" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body bg-light">
-                        {{-- Form Edit di dalam Accordion Body --}}
-                        <form action="{{ route('managefaq.update', $faq->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
+                    <div id="collapse{{ $f->id_faq }}" 
+                         class="accordion-collapse collapse" 
+                         aria-labelledby="heading{{ $f->id_faq }}" 
+                         data-bs-parent="#faqAccordion">
+                        <div class="accordion-body bg-light">
                             
-                            <h6 class="text-secondary">Edit Jawaban:</h6>
                             <div class="mb-3">
-                                <textarea class="form-control" name="jawaban" rows="4" required>{{ $faq->jawaban }}</textarea>
+                                <strong class="text-success">Jawaban:</strong>
+                                <p class="mt-1 text-muted" style="white-space: pre-line;">{{ $f->jawaban }}</p>
                             </div>
-                            <h6 class="text-secondary">Edit Pertanyaan:</h6>
-                            <div class="mb-3">
-                                <input type="text" class="form-control" name="pertanyaan" value="{{ $faq->pertanyaan }}" required>
-                            </div>
-                            
-                            <div class="d-flex justify-content-end gap-2 mt-3">
-                                <button type="submit" class="btn btn-sm btn-warning"><i class='bx bx-save'></i> Simpan Perubahan</button>
-                                
-                                <button type="button" class="btn btn-sm btn-danger" onclick="document.getElementById('delete-form-{{ $faq->id }}').submit();">
-                                    <i class='bx bx-trash'></i> Hapus FAQ
-                                </button>
-                            </div>
-                        </form>
-                        
-                        {{-- Form Hapus terpisah (hidden) --}}
-                        <form id="delete-form-{{ $faq->id }}" action="{{ route('managefaq.destroy', $faq->id) }}" method="POST" style="display: none;">
-                            @csrf
-                            @method('DELETE')
-                        </form>
 
+                            <hr>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="/manageFaq-edit/{{ $f->id_faq }}" class="btn btn-sm btn-warning text-white">
+                                    <i class='bx bxs-edit'></i> Edit
+                                </a>
+                                <a href="/manageFaq-hapus/{{ $f->id_faq }}" 
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Yakin ingin menghapus FAQ ini?')">
+                                    <i class='bx bxs-trash'></i> Hapus
+                                </a>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
+                @empty
+                <p class="text-muted">Belum ada FAQ.</p>
+                @endforelse
+
             </div>
-            @empty
-                <div class="alert alert-info text-center mt-4">
-                    Belum ada FAQ yang tercatat. Silakan gunakan formulir di atas untuk memulai.
-                </div>
-            @endforelse
         </div>
     </div>
-    
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 @endsection
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -42,10 +42,7 @@ Route::get('/', function () {
 
 // Dashboard Admin
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-
-// Analytics
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
-
 // Manajemen Produk Admin
 Route::get('/manageProduk', [ManageProductsController::class, 'index']);
 Route::get('/manageProduk-input', [ManageProductsController::class, 'input']);
@@ -63,14 +60,24 @@ Route::post('/manageUser-update/{id_pengguna}', [ManageUserController::class, 'u
 Route::get('/manageUser-hapus/{id_pengguna}', [ManageUserController::class, 'delete']);
 
 // Manage Review Admin
-Route::get('manageReview', [ManageReviewController::class, 'index']);
+Route::get('/manageReview', [ManageReviewController::class, 'index']);
+Route::post('/manageReview-approve/{id}', [ManageReviewController::class, 'approve']);
+Route::post('/manageReview-reject/{id}', [ManageReviewController::class, 'reject']);
 
-
-// Manage Faq
+// Manage Faq Admin
+Route::get('/manageFaq', [ManageFaqController::class, 'index']);
+Route::get('/manageFaq-input', [ManageFaqController::class, 'input']);
+Route::post('/manageFaq-simpan', [ManageFaqController::class, 'simpan']);
+Route::get('/manageFaq-edit/{id_faq}', [ManageFaqController::class, 'edit']);
+Route::post('/manageFaq-update/{id_faq}', [ManageFaqController::class, 'update'] );
+Route::get('/manageFaq-hapus/{id_faq}', [ManageFaqController::class, 'delete']);
 
 // Manage Setting
 Route::get('/managesetting', [ManageSettingController::class, 'index'])->name('settings.index');
 Route::post('/managesetting', [ManageSettingController::class, 'update'])->name('settings.update');
+
+
+
 
 
 // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
