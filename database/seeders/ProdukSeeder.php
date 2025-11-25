@@ -1,0 +1,105 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Factories\Sequence;
+use App\Models\Produk; 
+
+class ProdukSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+
+        Produk::factory()
+            ->count(6) 
+            ->state(new Sequence(
+              
+                [
+                    'id_produk'       => 'PR01',
+                    'nama_produk'      => 'Bibit Maggot',
+                    'deskripsi_produk' => 'Bibit maggot adalah fase awal larva siap ternak',
+                    'kategori'         => 'BSF',
+                    'merk'             => 'GoMaggot',
+                    'masa_penyimpanan' => '7 Hari',
+                    'pengiriman'       => 'Instan',
+                    'berat'            => '500 gr',
+                    'harga'            => 25000,
+                    'stok'             => 50,
+                    'gambar'           => null,
+                ],
+                // DATA 2
+                [
+                     'id_produk'       => 'PR02',
+                    'nama_produk'      => 'Maggot Dewasa',
+                    'deskripsi_produk' => 'Maggot Dewasa adalah pakan ternak protein tinggi alami',
+                    'kategori'         => 'BSF',
+                    'merk'             => 'GoMaggot',
+                    'masa_penyimpanan' => '7 Hari',
+                    'pengiriman'       => 'Instan',
+                    'berat'            => '1 Kg',
+                    'harga'            => 50000,
+                    'stok'             => 100,
+                    'gambar'           => null,
+                ],
+              
+                [
+                     'id_produk'       => 'PR03',
+                    'nama_produk'      => 'Pupuk Kompos',
+                    'deskripsi_produk' => 'Pupuk Kompos adalah pupuk organik hasil sisa maggot',
+                    'kategori'         => 'Kompos',
+                    'merk'             => 'GoMaggot',
+                    'masa_penyimpanan' => '14 hari',
+                    'pengiriman'       => 'Reguler',
+                    'berat'            => '1 Kg',
+                    'harga'            => 15000,
+                    'stok'             => 87,
+                    'gambar'           => null,
+                ],
+                // DATA 4
+                [
+                    'id_produk'       => 'PR04',
+                    'nama_produk'      => 'Kandang Maggot',
+                    'deskripsi_produk' => 'Kandang maggot adalah tempat budidaya maggot dalam skala kecil',
+                    'kategori'         => 'Kandang Maggot',
+                    'merk'             => 'GoMaggot',
+                    'masa_penyimpanan' => '14 hari',
+                    'pengiriman'       => 'Exspress',
+                    'berat'            => '5 Kg',
+                    'harga'            => 150000,
+                ],
+                
+                [
+                    'id_produk'       => 'PR05',
+                    'nama_produk'      => 'Paket Bundling 1',
+                    'deskripsi_produk' => 'Paket hemat budidaya maggot',
+                    'kategori'         => 'Lainnya',
+                    'merk'             => 'GoMaggot',
+                    'masa_penyimpanan' => '7 Hari',
+                    'pengiriman'       => 'Reguler',
+                    'berat'            => '2 Kg',
+                    'harga'            => 85000,
+                    'stok'             => 20,
+                    'gambar'           => null,
+                ],
+               
+                [
+                    'id_produk'       => 'PR06',
+                    'nama_produk'      => 'Paket Bundling 2',
+                    'deskripsi_produk' => 'Paket Komplit budidaya manggot',
+                    'kategori'         => 'Lainnya',
+                    'merk'             => 'GoMaggot',
+                    'masa_penyimpanan' => '7 Hari',
+                    'pengiriman'       => 'Exspress',
+                    'berat'            => '5 Kg',
+                    'harga'            => 120000,
+                    'stok'             => 5,
+                    'gambar'           => null,
+                ],
+            ))
+            ->create();
+    }
+}

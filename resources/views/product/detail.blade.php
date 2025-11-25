@@ -1,141 +1,171 @@
 @extends('layouts.detail-produk')
 
-@section('title', $productName ?? 'Produk Tidak Ditemukan')
+@section('title', $data->nama_produk ?? 'Produk Tidak Ditemukan')
 
 @section('content')
 
-@if (!isset($productName))
+@if (!$data)
     <section class="error-message">
-        <div class="container flex">Produk tidak ditemukan atau ID tidak valid.</div>
+        <div class="container flex">Produk tidak ditemukan.</div>
     </section>
-    <div class="tombol" style="text-align: center; margin: 20px;">
-        <a href="{{ url('/daftar-produk') }}">
-            <button>Kembali ke Daftar Produk</button>
-        </a>
+    <div style="text-align:center; margin:20px;">
+        <a href="{{ url('/daftar-produk') }}"><button>Kembali ke Produk</button></a>
     </div>
 @else
-    <section>
-        <div class="container flex">
-            <div class="left">
-                <div class="main_image">
-                    <img src="{{ asset('images/' . $productImage) }}" class="slide" width="360" height="300" alt="{{ $productName }}">
-                </div>
-                <div class="option flex">
-                    <img src="{{ asset('images/kompos remove bg.png') }}" onclick="img('image/p1.jpg')" alt="Thumbnail 1">
-                    <img src="{{ asset('images/Bibit-remove bg.png') }}" onclick="img('image/p2.jpg')" alt="Thumbnail 2">
-                    <img src="{{ asset('images/Bundling Maggot.png') }}" onclick="img('image/p3.jpg')" alt="Thumbnail 3">
-                    <img src="{{ asset('images/maggot removebg.png') }}" onclick="img('image/p4.jpg')" alt="Thumbnail 4">
-                </div>
-            </div>
-            <div class="right">
-                <h3>{{ $productName }}</h3>
-                <div class="product-rating">
-                    <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <span>(5.0)</span>
-                </div>
 
-                <div class="info">
-                    <span>900 Penilaian</span>
-                    <span>1RB+ Terjual</span>
-                </div>
-                <div class="button">
-                    <a href="laporan.html">Laporkan</a>
-                </div>
+<section>
+    <div class="container flex" style="display: flex; gap: 40px; align-items: flex-start;">
 
-                <h1><small>Rp</small>{{ number_format($productPrice, 0, ',', '.') }} / pcs</h1>
-                <p>{{ $productDescription }}</p>
-                <div class="tombol">
-                    <a href="{{ url('/daftar-produk') }}">
-                        <button>Kembali ke Produk</button>
-                    </a>
-                </div>
+        {{-- FOTO PRODUK --}}
+        <div class="left" style="flex: 1; text-align: center;">
+            <div class="main_image">
+                {{-- DITAMBAH ID untuk fungsionalitas thumbnail --}}
+                <img id="main-product-image" 
+                     src="{{ asset('photo/' . ($data->gambar ?? 'placeholder.jpg')) }}"
+                     class="slide"
+                     width="360" height="300"
+                     alt="{{ $data->nama_produk }}"
+                     style="object-fit: contain; margin-bottom: 10px;">
             </div>
-        </div>
-    </section>
 
-    <div class="bagianprofil">
-        <div class="profile">
-            <div class="profile-image">
-                <img src="{{ asset('images/SS LOGO.png') }}" alt="GoMaggot Logo" width="100" height="70">
-            </div>
-            <div class="profile-info">
-                <h2>GoMaggot</h2>
+            {{-- Thumbnail (option flex) --}}
+            {{-- DITAMBAH ONCLICK dan inline style agar thumbnail terlihat --}}
+            <div class="option flex product-thumbnails mt-2" style="display: flex; justify-content: center; gap: 10px;">
+                
+                {{-- Thumbnail 1: Gambar Utama (Untuk inisialisasi) --}}
+                <img src="{{ asset('photo/' . ($data->gambar ?? 'placeholder.jpg')) }}" 
+                     onclick="changeMainImage('{{ asset('photo/' . ($data->gambar ?? 'placeholder.jpg')) }}')"
+                     alt="Thumbnail 1" 
+                     style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; cursor: pointer;">
+                
+                {{-- Thumbnail 2 (maggot removebg.png) --}}
+                <img src="{{ asset('images/maggot removebg.png') }}" 
+                     onclick="changeMainImage('{{ asset('images/maggot removebg.png') }}')"
+                     alt="Thumbnail 2" 
+                     style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; cursor: pointer;">
+                
+                {{-- Thumbnail 3 (kompos remove bg.png) --}}
+                <img src="{{ asset('images/kompos remove bg.png') }}" 
+                     onclick="changeMainImage('{{ asset('images/kompos remove bg.png') }}')"
+                     alt="Thumbnail 3" 
+                     style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; cursor: pointer;">
+                 
+                {{-- Thumbnail 4 (Bundling Maggot.png) --}}
+                <img src="{{ asset('images/Bundling Maggot.png') }}" 
+                     onclick="changeMainImage('{{ asset('images/Bundling Maggot.png') }}')"
+                     alt="Thumbnail 4" 
+                     style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; cursor: pointer;">
+
+                {{-- Thumbnail 5 (Kandang.png) --}}
+                <img src="{{ asset('images/Kandang.png') }}" 
+                     onclick="changeMainImage('{{ asset('images/Kandang.png') }}')"
+                     alt="Thumbnail 5" 
+                     style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; cursor: pointer;">
             </div>
         </div>
+
+        {{-- DETAIL PRODUK --}}
+        <div class="right" style="flex: 2; padding-left: 20px;">
+            <h3>{{ $data->nama_produk ?? 'Nama Produk' }}</h3>
+
+            {{-- RATING BINTANG --}}
+            <div class="product-rating">
+                <div class="stars" style="color: gold;">
+                    {{-- Markup bintang 5 --}}
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <span>(5.0) | 1.2k Penilaian | 5k+ Terjual</span>
+            </div>
+
+            <h1>
+                <small>Rp</small>{{ number_format($data->harga ?? 0, 0, ',', '.') }}
+                / pcs
+            </h1>
+            
+            <p>{{ $data->deskripsi_produk ?? 'Deskripsi produk ini belum diisi oleh admin.' }}</p>
+
+            <div class="tombol">
+                <a href="{{ url('/daftar-produk') }}">
+                    <button style="background-color: #55a630; color: white; border: none; padding: 10px 40px; cursor: pointer; border-radius: 20px; font-weight: bold;">
+                        Kembali ke Produk
+                    </button>
+                </a>
+            </div>
         </div>
 
-    <div class="bagiandesk">
-        <h2>Spesifikasi Produk</h2><br>
-
-        <x-product-spec label="Kategori" :value="$productCategory" />
-        
-        <x-product-spec label="Stok" 
-            :value="($productStock > 0) ? $productStock . ' pcs' : 'Habis'" />
-        
-        <x-product-spec label="Merek" :value="$productBrand" />
-        <x-product-spec label="Masa Penyimpanan" :value="$productSave" />
-        <x-product-spec label="Berat" :value="$productWeight" />
-        <x-product-spec label="Harga" :value="'Rp ' . number_format($productPrice, 0, ',', '.') . ' / pcs'" />
-        <x-product-spec label="Dikirim Dari" :value="$productPengiriman" />
-        <x-product-spec label="Deskripsi" :value="$productDescription" />
-        
     </div>
+</section>
 
-    <div class="bagianakhir">
+{{-- SPESIFIKASI PRODUK --}}
+<div class="bagiandesk" style="margin-top: 30px; padding: 15px; border: 1px solid #eee; background-color: #f9f9f9;">
+    <h2>Spesifikasi Produk</h2><br>
+
+    <x-product-spec label="Kategori" :value="$data->kategori ?? 'N/A'" />
+    <x-product-spec label="Stok" :value="($data->stok ?? 0) . ' pcs'" />
+    <x-product-spec label="Merek" :value="$data->merk ?? 'N/A'" />
+    <x-product-spec label="Berat" :value="$data->berat ?? 'N/A'" />
+    <x-product-spec label="Harga" :value="'Rp ' . number_format($data->harga ?? 0, 0, ',', '.')"/>
+    <x-product-spec label="Dikirim Dari" :value="$data->pengiriman ?? 'N/A'" />
+    <x-product-spec label="Deskripsi" :value="$data->deskripsi_produk ?? 'N/A'" />
+
+</div>
+
+{{-- REVIEW --}}
+<div class="bagianakhir" style="margin-top: 30px; margin-bottom: 50px; padding: 15px; border: 1px solid #eee; background-color: white;">
     <h2>Penilaian Produk</h2><br>
-    <div class="rating">
-        <div class="stars">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-        </div>
-        <div class="score">5.0 dari 5</div>
-    </div><br><br>
-    <div class="review">
-        <div class="user">
-             <img src="{{ asset('images/billie.jpg') }}" alt="Avatar" class="avatar">
-            <div class="name">Billie Eilish</div>
-        </div>
-        <div class="text">Kandang nya ringan, saya kira akan berat woww!</div>
-    </div>
-    <div class="review">
-        <div class="user">
-            <img src="{{ asset('images/jungkook.jpg') }}" alt="Avatar" class="avatar">
-            <div class="name">Jeon Jungkook</div>
-        </div>
-        <div class="text">Ternak ayam saya sangat lahap makanya berkat maggot ini.</div>
-    </div>
-    <div class="review">
-        <div class="user">
-            <img src="{{ asset('images/cha eun woo.jpg') }}"alt="Avatar" class="avatar">
-            <div class="name">Cha Eun Woo</div>
-        </div>
-        <div class="text">Toko ini memang tidak pernah mengecewakan.</div>
-    </div>
-        <div class="review">
-        <div class="user">
-            <img src="{{ asset('images/taylor.jpg') }}"alt="Avatar" class="avatar">
-            <div class="name">Taylor Swift</div>
-        </div>
-        <div class="text">Tanaman ku tumbuh subur berkat pupuk maggot ini, terimakasih GoMaggot!</div>
-    </div>
-    <div class="review">
-          <div class="user">
-            <img src="{{ asset('images/olivia.jpg') }}"alt="Avatar" class="avatar">
-            <div class="name">Olivia Rodigro</div>
-          </div>
-          <div class="text">Wah, harganya terjangkau sekali saya suka! Next beli lagi ah..</div>
-        </div>
 
-    <div class="tombol">
+    <div class="rating">
+        <div class="stars" style="color: gold;">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+        </div>
+        <div class="score" style="margin-top: 5px;">5.0 dari 5</div>
+    </div>
+
+    <div class="review" style="margin-top: 20px;">
+        <div class="user" style="display: flex; align-items: center;">
+            <img src="{{ asset('images/billie.jpg') }}" class="avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+            <div class="name" style="margin-left: 10px; font-weight: bold;">Billie Eilish</div>
+        </div>
+        <div class="text" style="margin-left: 50px; margin-top: 5px;">Produk bagus banget!</div>
+    </div>
+
+    <div class="review" style="margin-top: 20px;">
+        <div class="user" style="display: flex; align-items: center;">
+            <img src="{{ asset('images/taylor.jpg') }}" class="avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+            <div class="name" style="margin-left: 10px; font-weight: bold;">Taylor</div>
+        </div>
+        <div class="text" style="margin-left: 50px; margin-top: 5px;">Nenek saya jadi semangat budidaya maggot nih!</div>
+    </div>
+
+    <div class="review" style="margin-top: 20px;">
+        <div class="user" style="display: flex; align-items: center;">
+            <img src="{{ asset('images/selena gomez.jpg') }}" class="avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+            <div class="name" style="margin-left: 10px; font-weight: bold;">Selena Gomez</div>
+        </div>
+        <div class="text" style="margin-left: 50px; margin-top: 5px;">Next beli lagi disini ah!</div>
+    </div>
+
+    <div class="review" style="margin-top: 20px;">
+        <div class="user" style="display: flex; align-items: center;">
+            <img src="{{ asset('images/billie.jpg') }}" class="avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+            <div class="name" style="margin-left: 10px; font-weight: bold;">songkang</div>
+        </div>
+        <div class="text" style="margin-left: 50px; margin-top: 5px;">Maggot nya bersih dan fresh, suka deh!</div>
+    </div>
+
+    <div class="review" style="margin-top: 20px;">
+        <div class="user" style="display: flex; align-items: center;">
+            <img src="{{ asset('images/niki.jpg') }}" class="avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+            <div class="name" style="margin-left: 10px; font-weight: bold;">niki zenfanya</div>
+        </div>
+        <div class="text" style="margin-left: 50px; margin-top: 5px;">Terpercaya sekali toko ini, ayo guys beli disini!</div>
+    </div>
+
+    <div class="tombol" style="margin-top: 30px;">
         <button>Lihat Semua Ulasan</button>
     </div>
 </div>
@@ -144,6 +174,12 @@
 
 @endsection
 
-@push('scripts')
-    {{-- <script src="{{ asset('js/nama-file.js') }}"></script> --}}
-@endpush
+@section('scripts')
+@parent
+<script>
+    // Fungsi untuk mengganti gambar utama saat thumbnail diklik
+    function changeMainImage(path) {
+        document.getElementById('main-product-image').src = path;
+    }
+</script>
+@endsection

@@ -41,31 +41,78 @@ Route::get('/', function () {
 
 // Dashboard Admin
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-
-// Analytics
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
-
-// Manage Produk Admin
+// Manajemen Produk Admin
 Route::get('/manageProduk', [ManageProductsController::class, 'index']);
+Route::get('/manageProduk-input', [ManageProductsController::class, 'input']);
+Route::post('/manageProduk-simpan', [ManageProductsController::class, 'simpan']);
+Route::get('/manageProduk-edit/{id_produk}', [ManageProductsController::class, 'edit']);
+Route::post('/manageProduk-update/{id_produk}', [ManageProductsController::class, 'update']);
+Route::get('/manageProduk-hapus/{id_produk}', [ManageProductsController::class, 'delete']);
 
+// Manajemen Pengguna Admin
+Route::get('/manageUser', [ManageUserController::class, 'index']);
+Route::get('manageUser-input', [ManageUserController::class, 'input']);
+Route::post('/manageUser-simpan', [ManageUserController::class, 'simpan']);
+Route::get('/manageUser-edit/{id_pengguna}', [ManageUserController::class, 'edit']);
+Route::post('/manageUser-update/{id_pengguna}', [ManageUserController::class, 'update']);
+Route::get('/manageUser-hapus/{id_pengguna}', [ManageUserController::class, 'delete']);
 
+// Manage Review Admin
+Route::get('/manageReview', [ManageReviewController::class, 'index']);
+Route::post('/manageReview-approve/{id}', [ManageReviewController::class, 'approve']);
+Route::post('/manageReview-reject/{id}', [ManageReviewController::class, 'reject']);
+
+// Manage Faq Admin
+Route::get('/manageFaq', [ManageFaqController::class, 'index']);
+Route::get('/manageFaq-input', [ManageFaqController::class, 'input']);
+Route::post('/manageFaq-simpan', [ManageFaqController::class, 'simpan']);
+Route::get('/manageFaq-edit/{id_faq}', [ManageFaqController::class, 'edit']);
+Route::post('/manageFaq-update/{id_faq}', [ManageFaqController::class, 'update'] );
+Route::get('/manageFaq-hapus/{id_faq}', [ManageFaqController::class, 'delete']);
 
 // Manage Gallery
 
 
 // Manage Publication
+Route::get('/publication', [ManagePublicationController::class, 'tampil'])
+    ->name('publication.index');
+Route::get('/publication/input', [ManagePublicationController::class, 'input'])
+    ->name('publication.create');
+Route::post('/publication/simpan', [ManagePublicationController::class, 'simpan'])
+    ->name('publication.store');
+Route::get('/publication/edit/{id}', [ManagePublicationController::class, 'edit'])
+    ->name('publication.edit');
+Route::put('/publication/update/{id}', [ManagePublicationController::class, 'update'])
+    ->name('publication.update');
+Route::delete('/publication/hapus/{id}', [ManagePublicationController::class, 'hapus'])
+    ->name('publication.destroy');
 
 
-// Manage User
-
-
-// Manage Review
-
-// Manage Faq
 
 // Manage Setting
 Route::get('/managesetting', [ManageSettingController::class, 'index'])->name('settings.index');
 Route::post('/managesetting', [ManageSettingController::class, 'update'])->name('settings.update');
+
+// Produk
+Route::get('/daftar-produk', [ProductController::class, 'index'])->name('product.index');
+Route::get('/product-detail/{id_produk}', [ProductController::class, 'show']);
+
+// Route Checkout Utama (GET untuk menampilkan form, POST untuk memproses)
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+// ROUTE BARU: Sinkronisasi AJAX dari JavaScript ke Session
+Route::post('/checkout/sync', [CheckoutController::class, 'sync']);
+
+// Route Checkout Instan/Langsung dari Halaman Produk
+Route::post('/checkout/instant-process', [CheckoutController::class, 'instantProcess']); 
+
+// Route Sukses (sama seperti sebelumnya)
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+
 
 
 // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
@@ -91,16 +138,13 @@ Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])
 Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
 // Route::get('/artikel/{slug}', [GalleryController::class, 'showArtikel'])->name('article.show');
 
+// Pastikan {id_artikel} memiliki nama yang sama dengan parameter di fungsi show($id_artikel)
+Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
+
+// Route untuk menampilkan daftar artikel (jika ada halaman indeks)
+Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
 // Halaman FAQ
 Route::get('/qna', [QnaController::class, 'index'])->name('qna');
 
 // ROUTE GALERI
 Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');
-
-// Gunakan ArticleController untuk artikel detail
-Route::get('/artikel/{slug}', [ArticleController::class, 'show'])->name('article.show'); // SOLUSI WAJIB
-
-// --- FALLBACK ---
-Route::fallback(function () {
-    return redirect()->route('home.index');
-});
