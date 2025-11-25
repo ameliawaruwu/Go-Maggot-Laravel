@@ -53,3 +53,16 @@
     </div>
 </div>
 @endsection
+
+{{-- BAGIAN BARU UNTUK MENGHAPUS LOCAL STORAGE --}}
+@section('scripts')
+@parent 
+<script>
+    // Pastikan skrip ini hanya berjalan saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hapus kunci 'shoppingCart' dari LocalStorage
+        localStorage.removeItem('shoppingCart');
+        console.log('Keranjang Lokal Dihapus: Pesanan sukses disimpan.');
+    });
+</script>
+@endsection
