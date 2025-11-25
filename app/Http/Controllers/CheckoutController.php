@@ -9,9 +9,6 @@ use App\Models\DetailPesanan;
 
 class CheckoutController extends Controller
 {
-    // ===========================
-    // TAMPILKAN HALAMAN CHECKOUT (Form Pengiriman)
-    // ===========================
     function index()
     {
         // Ambil keranjang dari session (yang disinkronkan dari JS)
