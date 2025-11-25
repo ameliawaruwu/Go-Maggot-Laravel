@@ -2,7 +2,6 @@
 @section('title', 'Form Pembayaran')
 
 @section('content')
-    <!-- Container Pesan Global (Digunakan untuk menampilkan pesan dari Session Flash) -->
     @if ($message)
         @php
             
@@ -13,7 +12,7 @@
     @endif
 
    
-    <!-- BAGIAN SUKSES PEMBAYARAN -->
+    <!--Bagian sukses pembayaran -->
    
     @if ($payment_success)
         <div class="thank-you-container text-center">
@@ -38,12 +37,12 @@
     @else
    
 
-    <!-- BAGIAN FORM PEMBAYARAN  -->
+    <!-- Bagian form pembayaran  -->
 
         <div class="container form-container">
             <h1><center>Form Pembayaran</center></h1>
 
-            <!-- Cek Ketersediaan ID Pesanan  -->
+            <!-- Cek ketersediaan ID pesanan  -->
             @if ($id_pesanan === null)
                 <div class="alert alert-warning">
                     <p><strong>Perhatian:</strong> ID Pesanan tidak ditemukan.</p>
@@ -55,15 +54,15 @@
             @else
                 
                 
-
-                <!--Form Pembayaran Sebenarnya-->
-                <form id="paymentForm" method="post" action="{{ route('payment.form') }}" enctype="multipart/form-data" autocomplete="off">
-                    @csrf {{-- Token CSRF wajib --}}
+                <!--Form pembayaran-->
+                <form id="paymentForm" method="post" action="{{ route('payment.process') }}" enctype="multipart/form-data" autocomplete="off">
+    @csrf {{-- Token CSRF wajib --}}
+    </form>
 
                     <center><h2>Scan QR Code</h2></center>
                     <center><img src="{{ asset('images/Contoh QR.jpeg') }}" alt="QR Code" width="200" height="200"></center>
 
-                    <!-- Data Detail Pengirim (Menggunakan variabel yang dikirim Controller  -->
+                    <!-- Data detail pengirim dari variabel Controller  -->
                     <label for="name">Nama Pengirim/Pemilik Rekening</label>
                     <input type="text" id="name" name="name" placeholder="Nama lengkap" value="{{ $name }}" required>
                     
@@ -76,7 +75,6 @@
                     <label for="payment_proof">Bukti Pembayaran (JPG, PNG, PDF, JPEG)</label>
                     <input type="file" id="payment_proof" name="payment_proof" accept=".jpg,.jpeg,.png,.pdf" required>
 
-                    <!--Kirim id_pesanan sebagai hidden input untuk proses POST-->
                     <input type="hidden" name="id_pesanan" value="{{ $id_pesanan }}">
 
                     <button type="submit" class="btn btn-success mt-3">Kirim Bukti Pembayaran</button>

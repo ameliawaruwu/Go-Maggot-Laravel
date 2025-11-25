@@ -6,15 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Pesanan;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailPesanan;
+use Illuminate\Support\Facades\Log; 
 
 class CheckoutController extends Controller
 {
-    // ===========================
-    // TAMPILKAN HALAMAN CHECKOUT (Form Pengiriman)
-    // ===========================
+   // Halaman checkout 
     function index()
     {
-        // Ambil keranjang dari session (yang disinkronkan dari JS)
         $cart = session('cart', []);
 
         if (empty($cart)) {
@@ -39,30 +37,30 @@ class CheckoutController extends Controller
         ]);
     }
 
-    // ========================================================
-    // FUNGSI BARU: PROSES INSTAN (DIPANGGIL DARI HALAMAN PRODUK)
-    // ========================================================
+    // Proses pesanan instan (AJAX)
     public function instantProcess(Request $request)
     {
-        // Menerima data keranjang (cart) dari AJAX POST
         $cart = $request->json('cart', []);
         
         if (empty($cart)) {
             return response()->json(['success' => false, 'message' => 'Keranjang kosong.'], 400);
         }
 
-        // --- 1. SET DATA PENGGUNA & DEFAULT ---
-        // Handle id_pengguna: Jika tidak login, gunakan ID GUEST yang unik.
-        // Asumsi: Jika id_pengguna di tabel 'pesanan' tidak merujuk ke Foreign Key, 
-        // atau jika Foreign Key-nya mengizinkan nilai yang tidak ada di tabel 'pengguna'.
-        $idPengguna = auth()->check() ? auth()->user()->id_pengguna : 'GUEST-' . time();
-        $idPesanan  = 'ORD-' . time();
+        // --- ID PENGGUNA: Fallback ke PG138 (ID yang valid) jika tidak login
+        $idPengguna = auth()->check()
+            ? (auth()->user()->id_pengguna ?? auth()->user()->id)
+            : 'PG138'; // Pastikan 'PG138' ada di tabel pengguna Anda
+        
+        $idPesanan = 'ORD-' . time();
 
-        // Data Pengiriman Default/Dummy untuk pesanan instan
+        // Data default (akan diupdate di halaman checkout)
         $namaPenerimaDefault = auth()->check() ? auth()->user()->name : 'Pelanggan Langsung';
         $alamatPengirimanDefault = 'Alamat Default - Harap Konfirmasi Admin';
-        $nomorTeleponDefault = '000000000000'; // Harus diisi, sesuaikan panjangnya dengan kolom di DB
-        $metodePembayaranDefault = 'INSTANT_ORDER'; 
+        $nomorTeleponDefault = '000000000000';
+        $metodePembayaranDefault = 'QRIS'; 
+        $layananPengirimanDefault = 'Reguler'; 
+        $biayaPengirimanDefault = 0; 
+
 
         // Hitung total harga
         $totalHarga = 0;
@@ -70,69 +68,106 @@ class CheckoutController extends Controller
             $totalHarga += ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0);
         }
 
-        // --- 2. Transaksi Database ---
         DB::beginTransaction();
         try {
-            
-            // Simpan ke tabel PESANAN
+            // LOG A: Data Pesanan Utama
+            Log::info("Memulai transaksi pesanan instan.", [
+                'id_pesanan' => $idPesanan, 
+                'id_pengguna' => $idPengguna, 
+                'total_harga' => $totalHarga
+            ]);
+
             Pesanan::create([
                 'id_pesanan'        => $idPesanan,
                 'id_pengguna'       => $idPengguna,
                 'nama_penerima'     => $namaPenerimaDefault,
                 'alamat_pengiriman' => $alamatPengirimanDefault,
                 'nomor_telepon'     => $nomorTeleponDefault,
-                'tanggal_pesanan'   => now(), // Tambahkan ini jika kolomnya tidak auto-filled
+                'tanggal_pesanan'   => now(),
                 'metode_pembayaran' => $metodePembayaranDefault,
+                'layanan_pengiriman'=> $layananPengirimanDefault,
+                'biaya_pengiriman'  => $biayaPengirimanDefault, 
                 'total_harga'       => $totalHarga,
             ]);
+            
+            Log::info("Pesanan ID {$idPesanan} berhasil dibuat. Melanjutkan ke Detail Pesanan...");
 
-            // Simpan detail produk ke tabel DETAIL_PESANAN
             foreach ($cart as $item) {
+                $idProduk = $item['idproduk'] ?? null;
+                $jumlah = $item['jumlah'] ?? 0;
+                $harga = $item['harga'] ?? 0;
+
+                if (is_null($idProduk)) {
+                   Log::error("Item keranjang hilang ID produk untuk pesanan: {$idPesanan}");
+                   throw new \Exception("Item keranjang tidak memiliki ID produk yang valid.");
+                }
+
+                // LOG B: Data Detail Pesanan sebelum insert
+                Log::info("Detail Pesanan Data:", [
+                    'id_pesanan' => $idPesanan, 
+                    'id_produk' => $idProduk, 
+                    'jumlah' => $jumlah,
+                    'harga_saat_pembelian' => $harga,
+                ]);
+
+                // HANYA MENGIRIM 4 KOLOM YANG SESUAI DENGAN TABEL DETAIL_PESANAN
                 DetailPesanan::create([
-                    'id_pesanan'    => $idPesanan, 
-                    'id_produk'     => $item['idproduk'] ?? null, 
-                    'nama_produk'   => $item['namaproduk'] ?? 'Unknown', 
-                    'jumlah'        => $item['jumlah'] ?? 0,
-                    'harga_satuan'  => $item['harga'] ?? 0,
-                    'subtotal'      => ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0),
+                    'id_pesanan'              => $idPesanan, 
+                    'id_produk'               => $idProduk, 
+                    'jumlah'                  => $jumlah,
+                    'harga_saat_pembelian'    => $harga,
                 ]);
             }
 
-            DB::commit(); // Semua query berhasil
+            DB::commit();
             
-            // Hapus session cart jika sebelumnya ada data yang tersimpan di session
-            session()->forget('cart');
+            // ** session()->forget('cart'); Dihapus/dikomentari agar halaman checkout (index) tetap bisa membaca item keranjang.
 
-            // Beri respon sukses ke AJAX, termasuk URL redirect
+            // ** Redirect ke halaman checkout (form), BUKAN halaman success **
+            $redirectUrl = route('payment.form'); 
+
             return response()->json([
                 'success' => true, 
-                'message' => 'Pesanan instan berhasil dibuat!', 
-                'redirect_url' => route('checkout.success') . '?order_id=' . $idPesanan
+                'message' => 'Pesanan instan (draft) berhasil dibuat! Anda akan diarahkan ke halaman checkout.', 
+                'redirect_url' => $redirectUrl // Menggunakan route checkout.index
             ]);
 
         } catch (\Exception $e) {
-            DB::rollBack(); // Batalkan semua query jika terjadi error
-            \Log::error('Gagal memproses pesanan instan: ' . $e->getMessage());
+            DB::rollBack();
+            // Logging lengkap untuk debugging server
+            Log::error('Gagal memproses pesanan instan (Database/Logic): ' . $e->getMessage() . 
+                        ' pada baris ' . $e->getLine() . ' di file ' . $e->getFile(), 
+                        ['exception' => $e]);
             
-            // Respon error ke AJAX
+            // Mengubah status code 500 menjadi 200 agar pesan error di JSON bisa dibaca oleh frontend
             return response()->json([
                 'success' => false, 
-                'message' => 'Gagal menyimpan pesanan. Detail: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Gagal menyimpan pesanan. Terjadi kesalahan server. Detail Error: ' . $e->getMessage() . 
+                              ' (Lihat Log Server untuk detail lebih lanjut)'
+            ], 200); 
         }
     }
 
+    // Fungsi untuk mengambil biaya pengiriman (Wajib disesuaikan dengan logika bisnis Anda)
+    private function getShippingCost($service) {
+        // Asumsi: Hanya ada 'Regular' di UI (seperti di screenshot)
+        if (strtolower($service) == 'regular') {
+            return 10000; // Contoh biaya pengiriman reguler
+        }
+        return 0;
+    }
+    
     // ===========================
-    // SIMPAN PESANAN KE DATABASE (DIPANGGIL DARI FORM CHECKOUT)
+    // PROSES DARI FORM REGULER (SETELAH TOMBOL CHECKOUT DIKLIK DI HALAMAN FORM)
     // ===========================
     function process(Request $request)
     {
-        // --- 1. Validasi ---
+        // ✅ VALIDASI DISESUAIKAN: Menghapus 'kota' dan menambahkan 'pengiriman'
         $request->validate([
             'nama_penerima'     => 'required|string|max:255',
             'nomor_telepon'     => 'required|string|max:15',
             'alamat_lengkap'    => 'required|string',
-            'kota'              => 'required|string|max:100',
+            'pengiriman'        => 'required|string|max:50', 
             'metode_pembayaran' => 'required|string|max:50'
         ]);
 
@@ -141,45 +176,45 @@ class CheckoutController extends Controller
             return back()->with('error', 'Keranjang kosong.');
         }
 
-        // --- 2. Penanganan ID Pengguna & Total Harga ---
-        $idPengguna = auth()->check() ? auth()->user()->id_pengguna : 'GUEST-' . time();
+        // --- ID PENGGUNA: Fallback ke PG138 (ID yang valid) jika tidak login
+        $idPengguna = auth()->check()
+            ? (auth()->user()->id_pengguna ?? auth()->user()->id)
+            : 'PG138'; 
+
         $idPesanan = 'ORD-' . time();
-        $totalHarga = 0;
-        
+
+        $totalHargaProduk = 0;
         foreach ($cart as $item){
-            $totalHarga += ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0);
+            $totalHargaProduk += ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0);
         }
 
-        // --- 3. Transaksi Database ---
         DB::beginTransaction();
         try {
-            // Simpan ke tabel PESANAN
             Pesanan::create([
                 'id_pesanan'        => $idPesanan,
                 'id_pengguna'       => $idPengguna,
                 'nama_penerima'     => $request->nama_penerima,
-                'alamat_pengiriman' => $request->alamat_lengkap . ', ' . $request->kota,
+                // ✅ Menggunakan alamat_lengkap saja sesuai data form
+                'alamat_pengiriman' => $request->alamat_lengkap, 
                 'nomor_telepon'     => $request->nomor_telepon,
                 'tanggal_pesanan'   => now(),
                 'metode_pembayaran' => strtoupper($request->metode_pembayaran),
-                'total_harga'       => $totalHarga,
+                // ✅ Menyimpan layanan dan biaya pengiriman
+                'total_harga'       => $totalHargaFinal, // Total Harga Akhir
             ]);
 
-            // Simpan detail produk ke tabel DETAIL_PESANAN (Looping Keranjang)
             foreach ($cart as $item) {
+                // HANYA MENGIRIM 4 KOLOM YANG SESUAI DENGAN TABEL DETAIL_PESANAN
                 DetailPesanan::create([
-                    'id_pesanan'    => $idPesanan,
-                    'id_produk'     => $item['idproduk'] ?? null, 
-                    'nama_produk'   => $item['namaproduk'] ?? 'Unknown', 
-                    'jumlah'        => $item['jumlah'] ?? 0,
-                    'harga_satuan'  => $item['harga'] ?? 0,
-                    'subtotal'      => ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0),
+                    'id_pesanan'              => $idPesanan,
+                    'id_produk'               => $item['idproduk'] ?? null, 
+                    'jumlah'                  => $item['jumlah'] ?? 0,
+                    'harga_saat_pembelian'    => $item['harga'] ?? 0,
                 ]);
             }
 
-            DB::commit(); // Komit transaksi
+            DB::commit();
 
-            // hapus session cart setelah semua data disimpan
             session()->forget('cart');
             $request->session()->flash('clear_cart', true); 
 
@@ -188,49 +223,55 @@ class CheckoutController extends Controller
                 ->with('order_id', $idPesanan);
 
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback jika ada error
+            DB::rollBack();
             \Log::error('Gagal memproses pesanan form: ' . $e->getMessage());
             
             return back()->withInput()
-                        ->with('error', 'Gagal menyimpan pesanan. Silakan coba lagi. (Error: ' . $e->getMessage() . ')');
+                ->with('error', 'Gagal menyimpan pesanan. Silakan coba lagi. (Error: ' . $e->getMessage() . ')');
         }
     }
 
     // ===========================
-    // HALAMAN SUCCESS
+    // SUCCESS PAGE
     // ===========================
     function success(Request $request)
     {
-        // Ambil order_id dari session atau query parameter
         $orderId = session('order_id') ?? $request->query('order_id');
         $message = session('success') ?? 'Terima kasih atas pesanan Anda.';
+        // ** HARUS Mengambil data Pesanan dari Database **
+        $lastOrder = null;
+        if ($orderId) {
+            // Mengambil data pesanan dari DB
+            $lastOrder = Pesanan::where('id_pesanan', $orderId)->first();
+        }
 
         return view('checkout.success', [
             'order_id' => $orderId,
-            'message' => $message
+            'message' => $message,
+            'lastOrder' => $lastOrder // <-- WAJIB DIKIRIM ke view
         ]);
     }
 
-   public function sync(Request $request)
-{
-    // Mengambil data 'cart' dari AJAX POST body
-    $cart = $request->json('cart', []);
+    // ===========================
+    // SYNC CART
+    // ===========================
+    public function sync(Request $request)
+    {
+        $cart = $request->json('cart', []);
 
-    // Sanitasi data minimal dan menghapus session jika keranjang kosong
-    if (!is_array($cart) || empty($cart)) {
-        session()->forget('cart');
-        return response()->json(['success' => true]);
+        if (!is_array($cart) || empty($cart)) {
+            session()->forget('cart');
+            return response()->json(['success' => true]);
+        }
+
+        $sanitizedCart = collect($cart)->filter(function ($item) {
+            return isset($item['idproduk']) 
+                && isset($item['namaproduk']) 
+                && (int)($item['jumlah'] ?? 0) > 0;
+        })->all();
+        
+        session(['cart' => $sanitizedCart]);
+
+        return response()->json(['success' => true]); 
     }
-
-    // Filter array 'cart' untuk mencegah item korup (seperti 'undefined' lama) menyebabkan masalah di blade view.
-    $sanitizedCart = collect($cart)->filter(function ($item) {
-        return isset($item['idproduk']) && isset($item['namaproduk']) && (int)($item['jumlah'] ?? 0) > 0;
-    })->all();
-    
-    // Simpan keranjang yang sudah bersih ke Session
-    session(['cart' => $sanitizedCart]);
-
-    // Mengembalikan respons JSON sukses
-    return response()->json(['success' => true]); 
-}
 }
