@@ -7,7 +7,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StudyController;
 use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\GalleryController; // Pastikan ini tidak mengganggu
+use App\Http\Controllers\GalleryController; 
 use App\Http\Controllers\QnaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
@@ -19,10 +19,12 @@ use App\Http\Controllers\ManageUserController;
 use App\Http\Controllers\ManageReviewController;
 use App\Http\Controllers\ManageFaqController;
 use App\Http\Controllers\ManageSettingController;
+use App\Http\Controllers\ManageStatusPesananController;
+
 
 # Home
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::get('/', fn() => redirect()->route('home'));
+
 
 # Halaman lain (sementara pakai view placeholder biar link navbar/footer jalan)
 Route::view('/about', 'about')->name('about');
@@ -74,6 +76,15 @@ Route::get('/manageFaq-hapus/{id_faq}', [ManageFaqController::class, 'delete']);
 // Manage Gallery
 
 
+// Manage Status Pesanan
+Route::get('/manageStatus', [ManageStatusPesananController::class, 'index']);
+Route::get('/manageStatus-input', [ManageStatusPesananController::class, 'input']);
+Route::post('/manageStatus-simpan', [ManageStatusPesananController::class, 'simpan']);
+Route::get('/manageStatus-edit/{id_status_pesanan}', [ManageStatusPesananController::class, 'edit']);
+Route::post('/manageStatus-update/{id_status_pesanan}', [ManageStatusPesananController::class, 'update']);
+Route::get('/manageStatus-hapus/{id_status_pesanan}', [ManageStatusPesananController::class, 'delete']);
+
+
 // Manage Publication
 Route::get('/publication', [ManagePublicationController::class, 'tampil'])
     ->name('publication.index');
@@ -119,7 +130,6 @@ Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('c
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
 
 // Tampilan halaman checkout
-// --- ROUTE E-COMMERCE ---
 Route::get('produk', [ProductController::class, 'index'])->name('product.index');
 Route::get('/produk/detail/{id}', [ProductController::class, 'show'])->name('product.detail');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
@@ -148,3 +158,4 @@ Route::get('/qna', [QnaController::class, 'index'])->name('qna');
 
 // ROUTE GALERI
 Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');
+
