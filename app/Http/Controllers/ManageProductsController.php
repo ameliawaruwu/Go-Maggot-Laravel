@@ -14,7 +14,7 @@ class ManageProductsController extends Controller
         return view('manage-products.index', compact('produk'));
     }
 
-      function input(){
+    function input(){
         $produk = Produk::all();
         return view('manage-products.create', compact('produk'));
     }

@@ -1,6 +1,6 @@
 @extends('layouts.artikel') 
 
-@section('title', $article->judul ?? 'Detail Artikel') {{-- Akses sebagai properti objek ->judul --}}
+@section('title', $article->judul ?? 'Detail Artikel') 
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/esa/artikelsatu.css') }}">
