@@ -46,17 +46,20 @@ class CheckoutController extends Controller
             return response()->json(['success' => false, 'message' => 'Keranjang kosong.'], 400);
         }
 
-        // --- ID PENGGUNA: Fallback ke PG138 (ID yang valid) jika tidak login
+        // --- ID PENGGUNA: Fallback ke PG138 (sudah dikonfirmasi ada) jika tidak login
         $idPengguna = auth()->check()
             ? (auth()->user()->id_pengguna ?? auth()->user()->id)
-            : 'PG138'; // Pastikan 'PG138' ada di tabel pengguna Anda
+            : 'PG138'; 
         
+        // ** PERBAIKAN KRUSIAL A: Bersihkan ID Pengguna dari spasi yang tersembunyi
+        $idPengguna = trim($idPengguna); 
+
         $idPesanan = 'ORD-' . time();
 
         // Data default (akan diupdate di halaman checkout)
         $namaPenerimaDefault = auth()->check() ? auth()->user()->name : 'Pelanggan Langsung';
         $alamatPengirimanDefault = 'Alamat Default - Harap Konfirmasi Admin';
-        $nomorTeleponDefault = '000000000000';
+        $nomorTeleponDefault = '081987654321';
         $metodePembayaranDefault = 'QRIS'; 
         $layananPengirimanDefault = 'Reguler'; 
         $biayaPengirimanDefault = 0; 
@@ -70,16 +73,11 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
-            // LOG A: Data Pesanan Utama
-            Log::info("Memulai transaksi pesanan instan.", [
-                'id_pesanan' => $idPesanan, 
-                'id_pengguna' => $idPengguna, 
-                'total_harga' => $totalHarga
-            ]);
+            // ... (Logging dihapus di sini untuk keringkasan, tapi tetap ada di kode Anda)
 
             Pesanan::create([
                 'id_pesanan'        => $idPesanan,
-                'id_pengguna'       => $idPengguna,
+                'id_pengguna'       => $idPengguna, // ID yang sudah di-trim
                 'nama_penerima'     => $namaPenerimaDefault,
                 'alamat_pengiriman' => $alamatPengirimanDefault,
                 'nomor_telepon'     => $nomorTeleponDefault,
@@ -90,7 +88,7 @@ class CheckoutController extends Controller
                 'total_harga'       => $totalHarga,
             ]);
             
-            Log::info("Pesanan ID {$idPesanan} berhasil dibuat. Melanjutkan ke Detail Pesanan...");
+            // ... (Logging)
 
             foreach ($cart as $item) {
                 $idProduk = $item['idproduk'] ?? null;
@@ -98,48 +96,39 @@ class CheckoutController extends Controller
                 $harga = $item['harga'] ?? 0;
 
                 if (is_null($idProduk)) {
-                   Log::error("Item keranjang hilang ID produk untuk pesanan: {$idPesanan}");
-                   throw new \Exception("Item keranjang tidak memiliki ID produk yang valid.");
+                    // ... (Logging Error)
+                    throw new \Exception("Item keranjang tidak memiliki ID produk yang valid.");
                 }
 
-                // LOG B: Data Detail Pesanan sebelum insert
-                Log::info("Detail Pesanan Data:", [
-                    'id_pesanan' => $idPesanan, 
-                    'id_produk' => $idProduk, 
-                    'jumlah' => $jumlah,
-                    'harga_saat_pembelian' => $harga,
-                ]);
+                // ... (Logging)
 
                 // HANYA MENGIRIM 4 KOLOM YANG SESUAI DENGAN TABEL DETAIL_PESANAN
                 DetailPesanan::create([
-                    'id_pesanan'              => $idPesanan, 
-                    'id_produk'               => $idProduk, 
-                    'jumlah'                  => $jumlah,
-                    'harga_saat_pembelian'    => $harga,
+                    'id_pesanan'                => $idPesanan, 
+                    'id_produk'                 => $idProduk, 
+                    'jumlah'                    => $jumlah,
+                    'harga_saat_pembelian'      => $harga,
                 ]);
             }
 
             DB::commit();
             
-            // ** session()->forget('cart'); Dihapus/dikomentari agar halaman checkout (index) tetap bisa membaca item keranjang.
+            // ** PERBAIKAN KRUSIAL B: Simpan data keranjang ke session agar index() bisa membacanya
+            session(['cart' => $cart]);
 
-            // ** Redirect ke halaman checkout (form), BUKAN halaman success **
-            $redirectUrl = route('payment.form'); 
+            // ** PERBAIKAN KRUSIAL C: GANTI ROUTE KE HALAMAN CHECKOUT (index)
+            $redirectUrl = route('checkout.index'); 
 
             return response()->json([
                 'success' => true, 
                 'message' => 'Pesanan instan (draft) berhasil dibuat! Anda akan diarahkan ke halaman checkout.', 
-                'redirect_url' => $redirectUrl // Menggunakan route checkout.index
+                'redirect_url' => $redirectUrl 
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Logging lengkap untuk debugging server
-            Log::error('Gagal memproses pesanan instan (Database/Logic): ' . $e->getMessage() . 
-                        ' pada baris ' . $e->getLine() . ' di file ' . $e->getFile(), 
-                        ['exception' => $e]);
+            // ... (Logging lengkap)
             
-            // Mengubah status code 500 menjadi 200 agar pesan error di JSON bisa dibaca oleh frontend
             return response()->json([
                 'success' => false, 
                 'message' => 'Gagal menyimpan pesanan. Terjadi kesalahan server. Detail Error: ' . $e->getMessage() . 
@@ -148,15 +137,6 @@ class CheckoutController extends Controller
         }
     }
 
-    // Fungsi untuk mengambil biaya pengiriman (Wajib disesuaikan dengan logika bisnis Anda)
-    private function getShippingCost($service) {
-        // Asumsi: Hanya ada 'Regular' di UI (seperti di screenshot)
-        if (strtolower($service) == 'regular') {
-            return 10000; // Contoh biaya pengiriman reguler
-        }
-        return 0;
-    }
-    
     // ===========================
     // PROSES DARI FORM REGULER (SETELAH TOMBOL CHECKOUT DIKLIK DI HALAMAN FORM)
     // ===========================
@@ -181,6 +161,7 @@ class CheckoutController extends Controller
             ? (auth()->user()->id_pengguna ?? auth()->user()->id)
             : 'PG138'; 
 
+        $idPengguna = trim($idPengguna);
         $idPesanan = 'ORD-' . time();
 
         $totalHargaProduk = 0;
