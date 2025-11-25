@@ -32,8 +32,8 @@ class ArtikelSeeder extends Seeder
                             <p>
                                 Maggot merupakan larva dari jenis lalat Black Soldier Fly (BSF) sehingga sering disebut maggot BSF.
                                 Lalat BSF memiliki nama latin <em>Hermetia illucens</em>. Bentuknya mirip ulat, dengan ukuran
-                                larva dewasa 15–22 mm dan berwarna coklat. Siklus hidup lalat BSF sekitar 40–43 hari.
-                                Larva bertahan 14–18 hari sebelum bermetamorfosis menjadi pupa dan lalat dewasa.
+                                larva dewasa 15-22 mm dan berwarna coklat. Siklus hidup lalat BSF sekitar 40–43 hari.
+                                Larva bertahan 14-18 hari sebelum bermetamorfosis menjadi pupa dan lalat dewasa.
                             </p>
                             <br>
 
@@ -99,7 +99,7 @@ class ArtikelSeeder extends Seeder
                                 <p>Jaga kebersihan kandang, bersihkan dan ganti media secara rutin.</p>
 
                                 <li>Suhu dan Kelembapan</li>
-                                <p>Pertahankan suhu ideal 25–30°C agar maggot tumbuh optimal.</p>
+                                <p>Pertahankan suhu ideal 25-30°C agar maggot tumbuh optimal.</p>
 
                                 <li>Pengendalian Hama</li>
                                 <p>Gunakan perangkap atau insektisida alami untuk mencegah hama seperti semut atau lalat lain.</p>
@@ -130,13 +130,13 @@ class ArtikelSeeder extends Seeder
                             <h4>Karakteristik Maggot BSF</h4>
                             <ul>
                                 <li>1. Ukuran :</li>
-                                <p>Sekitar 1–2 cm saat siap panen.</p>
+                                <p>Sekitar 1-2 cm saat siap panen.</p>
 
                                 <li>2. Warna :</li>
                                 <p>Putih krem hingga kekuningan, berbentuk silindris meruncing di ujung.</p>
 
                                 <li>3. Siklus Hidup :</li>
-                                <p>Melewati empat tahap: telur, larva, pupa, dan lalat dewasa (10–14 hari fase larva).</p>
+                                <p>Melewati empat tahap: telur, larva, pupa, dan lalat dewasa (10-14 hari fase larva).</p>
 
                                 <li>4. Habitat :</li>
                                 <p>Lingkungan lembap dengan bahan organik tinggi seperti limbah dapur atau pertanian.</p>
@@ -184,8 +184,8 @@ class ArtikelSeeder extends Seeder
                             <h4>Apa Itu Maggot BSF</h4>
                             <p>
                                 Maggot merupakan larva dari jenis lalat Black Soldier Fly (BSF) sehingga sering disebut maggot BSF.
-                                Lalat BSF memiliki nama latin <em>Hermetia illucens</em>, berbentuk seperti ulat, panjang 15–22 mm,
-                                dan berwarna coklat. Siklus hidupnya sekitar 40–43 hari.
+                                Lalat BSF memiliki nama latin <em>Hermetia illucens</em>, berbentuk seperti ulat, panjang 15-22 mm,
+                                dan berwarna coklat. Siklus hidupnya sekitar 40-43 hari.
                             </p><br>
 
                             <h4>Manfaat Maggot BSF Dalam Segi Kehidupan</h4>

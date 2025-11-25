@@ -11,7 +11,7 @@
 <div class="Sub-topik">
     <h2>Ayo Belajar!</h2>
     <ul>
-        {{-- TOPICS (Masih menggunakan data dummy) --}}
+        {{-- Topik pembelajaran --}}
         @foreach ($topics as $topic)
             <li>
                 <summary>{{ $topic['summary'] }}</summary>
@@ -37,11 +37,11 @@
 
 <div class="container my-4">
     <div class="row justify-content-center">
-        {{-- ARTIKEL DARI DATABASE --}}
-        @foreach ($articles as $article) {{-- $articles kini adalah objek Eloquent --}}
+        {{-- Cart artikel--}}
+        @foreach ($articles as $article) 
             <div class="col-md-3 mx-2 mb-4">
                 <div class="card shadow-sm" style="border-radius: 15px; overflow:hidden;">
-                    {{-- Akses properti objek: ->gambar --}}
+
                     <img src="{{ asset('images/' . $article->gambar) }}" 
                          class="card-img-top" 
                          alt="{{ $article->judul }}" 
@@ -49,11 +49,9 @@
                          onerror="this.onerror=null; this.src='https://placehold.co/400x200/cccccc/333333?text=Gambar+Artikel+Rusak';"
                     >
                     <div class="card-body text-center">
-                        {{-- Akses properti objek: ->judul --}}
                         <h5 class="card-title">{{ $article->judul }}</h5>
 
-                        {{-- LINK ARTIKEL --}}
-                        {{-- Menggunakan route name dengan parameter id_artikel --}}
+                        {{-- Redirect ke masing-masing artikel --}}
                         <a href="{{ route('article.show', $article->id_artikel) }}" class="btn btn-secondary mt-3">
                             Pelajari Lebih Lanjut
                         </a>
@@ -62,14 +60,10 @@
                 </div>
             </div>
         @endforeach
-        
-        {{-- Hapus loop gallery-container di bawah jika Anda menggunakan loop di atas --}}
     </div>
 </div>
 
 <div class="gallery-container d-none">
-    {{-- Hapus blok ini jika Anda hanya menggunakan loop di atas, 
-         atau pastikan komponen x-article-card sudah disesuaikan --}}
 </div>
 
 @push('scripts')

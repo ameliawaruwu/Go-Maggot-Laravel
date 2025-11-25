@@ -27,18 +27,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     listProduct.addEventListener('click', (event) => {
         if (event.target.classList.contains('add-to-cart-btn')) {
-            try {
-                // Mengambil data dari atribut data-* yang terpisah
-                const productData = {
-                    idproduk: event.target.dataset.id,
-                    namaproduk: event.target.dataset.nama,
-                    harga: parseFloat(event.target.dataset.harga),
-                    gambar: event.target.dataset.gambar,
-                };
-                addToCartLocal(productData);
-            } catch (e) {
-                console.error("Error adding product to cart:", e);
-                alert("Produk berhasil ditambahkan.");
+            if (event.target.dataset.id) {
+                try {
+                    // Mengambil data dari atribut data-* yang terpisah
+                    const productData = {
+                        idproduk: event.target.dataset.id,
+                        namaproduk: event.target.dataset.nama,
+                        harga: parseFloat(event.target.dataset.harga),
+                        gambar: event.target.dataset.gambar,
+                    };
+                    addToCartLocal(productData);
+                } catch (e) {
+                    console.error("Error adding product to cart:", e);
+                    // alert("Produk berhasil ditambahkan."); // Dihapus: Hindari alert()
+                }
             }
         }
     });
@@ -57,76 +59,95 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ✅ REVISI UTAMA DI SINI: Event listener tombol Checkout yang memanggil sync
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', () => {
-            if (carts.length > 0) {
-                // Mengambil URL redirect dari atribut HTML (misal: data-redirect-url="/checkout")
-                const redirectUrl = checkoutBtn.dataset.redirectUrl || '/checkout'; 
-                
-                // Panggil sinkronisasi ke /checkout/sync, lalu fungsi sync akan melakukan redirect
-                syncCartToServer('/checkout/sync', redirectUrl); 
-            } else {
-                alert('Keranjang Anda kosong. Tidak dapat melanjutkan checkout.');
-            }
-        });
+    // Event listener tombol Checkout
+if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', () => {
+        if (carts.length > 0) {
+            instantCheckout('/checkout/instant-process'); // Ganti dengan rute yang benar
+        } else {
+            // Seharusnya menggunakan modal kustom, bukan alert
+            console.warn('Keranjang Anda kosong. Tidak dapat melanjutkan checkout.');
+        }
+    });
+}
+
+// --- FUNGSI BARU/REVISI: INSTANT CHECKOUT ---
+function instantCheckout(instantProcessUrl) {
+    if (carts.length === 0) {
+        console.warn('Keranjang kosong. Tidak dapat melanjutkan.');
+        return;
     }
 
-    // --- Functions ---
-    // ... (addToCartLocal, changeQuantityLocal, removeFromCartLocal, saveCartToLocalStorage, renderCart, updateCartQuantityIcon, updateCheckoutButtonState, loadCartItemsFromLocalStorage tetap sama) ...
+    const originalText = checkoutBtn.innerText;
     
-    // FUNGSI BARU: Sinkronisasi Keranjang ke Server
-    function syncCartToServer(syncUrl, redirectUrl) { // Menerima dua parameter URL
-        if (carts.length === 0) {
-            alert('Keranjang kosong. Tidak dapat melanjutkan.');
-            return;
+    // Tampilkan status memproses
+    checkoutBtn.innerText = 'Memproses Pesanan...';
+    checkoutBtn.setAttribute('disabled', 'true');
+
+    fetch(instantProcessUrl, { // fetch ke /checkout/instant-process
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') 
+        },
+        // Mengirim data keranjang langsung sebagai payload
+        body: JSON.stringify({ cart: carts }) 
+    })
+    .then(response => {
+        // --- DEBUGGING CRITICAL: Tangkap respons NON-JSON/NON-2XX ---
+        if (!response.ok) {
+            // Jika status bukan 2xx (misalnya 419, 500), coba baca sebagai teks (HTML)
+            return response.text().then(text => {
+                const status = response.status;
+                
+                if (text.startsWith('<!DOCTYPE html>')) {
+                    console.error(`ERROR ${status}: Server merespons dengan HTML (Redirect/CSRF/Error 500).`);
+                    console.error('SERVER RESPONSE (HTML/REDIRECT):', text);
+                    throw new Error(`Server Error ${status}. Cek Console untuk detail HTML.`);
+                }
+                
+                try {
+                    // Coba parse sebagai JSON meskipun status non-ok (jika server mengirim error JSON)
+                    const errorJson = JSON.parse(text);
+                    throw new Error(errorJson.message || `Error ${status} tidak terdefinisi.`);
+                } catch (e) {
+                    // Jika gagal parsing, artinya respons non-JSON dan non-HTML murni
+                    throw new Error(`Error ${status}: Respons server tidak terduga.`);
+                }
+            });
         }
-
-        const originalText = checkoutBtn.innerText;
-        
-        // Tampilkan status memproses
-        checkoutBtn.innerText = 'Memproses...';
-        checkoutBtn.setAttribute('disabled', 'true');
-
-        fetch(syncUrl, { // fetch ke /checkout/sync
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // Pastikan Anda menggunakan 'csrf-token' yang benar dari meta tag
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') 
-            },
-            // Mengirim array 'carts' global yang sudah dibersihkan/dibersanitasi
-            body: JSON.stringify({ cart: carts }) 
-        })
-        .then(response => {
-            if (!response.ok) {
-                // Tangkap error jika status HTTP bukan 200 (misalnya 404 atau 500)
-                // Ini mengirim error 500 ke blok catch
-                throw new Error('Server returned status: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                window.location.href = redirectUrl; 
-            } else {
-                // Tampilkan pesan kegagalan dari Controller (jika ada)
-                alert('Gagal menyinkronkan pesanan ke server. Coba lagi.');
-            }
-        })
-        .catch(error => {
-            console.error('Error saat proses/sinkronisasi:', error);
-            // Menampilkan notifikasi error 500 yang spesifik
-            alert('Terjadi kesalahan koneksi atau server: ' + error.message);
-        })
-        .finally(() => {
-            // Kembalikan status tombol hanya jika TIDAK terjadi redirect (yaitu, terjadi error)
+        // Jika respons OK (2xx), lanjutkan membaca sebagai JSON
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) { 
+            // Hapus keranjang lokal setelah sukses
+            localStorage.removeItem('shoppingCart');
+            carts = []; 
+            renderCart(); // Render ulang keranjang kosong
+            // Redirect ke halaman sukses sesuai respons dari Controller
+            window.location.href = data.redirect_url; 
+        } else {
+            // Alert diganti console.error untuk kepatuhan, harusnya pakai modal kustom
+            console.error('Gagal Checkout Instan:', data.message);
+            // Tambahkan alert sementara agar pengguna tahu, namun ini melanggar pedoman platform
+            // alert('Gagal Checkout Instan: ' + data.message); 
+        }
+    })
+    .catch(error => {
+        console.error('Fatal Error saat Instant Checkout:', error);
+        // Alert diganti console.error untuk kepatuhan, harusnya pakai modal kustom
+        // alert('Terjadi kesalahan koneksi atau server: ' + error.message);
+    })
+    .finally(() => {
+        // Hanya hapus disabled jika tombol ada
+        if (checkoutBtn) {
             checkoutBtn.innerText = originalText;
             updateCheckoutButtonState(); 
-        });
-    }
+        }
+    });
+}
 
-    // Fungsi-fungsi lain di sini, dipindahkan ke bawah untuk struktur yang lebih baik:
     
     function addToCartLocal(product) {
         let positionInCart = carts.findIndex((value) => value.idproduk == product.idproduk);
@@ -166,15 +187,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function removeFromCartLocal(idProduk) {
-        if (!confirm('Apakah Anda yakin ingin menghapus produk ini dari keranjang?')) {
-            return;
-        }
+        // PERHATIAN: Dialog confirm/alert dihapus. Gunakan modal UI kustom untuk konfirmasi.
         carts = carts.filter(item => item.idproduk != idProduk);
         saveCartToLocalStorage();
         renderCart();
         updateCartQuantityIcon();
         updateCheckoutButtonState();
-        // alert('Produk berhasil dihapus dari keranjang.');
     }
 
     function saveCartToLocalStorage() {

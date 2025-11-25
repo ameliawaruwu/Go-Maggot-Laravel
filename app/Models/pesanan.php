@@ -8,7 +8,7 @@ class Pesanan extends Model
 {
     protected $table = 'pesanan';
     protected $primaryKey = 'id_pesanan';
-    public $incrementing = false;     // primary key string
+    public $incrementing = false;     
     protected $keyType = 'string';
 
     protected $fillable = [

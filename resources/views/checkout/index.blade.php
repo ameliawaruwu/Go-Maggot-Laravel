@@ -8,7 +8,6 @@
      <!-- Menampilkan pesan sukses atau error dari Controller (sesi)  -->
     <div id="checkoutMessageArea" class="row justify-content-center mb-4">
         <div class="col-12">
-            <!-- {{-- Menggunakan alert class Bootstrap untuk pesan yang lebih rapi --}} -->
             @if(session('success'))
                 <div class="alert alert-success text-center" role="alert">
                     {{ session('success') }}
@@ -57,13 +56,14 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label for="kota">Kota</label>
-                    <select id="kota" name="kota" required class="form-select">
-                        <option value="">Pilih Kota</option>
-                        <option value="Bandung" {{ old('kota') == 'Bandung' ? 'selected' : '' }}>Bandung</option>
-                        <option value="Jakarta" {{ old('kota') == 'Jakarta' ? 'selected' : '' }}>Jakarta</option>
+                    <label for="kota">Pengiriman</label>
+                    <select id="Pengiriman" name="Pengiriman" required class="form-select">
+                        <option value="">Pengiriman</option>
+                        <option value="Instan" {{ old('Pengiriman') == 'Instan' ? 'selected' : '' }}>Instan</option>
+                        <option value="Reguler" {{ old('Pengiriman') == 'Reguler' ? 'selected' : '' }}>Reguler</option>
+                        <option value="Kargo" {{ old('Pengiriman') == 'Kargo' ? 'selected' : '' }}>Kargo</option>
                     </select>
-                    @error('kota') <span class="text-danger">{{ $message }}</span> @enderror
+                    @error('Pengiriman') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
                 
                 <div class="form-group mb-4">
