@@ -46,9 +46,9 @@
         </li>
 
         <li>
-            <a href="" class="text-decoration-none">
+            <a href="/manageReview" class="text-decoration-none">
                 <i class='bx  bx-edit'  ></i> 
-                <span class="text">Reviews</span>
+                <span class="text">Reviews Produk</span>
             </a>
         </li>
 
