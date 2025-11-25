@@ -42,10 +42,7 @@ Route::get('/', function () {
 
 // Dashboard Admin
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-
-// Analytics
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
-
 // Manajemen Produk Admin
 Route::get('/manageProduk', [ManageProductsController::class, 'index']);
 Route::get('/manageProduk-input', [ManageProductsController::class, 'input']);
@@ -63,45 +60,36 @@ Route::post('/manageUser-update/{id_pengguna}', [ManageUserController::class, 'u
 Route::get('/manageUser-hapus/{id_pengguna}', [ManageUserController::class, 'delete']);
 
 // Manage Review Admin
-Route::get('manageReview', [ManageReviewController::class, 'index']);
+Route::get('/manageReview', [ManageReviewController::class, 'index']);
+Route::post('/manageReview-approve/{id}', [ManageReviewController::class, 'approve']);
+Route::post('/manageReview-reject/{id}', [ManageReviewController::class, 'reject']);
 
+// Manage Faq Admin
+Route::get('/manageFaq', [ManageFaqController::class, 'index']);
+Route::get('/manageFaq-input', [ManageFaqController::class, 'input']);
+Route::post('/manageFaq-simpan', [ManageFaqController::class, 'simpan']);
+Route::get('/manageFaq-edit/{id_faq}', [ManageFaqController::class, 'edit']);
+Route::post('/manageFaq-update/{id_faq}', [ManageFaqController::class, 'update'] );
+Route::get('/manageFaq-hapus/{id_faq}', [ManageFaqController::class, 'delete']);
 
 // Manage Gallery
 
 
 // Manage Publication
-
-// TAMPIL
 Route::get('/publication', [ManagePublicationController::class, 'tampil'])
     ->name('publication.index');
-
-// FORM INPUT
 Route::get('/publication/input', [ManagePublicationController::class, 'input'])
     ->name('publication.create');
-
-// SIMPAN
 Route::post('/publication/simpan', [ManagePublicationController::class, 'simpan'])
     ->name('publication.store');
-
-// EDIT
 Route::get('/publication/edit/{id}', [ManagePublicationController::class, 'edit'])
     ->name('publication.edit');
-
-// UPDATE (HANYA INI)
 Route::put('/publication/update/{id}', [ManagePublicationController::class, 'update'])
     ->name('publication.update');
-
-// HAPUS
 Route::delete('/publication/hapus/{id}', [ManagePublicationController::class, 'hapus'])
     ->name('publication.destroy');
 
-    
-// Manage User
 
-
-// Manage Review
-
-// Manage Faq
 
 // Manage Setting
 Route::get('/managesetting', [ManageSettingController::class, 'index'])->name('settings.index');
@@ -122,6 +110,9 @@ Route::post('/checkout/sync', [CheckoutController::class, 'sync']);
 Route::post('/checkout/instant-process', [CheckoutController::class, 'instantProcess'])->name('checkout.instant');
 Route::post('/checkout/to-form', [CheckoutController::class, 'redirectToCheckoutForm'])->name('checkout.redirect');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+
+
 
 // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');

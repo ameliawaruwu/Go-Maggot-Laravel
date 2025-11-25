@@ -3,51 +3,54 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Faq;
 
 class ManageFaqController extends Controller
 {
-    
-    private function getFaqData()
-    {
-        return [
-            (object)['id' => 1, 'pertanyaan' => 'Bagaimana cara reset password?', 'jawaban' => 'Silakan klik "Lupa Password" dan masukkan email Anda.'],
-            (object)['id' => 2, 'pertanyaan' => 'Metode pembayaran apa saja yang diterima?', 'jawaban' => 'Kami menerima transfer bank, kartu kredit, dan e-wallet.'],
-            (object)['id' => 3, 'pertanyaan' => 'Berapa lama waktu pengiriman?', 'jawaban' => 'Waktu pengiriman standar adalah 3-5 hari kerja.'],
-        ];
+    function index(){
+        $faq = Faq::all();
+        return view('manage-faq.index', compact('faq'));
     }
 
-    public function index()
-    {
-        
-        $faqs = $this->getFaqData(); 
-        
-        
-        return view('manage-faq.index', compact('faqs'));
+    function input(){
+        $faq = Faq::all();
+        return view('manage-faq.create', compact('faq'));
     }
 
-    
-    public function store(Request $request)
-    {
-        
-        $request->validate([
-            'pertanyaan' => 'required|string|max:255',
-            'jawaban' => 'required|string',
-        ]);
-        return redirect()->route('managefaq.index')->with('success', 'FAQ berhasil ditambahkan!');
+    function simpan(Request $a){
+        Faq::create(
+            [
+                "id_faq" => $a->id_faq,
+                "pertanyaan" => $a->pertanyaan,
+                "jawaban" => $a->jawaban
+            ]
+            );
+        return redirect('/manageFaq');
     }
 
-    public function update(Request $request, $id)
-    {
-       
-        $request->validate([
-            'pertanyaan' => 'required|string|max:255',
-            'jawaban' => 'required|string',
-        ]);
-        return redirect()->route('managefaq.index')->with('success', "FAQ ID $id berhasil diperbarui!.");
+    function edit($id_faq){
+        $faq = Faq::findOrFail($id_faq);
+        return view('manage-faq.edit', compact('faq'));
     }
 
-    public function destroy($id)
-    {
-        return redirect()->route('managefaq.index')->with('success', "FAQ ID $id berhasil dihapus! .");
+    function update(Request $x, $id_faq){
+        $faq = Faq::findOrFail($id_faq);
+        Faq::where("id_faq", "$x->id_faq" )->update(
+            [
+                'id_faq' => $x->id_faq,
+                'pertanyaan' => $x->pertanyaan,
+                'jawaban' => $x->jawaban
+            ]
+            );
+        return redirect('/manageFaq');
     }
+
+    function delete($id_faq){
+        $faq = Faq::findOrFail($id_faq);
+        $faq->delete();
+        return redirect('/manageFaq');
+    }
+
+
+
 }
