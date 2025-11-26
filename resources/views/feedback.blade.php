@@ -78,7 +78,6 @@
 
 @push('scripts')
 <script>
-  // Rating star logic
   document.querySelectorAll(".stars").forEach(starContainer => {
     const stars = starContainer.querySelectorAll(".star");
     stars.forEach(star => {

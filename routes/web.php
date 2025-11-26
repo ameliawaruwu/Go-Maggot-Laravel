@@ -26,7 +26,6 @@ Route::get('/', fn() => redirect()->route('home'));
 
 # Halaman lain (sementara pakai view placeholder biar link navbar/footer jalan)
 Route::view('/about', 'about')->name('about');
-Route::view('/products', 'products')->name('products'); 
 Route::view('/contact', 'contact')->name('contact');
 Route::view('/help', 'help')->name('help');
 Route::view('/login', 'auth.login')->name('login');
