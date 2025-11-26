@@ -3,84 +3,81 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\pesanan; // Pastikan Anda mengimpor Model Pesanan
+use Carbon\Carbon; // Digunakan untuk penanganan tanggal
 
 class OrderController extends Controller
 {
     /**
      * Menampilkan status pesanan berdasarkan ID Pesanan.
-     * 
-     *
-     * @param  string  $order_id
+     * * @param  string  $order_id
      * @return \Illuminate\View\View
      */
     public function showStatus(string $order_id)
-{
-    $status_message = session('status_message'); 
+    {
+        $status_message = session('status_message'); 
 
-    $all_statuses = [
-        1 => 'Menunggu Pembayaran',
-        2 => 'Pembayaran Dikonfirmasi (Siap Dikemas)',
-        3 => 'Sedang Dikemas',
-        4 => 'Sedang Dikirim',
-        5 => 'Sudah Sampai',
-        6 => 'Dibatalkan',
-    ];
+        // 1. Ambil data pesanan DENGAN relasi statusnya (table status_pesanan)
+        $pesanan = Pesanan::with('status') 
+                           ->where('id_pesanan', $order_id)
+                           ->first();
+        
+        $error_message = '';
+        $pesanan_data = null;
+        $status_name = 'Tidak Diketahui';
+        $urutan_status = 0; // Urutan tampilan status (1, 2, 3, 4, dst.)
 
-    $dummy_orders = [
-        'ORD-MAGGOT-01' => [
-        'id_pesanan' => 'ORD-MAGGOT-01',
-            'nama_penerima' => 'Budi Santoso',
-            'alamat_pengiriman' => 'Jalan Jakarta No. 123, Bandung',
-            'tanggal_pesanan' => '2024-10-18',
-            'total_harga' => 310000.00,
-            'metode_pembayaran' => 'Qris',
-            'status_id' => 3,
-        ],
-        '2024002' => [
-            'id_pesanan' => '2024002',
-            'nama_penerima' => 'Ahmad Fauzi',
-            'alamat_pengiriman' => 'Jl. Bunga No. 12, Jakarta',
-            'tanggal_pesanan' => '2024-10-15',
-            'total_harga' => 125000.00,
-            'metode_pembayaran' => 'E-Wallet',
-            'status_id' => 5,
-        ],
-    ];
+        if (!$pesanan) {
+            // Jika pesanan tidak ditemukan
+            $error_message = "Pesanan dengan ID #{$order_id} tidak ditemukan.";
+        } else {
+            // Pesanan ditemukan
+            
+            // 2. Ambil Nama Status dan Urutan Tampilan dari relasi
+            if ($pesanan->status) {
+                $status_name = $pesanan->status->deskripsi;
+                $urutan_status = $pesanan->status->urutan_tampilan;
+            }
+            
+            // 3. Siapkan data yang akan dikirim ke view
+            $pesanan_data = [
+                'id_pesanan' => $pesanan->id_pesanan,
+                'nama_penerima' => $pesanan->nama_penerima,
+                'alamat_pengiriman' => $pesanan->alamat_pengiriman,
+                // Menggunakan tanggal_pesanan yang otomatis menjadi objek Carbon karena diatur di Model
+                'tanggal_pesanan' => $pesanan->tanggal_pesanan, 
+                'total_harga' => $pesanan->total_harga,
+                'metode_pembayaran' => $pesanan->metode_pembayaran,
+                
+                // Menggunakan key 'status_id' untuk view, nilainya dari kolom 'id_status_pesanan'
+                'status_id' => $pesanan->id_status_pesanan, 
+            ];
+        }
 
-    $pesanan_data = $dummy_orders[$order_id] ?? null;
-    $error_message = '';
+        // Tentukan kelas aktif menggunakan 'urutan_tampilan' ($urutan_status)
+        // Berdasarkan tabel status_pesanan Anda:
+        // Urutan 2: Diproses (Dikemas)
+        // Urutan 3: Dikirim
+        // Urutan 4: Selesai (Sampai)
 
-    if (!$pesanan_data) {
-        $error_message = "Pesanan dengan ID {$order_id} tidak ditemukan.";
+        return view('orders.status', [
+            'pesanan_data' => $pesanan_data,
+            'error_message' => $error_message,
+            'status_name_from_db' => $status_name,
+            'status_message' => $status_message,
+            
+            // Logika Status Tracker:
+            // Sedang Dikemas aktif jika urutan status >= 2 (Diproses)
+            'dikemas_class' => $urutan_status >= 2 ? 'active' : '',
+            
+            // Sedang Dikirim aktif jika urutan status >= 3 (Dikirim)
+            'dikirim_class' => $urutan_status >= 3 ? 'active' : '',
+            
+            // Sudah Sampai aktif jika urutan status >= 4 (Selesai)
+            'sampai_class' => $urutan_status >= 4 ? 'active' : '',
+            
+            'order_id_request' => $order_id,
+        ]);
     }
-
-    $status_id = $pesanan_data['status_id'] ?? 0;
-    $status_name = $all_statuses[$status_id] ?? 'Tidak Diketahui';
-
-    return view('orders.status', [
-        'pesanan_data' => $pesanan_data,
-        'error_message' => $error_message,
-        'status_name_from_db' => $status_name,
-        'status_message' => $status_message,
-        'dikemas_class' => $status_id >= 3 ? 'active' : '',
-        'dikirim_class' => $status_id >= 4 ? 'active' : '',
-        'sampai_class' => $status_id >= 5 ? 'active' : '',
-        'order_id_request' => $order_id,
-    ]);
-}
-
-
-    public function process(Request $request)
-{
-    // Simulasi data dari keranjang 
-    $totalPrice = 310000; 
-    $orderId = '2024001'; 
-
-    // Redirect ke halaman pembayaran (PaymentController@showPaymentForm)
-    return redirect()->route('payment.form', [
-        'order_id' => $orderId,
-        'total' => $totalPrice
-    ]);
-}
 
 }

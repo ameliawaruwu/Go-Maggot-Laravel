@@ -14,7 +14,7 @@
 </head>
 <body>
 
-  @include('layouts.navbardetail')
+  @include('layouts.navbarutama')
 
     <div class="main-content-wrapper">
         @yield('content')

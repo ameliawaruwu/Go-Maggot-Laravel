@@ -12,11 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pesanan', function (Blueprint $table) {
-            // PERBAIKAN: Tipe data disesuaikan menjadi string(255) agar cocok dengan tabel status_pesanan.
-            // Nilai default diubah menjadi string ID yang sesuai dengan seeder (MENUNGGU_PEMBAYARAN).
-            $table->string('id_status_pesanan', 255)->after('total_harga')->default('MENUNGGU_PEMBAYARAN'); 
-
-            // Foreign key constraint tetap sama, karena nama kolomnya sama
+            $table->string('id_status_pesanan', 10)->after('total_harga')->default('SP001');
             $table->foreign('id_status_pesanan')
                   ->references('id_status_pesanan')
                   ->on('status_pesanan')

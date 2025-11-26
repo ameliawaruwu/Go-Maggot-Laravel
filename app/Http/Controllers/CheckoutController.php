@@ -8,11 +8,35 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth; 
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
+use App\Models\Pembayaran; // <-- Import model Pembayaran
 // Perbaikan: Hapus duplikasi use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class CheckoutController extends Controller
 {
+    /**
+     * Mengambil ID Status Pesanan berdasarkan nama status.
+     * Asumsi: Kolom di tabel status_pesanan adalah 'status' (sesuai koreksi) dan ID-nya 'id_status_pesanan'.
+     * @param string $statusName
+     * @return string <-- Mengembalikan string ('SP001', dst)
+     * @throws \Exception Jika ID status tidak ditemukan.
+     */
+    private function getStatusIdByName(string $statusName): string
+    {
+        // Perubahan: Mengubah 'nama_status' menjadi 'status' di sini.
+        $statusId = DB::table('status_pesanan')
+            ->where('status', $statusName) // <-- PERBAIKAN KOLOM
+            ->value('id_status_pesanan');
+
+        if (is_null($statusId)) {
+            Log::error("Status Pesanan '{$statusName}' tidak ditemukan di database status_pesanan.");
+            // MELEMPARKAN EXCEPTION JIKA ID STATUS TIDAK DITEMUKAN
+            throw new \Exception("ID Status Pesanan untuk '{$statusName}' tidak ditemukan. Pastikan data status sudah ada.");
+        }
+
+        return $statusId; // <-- Menghapus (int) casting agar 'SP001' tetap string
+    }
+
     // Halaman checkout 
     function index()
     {
@@ -38,8 +62,14 @@ class CheckoutController extends Controller
             // Fallback ID pengguna ke PG138
             $idPengguna = auth()->check() ? (auth()->user()->id_pengguna ?? auth()->user()->id) : 'PG138'; 
             $idPengguna = trim($idPengguna);
+
             
             try {
+                // Dapatkan ID Status untuk 'Menunggu Pembayaran'
+                // Menggunakan status yang sudah ada di DB Anda (SP001)
+                $targetStatus = 'Menunggu Pembayaran'; 
+                $idStatusMenunggu = $this->getStatusIdByName($targetStatus);
+                
                 // Catatan: Gunakan nilai ENUM/VARCHAR yang valid untuk mencegah Data Truncated
                 Pesanan::create([
                     'id_pesanan' => $idPesanan,
@@ -52,7 +82,8 @@ class CheckoutController extends Controller
                     'metode_pembayaran' => 'Qris', 
                     'layanan_pengiriman'=> 'Instan',
                     'total_harga' => $totalPrice, // Total harga produk dari perhitungan di atas
-                    'status' => 'Draft',
+                    'status' => $targetStatus, // Ganti 'Draft'
+                    'id_status_pesanan' => $idStatusMenunggu, // <-- KOLOM STATUS BARU
                 ]);
                 
                 // Simpan ID baru ke sesi
@@ -60,8 +91,9 @@ class CheckoutController extends Controller
                 $draftOrderId = $idPesanan;
                 
             } catch (\Exception $e) {
+                // Tangani error, termasuk jika ID Status tidak ditemukan
                 Log::error("Gagal membuat draft order di index: " . $e->getMessage() . " on line " . $e->getLine());
-                return redirect('/daftar-produk')->with('error', 'Gagal memulai proses checkout (Gagal membuat draft).');
+                return redirect('/daftar-produk')->with('error', 'Gagal memulai proses checkout (Gagal membuat draft). Detail: ' . $e->getMessage());
             }
         }
         
@@ -81,8 +113,6 @@ class CheckoutController extends Controller
         if (empty($cart)) {
             return response()->json(['success' => false, 'message' => 'Keranjang kosong.'], 400);
         }
-
-        // PERBAIKAN: Hapus duplikasi inisialisasi variabel di sini, gunakan yang di bawah
         
         $idPengguna = Auth::check()
             ? (Auth::user()->id_pengguna ?? Auth::user()->id)
@@ -107,6 +137,11 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
+            // Dapatkan ID Status untuk 'Menunggu Pembayaran'
+            // Menggunakan status yang sudah ada di DB Anda (SP001)
+            $targetStatus = 'Menunggu Pembayaran';
+            $idStatusMenunggu = $this->getStatusIdByName($targetStatus);
+            
             // Membuat pesanan draft (Pastikan nilai ENUM/VARCHAR sesuai)
             Pesanan::create([
                 'id_pesanan'        => $idPesanan,
@@ -120,7 +155,8 @@ class CheckoutController extends Controller
                 // PERBAIKAN: Menambahkan 'biaya_pengiriman' jika dibutuhkan di tabel Pesanan
                 // 'biaya_pengiriman' => $biayaPengirimanDefault, 
                 'total_harga'       => $totalHarga, 
-                'status'            => 'Draft', // Tambahkan status Draft agar tidak kosong
+                'status'            => $targetStatus, // Ganti 'Draft'
+                'id_status_pesanan' => $idStatusMenunggu, // <-- KOLOM STATUS BARU
             ]);
             
             // Perbaikan: Hapus blok Pesanan::create yang duplikat
@@ -156,13 +192,13 @@ class CheckoutController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Error instantProcess: " . $e->getMessage() . " on line " . $e->getLine()); 
+            $errorMessage = 'Gagal menyimpan pesanan. Terjadi kesalahan server. Detail Error: ' . $e->getMessage();
+            Log::error("Error instantProcess: " . $errorMessage . " on line " . $e->getLine()); 
             
             // PERBAIKAN: Hapus return response()->json yang duplikat
             return response()->json([
                 'success' => false, 
-                'message' => 'Gagal menyimpan pesanan. Terjadi kesalahan server. Detail Error: ' . $e->getMessage() . 
-                             ' (Lihat Log Server untuk detail lebih lanjut)'
+                'message' => $errorMessage
             ], 200); 
         }
     }
@@ -188,8 +224,6 @@ class CheckoutController extends Controller
         }
         
         $idPesanan = $request->input('id_pesanan'); // ID dari draft order
-        
-        // PERBAIKAN: Hapus inisialisasi $idPengguna dan $idPesanan yang duplikat
 
         // 2. Hitung Total Harga Produk
         $totalHargaProduk = 0;
@@ -199,19 +233,19 @@ class CheckoutController extends Controller
         
         $layananPengiriman = $request->input('pengiriman');
         $totalHargaFinal = $totalHargaProduk; 
-        // PERBAIKAN: Hapus $totalHargaFinal = $totalHargaProduk; yang duplikat
-
+        
         DB::beginTransaction();
         try {
+            // Dapatkan ID Status untuk 'Menunggu Pembayaran'
+            $statusPesananString = 'Menunggu Pembayaran'; // Status yang akan dicatat di pesanan dan pembayaran
+            $idStatusMenunggu = $this->getStatusIdByName($statusPesananString);
+
             // 3. Update data di tabel 'pesanan' berdasarkan ID yang sudah ada
             $pesanan = Pesanan::where('id_pesanan', $idPesanan)->first();
             
             if (!$pesanan) {
                 throw new \Exception("Pesanan dengan ID {$idPesanan} tidak ditemukan.");
             }
-            
-            // PERBAIKAN: Hapus blok Pesanan::create dan foreach DetailPesanan::create di sini
-            // Karena ini adalah fungsi update, bukan create.
             
             $pesanan->update([
                 // Data penerima diperbarui
@@ -223,19 +257,36 @@ class CheckoutController extends Controller
                 'metode_pembayaran' => $request->metode_pembayaran, // Diambil langsung dari form (Tunai/Qris)
                 'layanan_pengiriman'=> $layananPengiriman,
                 'total_harga'       => $totalHargaFinal, 
-                'status'            => 'Menunggu Pembayaran', 
+                'status'            => $statusPesananString, // Status Pesanan Baru
+                'id_status_pesanan' => $idStatusMenunggu, // <-- KOLOM STATUS BARU
+            ]);
+
+            // 4. Catat entri baru di tabel 'pembayaran'
+            // Catatan: Asumsi tabel 'pembayaran' memiliki kolom: id_pembayaran, id_pesanan, id_pengguna, tanggal_bayar, total_bayar, metode_pembayaran.
+            Pembayaran::create([
+                'id_pembayaran'     => 'PAY-' . time(),
+                'id_pesanan'        => $idPesanan,
+                'id_pengguna'       => $pesanan->id_pengguna, // Ambil ID pengguna dari data pesanan yang sudah ada
+                'tanggal_bayar'     => now(), // Waktu pencatatan
+                // PERBAIKAN: Mengganti `null` dengan string kosong `''` sesuai permintaan Anda
+                'bukti_bayar'       => '', 
+                'total_bayar'       => $totalHargaFinal, // Catat total yang harus dibayar
+                'metode_pembayaran' => $request->metode_pembayaran,
+                'status_pembayaran' => $statusPesananString, // Default: Menunggu Pembayaran
+                // Tambahkan kolom lain yang relevan di tabel Pembayaran Anda (misalnya: 'id_status_pesanan')
+                'id_status_pesanan' => $idStatusMenunggu, // <-- ID Status baru di Pembayaran
             ]);
 
             DB::commit();
 
-            // 4. Hapus keranjang dan draft ID pesanan
+            // 5. Hapus keranjang dan draft ID pesanan
             session()->forget('cart');
             session()->forget('draft_order_id'); 
             $request->session()->flash('clear_cart', true); 
 
             Log::debug("CHECKOUT SUCCESS. Redirecting to payment. Order ID: " . $idPesanan);
 
-            // 5. Redirect ke halaman pembayaran
+            // 6. Redirect ke halaman pembayaran
             return redirect()->route('payment.form', ['order_id' => $idPesanan])
                 ->with('status_message', '✅ Pesanan berhasil divalidasi dan disimpan. Silakan kirim bukti pembayaran.');
 

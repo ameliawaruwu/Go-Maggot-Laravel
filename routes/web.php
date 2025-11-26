@@ -101,7 +101,6 @@ Route::delete('/publication/hapus/{id}', [ManagePublicationController::class, 'h
     ->name('publication.destroy');
 
 
-
 // Manage Setting
 Route::get('/managesetting', [ManageSettingController::class, 'index'])->name('settings.index');
 Route::post('/managesetting', [ManageSettingController::class, 'update'])->name('settings.update');
@@ -119,28 +118,25 @@ Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('c
 // Sinkronisasi AJAX dari JavaScript ke Session
 Route::post('/checkout/sync', [CheckoutController::class, 'sync']);
 Route::post('/checkout/instant-process', [CheckoutController::class, 'instantProcess'])->name('checkout.instant');
-Route::post('/checkout/to-form', [CheckoutController::class, 'redirectToCheckoutForm'])->name('checkout.redirect');
-Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+// Route::post('/checkout/to-form', [CheckoutController::class, 'redirectToCheckoutForm'])->name('checkout.redirect');
 
-
+// PEMBAYARAN
 Route::get('/pembayaran/{order_id}', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
-
-// Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
-Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
-
-// Route GET untuk menampilkan form pembayaran (ini yang dipanggil dari halaman sukses)
 Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+
+
+// // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
+// Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
 
 // // Route POST untuk memproses form pembayaran (mengirim data ke tabel pembayaran)
 // Route::post('/payment', [PaymentController::class, 'processPayment'])->name('payment.process');
 
-// Tampilan halaman checkout
-Route::get('produk', [ProductController::class, 'index'])->name('product.index');
-Route::get('/produk/detail/{id}', [ProductController::class, 'show'])->name('product.detail');
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+// // Tampilan halaman checkout
+// Route::get('produk', [ProductController::class, 'index'])->name('product.index');
+// Route::get('/produk/detail/{id}', [ProductController::class, 'show'])->name('product.detail');
 
-// ROUTE STATUS PESANAN 
+
+// STATUS PESANAN 
 Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
 
 // EDUKASI
@@ -151,9 +147,9 @@ Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->n
 Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
 Route::get('/article/{id_artikel}', [GalleryController::class, 'showArtikel'])->name('article.show');
 
-// Halaman FAQ
+// FAQ 
 Route::get('/qna', [QnaController::class, 'index'])->name('qna');
 
-// ROUTE GALERI
+// GALERI
 Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');
 
