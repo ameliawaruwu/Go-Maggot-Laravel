@@ -21,6 +21,9 @@ return new class extends Migration
             $table->dateTime('tanggal_pesanan')->useCurrent();
             $table->enum('metode_pembayaran', ['COD', 'QRIS'])->default('QRIS');
             $table->integer('total_harga')->default(0);
+            $table->string('id_status_pesanan');
+            $table->foreign('id_status_pesanan')->references('id_status_pesanan')->on('status_pesanan')->onDelete('cascade');
+
 
             $table->timestamps(); 
         });

@@ -19,5 +19,10 @@ class StatusPesanan extends Model
         'deskripsi',
         'urutan_tampilan',
     ];
+
+    public function pesanan()
+    {
+        return $this->hasMany(Pesanan::class, 'id_status_pesanan', 'id_status_pesanan');
+    }
 }
 

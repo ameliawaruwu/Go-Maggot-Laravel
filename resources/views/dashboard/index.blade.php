@@ -1,134 +1,155 @@
-
 @extends('layouts.admin')
 
-@section('title', 'Dashboard Utama')
+@section('title', 'Dashboard')
 
 @section('content')
 
-    {{-- Data Dummy untuk Riwayat Order --}}
-    @php
-        $recentOrders = [
-            ['id' => 101, 'customer' => 'Adi Nugroho', 'date' => '2025-10-18', 'status' => 'Processing', 'total' => 150000],
-            ['id' => 102, 'customer' => 'Budi Santoso', 'date' => '2025-10-17', 'status' => 'Completed', 'total' => 25000],
-            ['id' => 103, 'customer' => 'Citra Dewi', 'date' => '2025-10-17', 'status' => 'Pending', 'total' => 45000],
-            ['id' => 104, 'customer' => 'Dedy Kusuma', 'date' => '2025-10-16', 'status' => 'Shipped', 'total' => 80000],
-            ['id' => 105, 'customer' => 'Eka Jaya', 'date' => '2025-10-16', 'status' => 'Completed', 'total' => 215000],
-        ];
-    @endphp
-    
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-        
-        <div class="left">
-            <h1 class="h3 mb-1 text-gray-800; fw-bold">Dashboard</h1> 
-            <ol class="breadcrumb bg-transparent p-0 mb-0">
-                <li class="breadcrumb-item;  text-decoration-none"><a href="{{ url('dashboard') }}" class="text-decoration-none" >Dashboard</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Home</li>
-            </ol>
-        </div>
-        <div class="right mt-3 mt-md-0">
-            <a href="#" class="btn btn-primary d-inline-flex align-items-center shadow-sm">
-                <i class='bx bxs-cloud-download me-2'></i>
-                <span class="text">Download Report</span>
-            </a>
-        </div>
-    </div>
+@if(session('success'))
+<div class="alert alert-success alert-dismissible fade show">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+@endif
 
-    <hr class="mb-4">
-
-    <div class="row g-4 mb-4"> 
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <div class="card p-3 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <i class='bx bxs-calendar-check display-4 text-primary me-3'></i>
-                    <div class="text">
-                        <h3 class="mb-0">0</h3>
-                        <p class="text-muted mb-0">New Orders (Today)</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <div class="card p-3 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <i class='bx bxs-group display-4 text-warning me-3'></i>
-                    <div class="text">
-                        <h3 class="mb-0">23</h3>
-                        <p class="text-muted mb-0">Total Registered Users</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-    
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <div class="card p-3 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <i class='bx bxs-dollar-circle display-4 text-success me-3'></i>
-                    <div class="text">
-                        <h3 class="mb-0">Rp 2.5 Jt</h3>
-                        <p class="text-muted mb-0">Total Sales (Today)</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-    
-    <hr class="mt-4">
-
-    
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-dark fw-bold">Riwayat Order Terbaru</h6>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Tanggal</th>
-                                    <th class="text-end">Total</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($recentOrders as $order)
-                                    @php
-                                        $badgeClass = match ($order['status']) {
-                                            'Completed' => 'bg-success',
-                                            'Processing' => 'bg-info',
-                                            'Shipped' => 'bg-primary',
-                                            'Pending' => 'bg-warning text-dark',
-                                            default => 'bg-secondary',
-                                        };
-                                        $formattedTotal = 'Rp ' . number_format($order['total'], 0, ',', '.');
-                                    @endphp
-                                    <tr>
-                                        <td>ORD{{ $order['id'] }}</td>
-                                        <td>{{ $order['customer'] }}</td>
-                                        <td>{{ $order['date'] }}</td>
-                                        <td class="text-end">{{ $formattedTotal }}</td>
-                                        <td>
-                                            <span class="badge {{ $badgeClass }}">{{ $order['status'] }}</span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center">Belum ada order terbaru.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+{{-- KARTU STATISTIK --}}
+<div class="row g-4 mb-4">
+    {{-- ... (Bagian kartu statistik sama seperti sebelumnya) ... --}}
+    <div class="col-lg-4">
+        <div class="card p-3 shadow-sm border-0">
+            <div class="d-flex align-items-center">
+                <i class="bx bxs-calendar-check display-4 text-primary me-3"></i>
+                <div>
+                    <h3 class="mb-0">{{ $newOrdersToday }}</h3>
+                    <p class="text-muted mb-0">New Orders (Today)</p>
                 </div>
             </div>
         </div>
     </div>
-    
+    <div class="col-lg-4">
+        <div class="card p-3 shadow-sm border-0">
+            <div class="d-flex align-items-center">
+                <i class="bx bxs-group display-4 text-warning me-3"></i>
+                <div>
+                    <h3 class="mb-0">{{ $totalRegisteredUsers }}</h3>
+                    <p class="text-muted mb-0">Total Registered Users</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card p-3 shadow-sm border-0">
+            <div class="d-flex align-items-center">
+                <i class="bx bxs-dollar-circle display-4 text-success me-3"></i>
+                <div>
+                    <h3 class="mb-0">Rp {{ number_format($totalSalesToday, 0, ',', '.') }}</h3>
+                    <p class="text-muted mb-0">Total Sales (Today)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- TABEL RIWAYAT ORDER --}}
+<div class="card shadow mt-4 border-0">
+    <div class="card-header bg-white py-3">
+        <h6 class="fw-bold m-0 text-primary">Riwayat Order Terbaru</h6>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Pelanggan</th>
+                        <th>Tanggal</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-center">Bukti Pembelian</th>
+                        <th style="width: 220px;">Status Pesanan</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse ($recentOrders as $order)
+                    @php
+                        // Ambil Nama Status dari Relasi
+                        // Gunakan null coalescing (??) untuk jaga-jaga jika relasi putus/null
+                        $namaStatus = $order->statusPesanan->status ?? 'Tidak Diketahui';
+
+                        // Logika Warna Badge
+                        $badgeClass = match ($namaStatus) {
+                            'Menunggu Pembayaran' => 'bg-warning text-dark',
+                            'Diproses'            => 'bg-info text-dark',
+                            'Dikirim'             => 'bg-primary',
+                            'Selesai'             => 'bg-success',
+                            'Dibatalkan'          => 'bg-danger',
+                            default               => 'bg-secondary',
+                        };
+                    @endphp
+
+                    <tr>
+                        <td class="text-center fw-bold">ORD{{ $order->id }}</td>
+                        
+                        <td>
+                            {{ $order->pengguna->username ?? 'Guest' }}
+                        </td>
+                        
+                        <td class="text-center">{{ $order->created_at->format('d M Y') }}</td>
+                        
+                        <td class="text-end fw-bold">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</td>
+
+                        <td class="text-center">
+                            @if(!empty($order->bukti_pembayaran))
+                                <a href="{{ asset('bukti_pembayaran/' . $order->bukti_pembayaran) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-image-alt'></i> Lihat
+                                </a>
+                            @else
+                                <span class="text-muted small fst-italic">Belum Upload</span>
+                            @endif
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                
+                                {{-- FORM UPDATE STATUS (Menggunakan ID Status) --}}
+                                <form action="{{ route('pesanan.updateStatus', $order->id) }}" method="POST">
+                                    @csrf
+                                    
+                                    {{-- Name input sekarang adalah 'id_status_pesanan' --}}
+                                    <select name="id_status_pesanan" class="form-select form-select-sm cursor-pointer" onchange="this.form.submit()">
+                                        
+                                        {{-- Loop Data Status dari Controller --}}
+                                        @foreach ($statuses as $st)
+                                            <option value="{{ $st->id_status_pesanan }}" 
+                                                {{ $order->id_status_pesanan == $st->id_status_pesanan ? 'selected' : '' }}>
+                                                {{ $st->status }}
+                                            </option>
+                                        @endforeach
+
+                                    </select>
+                                </form>
+
+                                {{-- Label Badge Status --}}
+                                <div class="text-center">
+                                    <span class="badge {{ $badgeClass }} rounded-pill font-size-sm">
+                                        {{ $namaStatus }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">Belum ada order terbaru.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
 @endsection
