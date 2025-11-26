@@ -1,7 +1,6 @@
 @extends('layouts.app')
-
 @section('content')
-  {{-- HEADER SECTION --}}
+
   <div class="header-wrapper">
     <div class="sosial">
       <h3>FOLLOW US</h3>
@@ -69,7 +68,7 @@
     <h1>Our Best Seller Products</h1>
     <div class="all-products">
       <div class="product">
-        <img src="{{ asset('images/coba 1.jpg') }}" alt="">
+        <img src="{{ asset('images/coba 1.jpg') }}" alt="ini adalah gamabr produk 1">
         <div class="product-info">
           <h4 class="product-title">Maggot Siap Pakai</h4>
           <p class="product-price">Rp. 70.000/150gr</p>
@@ -103,6 +102,7 @@
     </div>
   </section>
 
+    {{-- TESTIMONIAL SECTION --}}   
   <section id="testimonials">
     <div class="testimonial-heading">
       <h1>Our Testimonials</h1>
@@ -201,8 +201,8 @@
     <a class="testimoni-btn" href="{{ route('feedback') }}">Give Us Feedback</a>
   </section>
 
-  {{-- GALERY / PORTFOLIO (kembali dimasukkan) --}}
 
+  {{-- GALERY --}}
   <div class="portofolio-wrapper"></div>
   <div class="portofolio-btn">
     <a href="{{ route('gallery.gallery') }}"></a>
