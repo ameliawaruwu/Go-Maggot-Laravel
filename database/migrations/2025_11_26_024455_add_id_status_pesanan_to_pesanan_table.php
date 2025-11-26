@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pesanan', function (Blueprint $table) {
+            $table->string('id_status_pesanan', 10)->after('total_harga')->default('SP001');
             $table->foreign('id_status_pesanan')
                   ->references('id_status_pesanan')
                   ->on('status_pesanan')
