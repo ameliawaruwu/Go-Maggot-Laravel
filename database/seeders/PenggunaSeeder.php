@@ -24,6 +24,17 @@ class PenggunaSeeder extends Seeder
             'foto_profil'   => null,
         ]);
 
+        Pengguna::factory()->create([
+            'id_pengguna'   => 'PG138',
+            'username'      => 'Esa jelita',
+            'email'         => 'jelita@gmail.com',
+            'password'      => Hash::make('password'), 
+            'role'          => 'pelanggan',
+            'nomor_telepon' => '081987654321',
+            'alamat'        => 'Kopo Permai',
+            'foto_profil'   => null,
+        ]);
+
         Pengguna::factory(10)->create();
     }
 }
