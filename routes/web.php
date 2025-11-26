@@ -112,16 +112,16 @@ Route::post('/checkout/to-form', [CheckoutController::class, 'redirectToCheckout
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
 
-
+Route::get('/pembayaran/{order_id}', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
 
 // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
 
 // Route GET untuk menampilkan form pembayaran (ini yang dipanggil dari halaman sukses)
-Route::get('/payment', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
+Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
 
-// Route POST untuk memproses form pembayaran (mengirim data ke tabel pembayaran)
-Route::post('/payment', [PaymentController::class, 'processPayment'])->name('payment.process');
+// // Route POST untuk memproses form pembayaran (mengirim data ke tabel pembayaran)
+// Route::post('/payment', [PaymentController::class, 'processPayment'])->name('payment.process');
 
 // Tampilan halaman checkout
 // --- ROUTE E-COMMERCE ---
@@ -139,6 +139,7 @@ Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
 Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
 // Route untuk menampilkan daftar artikel
 Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
+Route::get('/article/{id_artikel}', [GalleryController::class, 'showArtikel'])->name('article.show');
 
 // Halaman FAQ
 Route::get('/qna', [QnaController::class, 'index'])->name('qna');

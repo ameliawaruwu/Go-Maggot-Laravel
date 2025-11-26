@@ -6,38 +6,74 @@ use Illuminate\Http\Request;
 use App\Models\Pesanan;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailPesanan;
-use Illuminate\Support\Facades\Log; 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class CheckoutController extends Controller
 {
-   // Halaman checkout 
+    // Halaman checkout 
     function index()
     {
         $cart = session('cart', []);
+        $draftOrderId = session('draft_order_id'); 
 
         if (empty($cart)) {
             return redirect('/daftar-produk')->with('error', 'Keranjang masih kosong.');
         }
 
+        // 1. Hitung Total Harga dan Kuantitas Sekali
         $totalPrice = 0;
         $totalQty = 0;
-
         foreach ($cart as $item) {
-            $harga = $item['harga'] ?? 0;
             $jumlah = $item['jumlah'] ?? 0;
-
-            $totalPrice += $harga * $jumlah;
+            $totalPrice += ($item['harga'] ?? 0) * $jumlah; // Menggunakan $jumlah yang sudah didefinisikan
             $totalQty += $jumlah;
         }
+
+        // 2. Buat Draft Order jika belum ada di sesi
+        if (!$draftOrderId) {
+            $idPesanan = 'ORD-' . time();
+            // Fallback ID pengguna ke PG138
+            $idPengguna = auth()->check() ? (auth()->user()->id_pengguna ?? auth()->user()->id) : 'PG138'; 
+            $idPengguna = trim($idPengguna);
+            
+            try {
+                // Catatan: Gunakan nilai ENUM/VARCHAR yang valid untuk mencegah Data Truncated
+                Pesanan::create([
+                    'id_pesanan' => $idPesanan,
+                    'id_pengguna' => $idPengguna,
+                    'nama_penerima' => 'Pelanggan Draft',
+                    'alamat_pengiriman' => 'Alamat Default',
+                    'nomor_telepon' => '0000000000',
+                    'tanggal_pesanan' => now(),
+                    // Menggunakan nilai yang diasumsikan valid di ENUM/VARCHAR
+                    'metode_pembayaran' => 'Qris', 
+                    'layanan_pengiriman'=> 'Instan',
+                    'total_harga' => $totalPrice, // Total harga produk dari perhitungan di atas
+                    'status' => 'Draft',
+                ]);
+                
+                // Simpan ID baru ke sesi
+                session(['draft_order_id' => $idPesanan]);
+                $draftOrderId = $idPesanan;
+                
+            } catch (\Exception $e) {
+                Log::error("Gagal membuat draft order di index: " . $e->getMessage() . " on line " . $e->getLine());
+                return redirect('/daftar-produk')->with('error', 'Gagal memulai proses checkout (Gagal membuat draft).');
+            }
+        }
+        
+        // Perhitungan total sudah dilakukan di awal
 
         return view('checkout.index', [
             'cartItems' => $cart,
             'totalPrice' => $totalPrice,
-            'totalQuantity' => $totalQty
+            'totalQuantity' => $totalQty,
+            'draftOrderId' => $draftOrderId // Dipastikan memiliki nilai
         ]);
     }
 
-    // Proses pesanan instan (AJAX)
+    // Proses pesanan instan (AJAX) - Membuat pesanan draft
     public function instantProcess(Request $request)
     {
         $cart = $request->json('cart', []);
@@ -46,26 +82,20 @@ class CheckoutController extends Controller
             return response()->json(['success' => false, 'message' => 'Keranjang kosong.'], 400);
         }
 
-        // --- ID PENGGUNA: Fallback ke PG138 (sudah dikonfirmasi ada) jika tidak login
         $idPengguna = auth()->check()
             ? (auth()->user()->id_pengguna ?? auth()->user()->id)
             : 'PG138'; 
         
-        // ** PERBAIKAN KRUSIAL A: Bersihkan ID Pengguna dari spasi yang tersembunyi
         $idPengguna = trim($idPengguna); 
-
         $idPesanan = 'ORD-' . time();
 
-        // Data default (akan diupdate di halaman checkout)
         $namaPenerimaDefault = auth()->check() ? auth()->user()->name : 'Pelanggan Langsung';
         $alamatPengirimanDefault = 'Alamat Default - Harap Konfirmasi Admin';
         $nomorTeleponDefault = '081987654321';
-        $metodePembayaranDefault = 'QRIS'; 
-        $layananPengirimanDefault = 'Reguler'; 
-        $biayaPengirimanDefault = 0; 
+        $metodePembayaranDefault = 'Qris'; // Ganti ke Qris/Tunai yang valid di ENUM/VARCHAR
+        $layananPengirimanDefault = 'Instan'; // Ganti ke Instan/Reguler/Kargo yang valid di ENUM/VARCHAR
 
-
-        // Hitung total harga
+        // Hitung total harga produk
         $totalHarga = 0;
         foreach ($cart as $item){
             $totalHarga += ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0);
@@ -73,50 +103,45 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
-            // ... (Logging dihapus di sini untuk keringkasan, tapi tetap ada di kode Anda)
-
+            // Membuat pesanan draft (Pastikan nilai ENUM/VARCHAR sesuai)
             Pesanan::create([
-                'id_pesanan'        => $idPesanan,
-                'id_pengguna'       => $idPengguna, // ID yang sudah di-trim
-                'nama_penerima'     => $namaPenerimaDefault,
+                'id_pesanan' => $idPesanan,
+                'id_pengguna' => $idPengguna, 
+                'nama_penerima'  => $namaPenerimaDefault,
                 'alamat_pengiriman' => $alamatPengirimanDefault,
-                'nomor_telepon'     => $nomorTeleponDefault,
-                'tanggal_pesanan'   => now(),
+                'nomor_telepon'  => $nomorTeleponDefault,
+                'tanggal_pesanan'  => now(),
                 'metode_pembayaran' => $metodePembayaranDefault,
                 'layanan_pengiriman'=> $layananPengirimanDefault,
-                'biaya_pengiriman'  => $biayaPengirimanDefault, 
-                'total_harga'       => $totalHarga,
+                'total_harga'  => $totalHarga, 
+                'status' => 'Draft', // Tambahkan status Draft agar tidak kosong
             ]);
             
-            // ... (Logging)
-
+            // Membuat detail pesanan
             foreach ($cart as $item) {
                 $idProduk = $item['idproduk'] ?? null;
                 $jumlah = $item['jumlah'] ?? 0;
                 $harga = $item['harga'] ?? 0;
 
                 if (is_null($idProduk)) {
-                    // ... (Logging Error)
                     throw new \Exception("Item keranjang tidak memiliki ID produk yang valid.");
                 }
 
-                // ... (Logging)
-
                 // HANYA MENGIRIM 4 KOLOM YANG SESUAI DENGAN TABEL DETAIL_PESANAN
                 DetailPesanan::create([
-                    'id_pesanan'                => $idPesanan, 
-                    'id_produk'                 => $idProduk, 
-                    'jumlah'                    => $jumlah,
-                    'harga_saat_pembelian'      => $harga,
+                    'id_pesanan' => $idPesanan, 
+                    'id_produk' => $idProduk, 
+                    'jumlah'=> $jumlah,
+                    'harga_saat_pembelian' => $harga,
                 ]);
             }
 
             DB::commit();
             
-            // ** PERBAIKAN KRUSIAL B: Simpan data keranjang ke session agar index() bisa membacanya
+            // Simpan data keranjang dan ID Pesanan Draft ke sesi
             session(['cart' => $cart]);
+            session(['draft_order_id' => $idPesanan]);
 
-            // ** PERBAIKAN KRUSIAL C: GANTI ROUTE KE HALAMAN CHECKOUT (index)
             $redirectUrl = route('checkout.index'); 
 
             return response()->json([
@@ -127,12 +152,12 @@ class CheckoutController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // ... (Logging lengkap)
+            Log::error("Error instantProcess: " . $e->getMessage() . " on line " . $e->getLine()); 
             
             return response()->json([
                 'success' => false, 
                 'message' => 'Gagal menyimpan pesanan. Terjadi kesalahan server. Detail Error: ' . $e->getMessage() . 
-                              ' (Lihat Log Server untuk detail lebih lanjut)'
+                             ' (Lihat Log Server untuk detail lebih lanjut)'
             ], 200); 
         }
     }
@@ -142,70 +167,71 @@ class CheckoutController extends Controller
     // ===========================
     function process(Request $request)
     {
-        // ✅ VALIDASI DISESUAIKAN: Menghapus 'kota' dan menambahkan 'pengiriman'
+        // 1. Validasi
         $request->validate([
-            'nama_penerima'     => 'required|string|max:255',
-            'nomor_telepon'     => 'required|string|max:15',
-            'alamat_lengkap'    => 'required|string',
-            'pengiriman'        => 'required|string|max:50', 
-            'metode_pembayaran' => 'required|string|max:50'
+            'nama_penerima'  => 'required|string|max:255',
+            'nomor_telepon' => 'required|string|max:15',
+            'alamat_lengkap' => 'required|string',
+            'pengiriman' => 'required|string|max:50', 
+            'metode_pembayaran' => 'required|string|max:50',
+            // Memastikan ID Pesanan ada dan ada di DB
+            'id_pesanan' => 'required|string|exists:pesanan,id_pesanan', 
         ]);
 
         $cart = session('cart', []);
         if (empty($cart)) {
-            return back()->with('error', 'Keranjang kosong.');
+            return back()->with('error', 'Keranjang kosong.')->withInput();
         }
+        
+        $idPesanan = $request->input('id_pesanan');
 
-        // --- ID PENGGUNA: Fallback ke PG138 (ID yang valid) jika tidak login
-        $idPengguna = auth()->check()
-            ? (auth()->user()->id_pengguna ?? auth()->user()->id)
-            : 'PG138'; 
-
-        $idPengguna = trim($idPengguna);
-        $idPesanan = 'ORD-' . time();
-
+        // 2. Hitung Total Harga Produk
         $totalHargaProduk = 0;
         foreach ($cart as $item){
             $totalHargaProduk += ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0);
         }
+        
+        $layananPengiriman = $request->input('pengiriman');
+        $totalHargaFinal = $totalHargaProduk; 
 
         DB::beginTransaction();
         try {
-            Pesanan::create([
-                'id_pesanan'        => $idPesanan,
-                'id_pengguna'       => $idPengguna,
-                'nama_penerima'     => $request->nama_penerima,
-                // ✅ Menggunakan alamat_lengkap saja sesuai data form
-                'alamat_pengiriman' => $request->alamat_lengkap, 
-                'nomor_telepon'     => $request->nomor_telepon,
-                'tanggal_pesanan'   => now(),
-                'metode_pembayaran' => strtoupper($request->metode_pembayaran),
-                // ✅ Menyimpan layanan dan biaya pengiriman
-                'total_harga'       => $totalHargaFinal, // Total Harga Akhir
-            ]);
-
-            foreach ($cart as $item) {
-                // HANYA MENGIRIM 4 KOLOM YANG SESUAI DENGAN TABEL DETAIL_PESANAN
-                DetailPesanan::create([
-                    'id_pesanan'              => $idPesanan,
-                    'id_produk'               => $item['idproduk'] ?? null, 
-                    'jumlah'                  => $item['jumlah'] ?? 0,
-                    'harga_saat_pembelian'    => $item['harga'] ?? 0,
-                ]);
+            // 3. Update data di tabel 'pesanan' berdasarkan ID yang sudah ada
+            $pesanan = Pesanan::where('id_pesanan', $idPesanan)->first();
+            
+            if (!$pesanan) {
+                throw new \Exception("Pesanan dengan ID {$idPesanan} tidak ditemukan.");
             }
+            
+            $pesanan->update([
+                // Data penerima diperbarui
+                'nama_penerima'  => $request->nama_penerima,
+                'alamat_pengiriman' => $request->alamat_lengkap, 
+                'nomor_telepon'  => $request->nomor_telepon,
+                
+                // Data pembayaran & pengiriman (Gunakan nilai sesuai form)
+                'metode_pembayaran' => $request->metode_pembayaran, // Diambil langsung dari form (Tunai/Qris)
+                'layanan_pengiriman'=> $layananPengiriman,
+                'total_harga' => $totalHargaFinal, 
+                'status' => 'Menunggu Pembayaran', 
+            ]);
 
             DB::commit();
 
+            // 4. Hapus keranjang dan draft ID pesanan
             session()->forget('cart');
+            session()->forget('draft_order_id'); 
             $request->session()->flash('clear_cart', true); 
 
-            return redirect()->route('checkout.success')
-                ->with('success', 'Pesanan berhasil dibuat!')
-                ->with('order_id', $idPesanan);
+            Log::debug("CHECKOUT SUCCESS. Redirecting to payment. Order ID: " . $idPesanan);
+
+            // 5. Redirect ke halaman pembayaran
+            return redirect()->route('payment.form', ['order_id' => $idPesanan])
+                ->with('status_message', '✅ Pesanan berhasil divalidasi dan disimpan. Silakan kirim bukti pembayaran.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Gagal memproses pesanan form: ' . $e->getMessage());
+            Log::error('Gagal memproses pesanan form: ' . $e->getMessage() . ' on line ' . $e->getLine());
             
             return back()->withInput()
                 ->with('error', 'Gagal menyimpan pesanan. Silakan coba lagi. (Error: ' . $e->getMessage() . ')');
@@ -213,23 +239,21 @@ class CheckoutController extends Controller
     }
 
     // ===========================
-    // SUCCESS PAGE
+    // SUCCESS PAGE - Tidak berubah, namun disarankan untuk dihapus jika menggunakan payment.form
     // ===========================
     function success(Request $request)
     {
         $orderId = session('order_id') ?? $request->query('order_id');
         $message = session('success') ?? 'Terima kasih atas pesanan Anda.';
-        // ** HARUS Mengambil data Pesanan dari Database **
         $lastOrder = null;
         if ($orderId) {
-            // Mengambil data pesanan dari DB
             $lastOrder = Pesanan::where('id_pesanan', $orderId)->first();
         }
-
+        
         return view('checkout.success', [
             'order_id' => $orderId,
             'message' => $message,
-            'lastOrder' => $lastOrder // <-- WAJIB DIKIRIM ke view
+            'lastOrder' => $lastOrder 
         ]);
     }
 

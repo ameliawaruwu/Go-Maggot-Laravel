@@ -20,10 +20,9 @@ class PaymentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function showPaymentForm(Request $request)
+    public function showPaymentForm(Request $request, $order_id_param = null)
     {
-        // --- INISIALISASI VARIABEL DEFAULT ---
-        // Variabel ini harus didefinisikan agar view tidak error, terutama jika order_id tidak ada.
+     
         $page_data = [
             'id_pesanan'        => null, // Default
             'payment_success'   => $request->query('status') === 'success',
@@ -35,7 +34,7 @@ class PaymentController extends Controller
             'metode_pembayaran' => null, // Default
         ];
         
-        $id_pesanan = $request->query('order_id');
+           $id_pesanan = $order_id_param ?? $request->query('order_id');
         
         // Cek jika ID Pesanan tidak ada di URL query
         if (!$id_pesanan) {
