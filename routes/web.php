@@ -90,7 +90,6 @@ Route::delete('/publication/hapus/{id}', [ManagePublicationController::class, 'h
     ->name('publication.destroy');
 
 
-
 // Manage Setting
 Route::get('/managesetting', [ManageSettingController::class, 'index'])->name('settings.index');
 Route::post('/managesetting', [ManageSettingController::class, 'update'])->name('settings.update');
