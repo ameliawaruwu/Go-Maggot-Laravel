@@ -11,37 +11,37 @@
 </div>
 @endif
 
+{{-- KARTU STATISTIK --}}
 <div class="row g-4 mb-4">
+    {{-- ... (Bagian kartu statistik sama seperti sebelumnya) ... --}}
     <div class="col-lg-4">
-        <div class="card p-3 shadow-sm">
+        <div class="card p-3 shadow-sm border-0">
             <div class="d-flex align-items-center">
                 <i class="bx bxs-calendar-check display-4 text-primary me-3"></i>
                 <div>
-                    <h3>{{ $newOrdersToday }}</h3>
+                    <h3 class="mb-0">{{ $newOrdersToday }}</h3>
                     <p class="text-muted mb-0">New Orders (Today)</p>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="col-lg-4">
-        <div class="card p-3 shadow-sm">
+        <div class="card p-3 shadow-sm border-0">
             <div class="d-flex align-items-center">
                 <i class="bx bxs-group display-4 text-warning me-3"></i>
                 <div>
-                    <h3>{{ $totalRegisteredUsers }}</h3>
+                    <h3 class="mb-0">{{ $totalRegisteredUsers }}</h3>
                     <p class="text-muted mb-0">Total Registered Users</p>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="col-lg-4">
-        <div class="card p-3 shadow-sm">
+        <div class="card p-3 shadow-sm border-0">
             <div class="d-flex align-items-center">
                 <i class="bx bxs-dollar-circle display-4 text-success me-3"></i>
                 <div>
-                    <h3>Rp {{ number_format($totalSalesToday, 0, ',', '.') }}</h3>
+                    <h3 class="mb-0">Rp {{ number_format($totalSalesToday, 0, ',', '.') }}</h3>
                     <p class="text-muted mb-0">Total Sales (Today)</p>
                 </div>
             </div>
@@ -49,65 +49,100 @@
     </div>
 </div>
 
-<div class="card shadow mt-4">
-    <div class="card-header">
-        <h6 class="fw-bold m-0">Riwayat Order Terbaru</h6>
+{{-- TABEL RIWAYAT ORDER --}}
+<div class="card shadow mt-4 border-0">
+    <div class="card-header bg-white py-3">
+        <h6 class="fw-bold m-0 text-primary">Riwayat Order Terbaru</h6>
     </div>
 
     <div class="card-body">
         <div class="table-responsive">
 
-            <table class="table table-hover">
-                <thead>
+            <table class="table table-hover align-middle">
+                <thead class="table-light text-center">
                     <tr>
                         <th>Order ID</th>
                         <th>Pelanggan</th>
                         <th>Tanggal</th>
                         <th class="text-end">Total</th>
-                        <th>Status</th>
+                        <th class="text-center">Bukti Pembelian</th>
+                        <th style="width: 220px;">Status Pesanan</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @forelse ($recentOrders as $order)
                     @php
-                        $badgeClass = match ($order->status) {
-                            'menunggu pembayaran' => 'bg-warning text-dark',
-                            'di proses' => 'bg-info text-dark',
-                            'dikirim' => 'bg-primary',
-                            'dibatalkan' => 'bg-danger',
-                            'selesai' => 'bg-success',
-                            default => 'bg-secondary',
+                        // Ambil Nama Status dari Relasi
+                        // Gunakan null coalescing (??) untuk jaga-jaga jika relasi putus/null
+                        $namaStatus = $order->statusPesanan->status ?? 'Tidak Diketahui';
+
+                        // Logika Warna Badge
+                        $badgeClass = match ($namaStatus) {
+                            'Menunggu Pembayaran' => 'bg-warning text-dark',
+                            'Diproses'            => 'bg-info text-dark',
+                            'Dikirim'             => 'bg-primary',
+                            'Selesai'             => 'bg-success',
+                            'Dibatalkan'          => 'bg-danger',
+                            default               => 'bg-secondary',
                         };
                     @endphp
 
                     <tr>
-                        <td>ORD{{ $order->id }}</td>
-                        <td>{{ $order->nama_pelanggan }}</td>
-                        <td>{{ date('Y-m-d', strtotime($order->created_at)) }}</td>
-                        <td class="text-end">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</td>
+                        <td class="text-center fw-bold">ORD{{ $order->id }}</td>
+                        
+                        <td>
+                            {{ $order->pengguna->username ?? 'Guest' }}
+                        </td>
+                        
+                        <td class="text-center">{{ $order->created_at->format('d M Y') }}</td>
+                        
+                        <td class="text-end fw-bold">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</td>
+
+                        <td class="text-center">
+                            @if(!empty($order->bukti_pembayaran))
+                                <a href="{{ asset('bukti_pembayaran/' . $order->bukti_pembayaran) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-image-alt'></i> Lihat
+                                </a>
+                            @else
+                                <span class="text-muted small fst-italic">Belum Upload</span>
+                            @endif
+                        </td>
 
                         <td>
-                            <form action="{{ route('pesanan.updateStatus', $order->id) }}" method="POST">
-                                @csrf
-                                @method('PUT')
+                            <div class="d-flex flex-column gap-1">
+                                
+                                {{-- FORM UPDATE STATUS (Menggunakan ID Status) --}}
+                                <form action="{{ route('pesanan.updateStatus', $order->id) }}" method="POST">
+                                    @csrf
+                                    
+                                    {{-- Name input sekarang adalah 'id_status_pesanan' --}}
+                                    <select name="id_status_pesanan" class="form-select form-select-sm cursor-pointer" onchange="this.form.submit()">
+                                        
+                                        {{-- Loop Data Status dari Controller --}}
+                                        @foreach ($statuses as $st)
+                                            <option value="{{ $st->id_status_pesanan }}" 
+                                                {{ $order->id_status_pesanan == $st->id_status_pesanan ? 'selected' : '' }}>
+                                                {{ $st->status }}
+                                            </option>
+                                        @endforeach
 
-                                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                                    <option value="menunggu pembayaran" {{ $order->status == 'menunggu pembayaran' ? 'selected' : '' }}>Menunggu Pembayaran</option>
-                                    <option value="di proses" {{ $order->status == 'di proses' ? 'selected' : '' }}>Di Proses</option>
-                                    <option value="dikirim" {{ $order->status == 'dikirim' ? 'selected' : '' }}>Dikirim</option>
-                                    <option value="dibatalkan" {{ $order->status == 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
-                                    <option value="selesai" {{ $order->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                </select>
-                            </form>
+                                    </select>
+                                </form>
 
-                            <span class="badge {{ $badgeClass }} mt-1">{{ ucfirst($order->status) }}</span>
+                                {{-- Label Badge Status --}}
+                                <div class="text-center">
+                                    <span class="badge {{ $badgeClass }} rounded-pill font-size-sm">
+                                        {{ $namaStatus }}
+                                    </span>
+                                </div>
+                            </div>
                         </td>
                     </tr>
 
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center text-muted">Belum ada order.</td>
+                        <td colspan="6" class="text-center py-4 text-muted">Belum ada order terbaru.</td>
                     </tr>
                     @endforelse
                 </tbody>
