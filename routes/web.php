@@ -41,7 +41,8 @@ Route::get('/', function () {
 });
 
 // Dashboard Admin
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index']);
+Route::post('/order/{id}/update-status', [DashboardController::class, 'updateStatus']);
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 // Manajemen Produk Admin
 Route::get('/manageProduk', [ManageProductsController::class, 'index']);
