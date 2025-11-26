@@ -1,114 +1,101 @@
- // CHART SALES
-    const salesCtx = document.getElementById('salesChart');
-    if (salesCtx) {
-        new Chart(salesCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Sales',
-                    data: [12, 19, 3, 5, 2, 3],
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgb(54, 162, 235)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false, // Untuk menyesuaikan tinggi
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
-    }
-    
-    // CHART VISITORS
-    const visitorsCtx = document.getElementById('visitorsChart');
-    if (visitorsCtx) {
-        new Chart(visitorsCtx, {
-            type: 'line',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Visitors',
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: { 
-                responsive: true,
-                maintainAspectRatio: false // Untuk menyesuaikan tinggi
-            }
-        });
-    }
+document.addEventListener("DOMContentLoaded", function () {
+    // Ambil data dari variabel global yang dikirim dari Blade
+    const data = window.analyticsData;
 
-    // CHART PRODUK PALING LAKU (Pie Chart)
-    const topProductsCtx = document.getElementById('topProductsChart');
-    if (topProductsCtx) {
-        new Chart(topProductsCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Kandang Maggot', 'Paket Bundling', 'Kompos Maggot', 'Bibit Maggot'],
-                datasets: [{
-                    label: 'Penjualan Produk',
-                    data: [40, 30, 15, 15], 
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)'
-                    ],
-                    hoverOffset: 4
-                }]
+    // 1. Sales Chart (Line Chart)
+    const ctxSales = document.getElementById("salesChart").getContext("2d");
+    new Chart(ctxSales, {
+        type: "line",
+        data: {
+            labels: data.dates,
+            datasets: [{
+                label: "Pendapatan (Rp)",
+                data: data.sales,
+                borderColor: "#4e73df",
+                backgroundColor: "rgba(78, 115, 223, 0.1)",
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
             },
-            options: { 
-                responsive: true,
-                maintainAspectRatio: false, // Untuk menyesuaikan tinggi
-                plugins: {
-                    legend: { position: 'top' },
-                    title: { display: false }
-                }
+            scales: {
+                y: { beginAtZero: true, ticks: { callback: (value) => 'Rp ' + value.toLocaleString('id-ID') } }
             }
-        });
-    }
+        }
+    });
 
-    // CHART STATUS ORDER USER (Doughnut Chart)
-    const userOrderStatusCtx = document.getElementById('userOrderStatusChart');
-    if (userOrderStatusCtx) {
-        new Chart(userOrderStatusCtx, {
-            type: 'doughnut',
-            data: {
-                // Label disesuaikan dengan status baru
-                labels: ['Processing', 'Completed', 'Pending', 'Shipped'], 
-                datasets: [{
-                    label: 'Jumlah Order',
-                    // Data disesuaikan (harap ganti dengan data aktual)
-                    data: [25, 35, 15, 25], 
-                    // Warna disesuaikan dengan status baru
-                    backgroundColor: [
-                        'rgba(23, 162, 184, 0.7)',  // Processing (Cyan/Info)
-                        'rgba(40, 167, 69, 0.7)',   // Completed (Hijau/Success)
-                        'rgba(255, 193, 7, 0.7)',   // Pending (Kuning/Warning)
-                        'rgba(0, 123, 255, 0.7)'    // Shipped (Biru/Primary)
-                    ],
-                    hoverOffset: 4
-                }]
-            },
-            options: { 
-                responsive: true,
-                maintainAspectRatio: false, // Untuk menyesuaikan tinggi
-                cutout: '65%',
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: false
-                    }
-                }
+    // 2. Visitor Chart (Bar Chart - New Users)
+    const ctxVisitor = document.getElementById("visitorsChart").getContext("2d");
+    new Chart(ctxVisitor, {
+        type: "bar",
+        data: {
+            labels: data.dates,
+            datasets: [{
+                label: "User Baru",
+                data: data.visitors,
+                backgroundColor: "#1cc88a",
+                hoverBackgroundColor: "#17a673",
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+
+    // 3. Top Products Chart (Horizontal Bar - Stock Level)
+    const ctxProducts = document.getElementById("topProductsChart").getContext("2d");
+    new Chart(ctxProducts, {
+        type: "bar",
+        data: {
+            labels: data.products,
+            datasets: [{
+                label: "Sisa Stok",
+                data: data.stocks,
+                backgroundColor: "#36b9cc",
+                borderRadius: 5
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Horizontal Bar
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // 4. Order Status Chart (Doughnut Chart)
+    const ctxStatus = document.getElementById("userOrderStatusChart").getContext("2d");
+    new Chart(ctxStatus, {
+        type: "doughnut",
+        data: {
+            labels: data.statusLabels,
+            datasets: [{
+                data: data.statusCounts,
+                backgroundColor: [
+                    "#f6c23e", // Kuning (Menunggu)
+                    "#36b9cc", // Biru Muda (Diproses)
+                    "#4e73df", // Biru (Dikirim)
+                    "#1cc88a", // Hijau (Selesai)
+                    "#e74a3b"  // Merah (Batal)
+                ],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
             }
-        });
-    }
+        }
+    });
+});
