@@ -31,6 +31,11 @@ class Pesanan extends Model
     {
         return $this->belongsTo(Pengguna::class, 'id_pengguna');
     }
+
+    public function status()
+    {
+        return $this->belongsTo(Pengguna::class, 'id_status_pesanan');
+    }
     
     // --- Penambahan Relasi Baru ---
     

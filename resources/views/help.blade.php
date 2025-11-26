@@ -5,7 +5,6 @@
 @endpush
 
 @section('content')
-  {{-- HERO --}}
   <header class="header">
     <div class="back-button"></div>
     <div class="overlay">
@@ -14,7 +13,6 @@
     </div>
   </header>
 
-  {{-- SEARCH --}}
   <div class="search-bar">
     <input type="text" placeholder="Search">
   </div>
