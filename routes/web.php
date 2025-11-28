@@ -23,9 +23,7 @@ use App\Http\Controllers\ManageStatusPesananController;
 use App\Http\Controllers\AuthController;
 
 
-// ===============================
-// AUTH ROUTES
-// ===============================
+//auth 
 
 // LOGIN
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -40,9 +38,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 
-// ===============================
-// PUBLIC ROUTES (BISA DI AKSES TANPA LOGIN)
-// ===============================
+//public routes
 
 Route::get('/', fn() => view('welcome'));
 
@@ -56,7 +52,6 @@ Route::view('/portfolio', 'portfolio')->name('portfolio');
 Route::view('/cart', 'cart')->name('cart'); // tampilan cart saja
 
 
-
 // PRODUCT ROUTES
 Route::get('/daftar-produk', [ProductController::class, 'index'])->name('product.index');
 Route::get('/product-detail/{id_produk}', [ProductController::class, 'show']);
@@ -65,10 +60,7 @@ Route::get('/produk/detail/{id}', [ProductController::class, 'show'])->name('pro
 
 
 
-// ===============================
-// ROUTE YANG WAJIB LOGIN (AUTH)
-// ===============================
-
+// route dengan middleware auth 
 Route::middleware(['auth'])->group(function () {
 
     // FEEDBACK PAGE (WAJIB LOGIN)
@@ -96,9 +88,6 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-// ===============================
-// ADMIN ROUTES (KHUSUS ADMIN)
-// ===============================
 // middleware: auth + role:admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
@@ -157,14 +146,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
 
-// ===============================
 // STUDY, ARTICLE, QNA, GALERI
-// ===============================
-
 Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
 Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
 Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
 
 Route::get('/qna', [QnaController::class, 'index'])->name('qna');
-
+ 
 Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');
