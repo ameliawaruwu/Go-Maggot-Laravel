@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const emptyCartMessage = document.getElementById('emptyCartMessage');
     const loadingCartMessage = document.getElementById('loadingCartMessage');
 
+    // 🔐 ambil info login & csrf token dari layout (jaga-jaga kalau undefined)
+    const isLoggedIn = typeof window.isLoggedIn !== 'undefined' ? window.isLoggedIn : false;
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
+
     let carts = []; 
     let products = [];
 
@@ -25,10 +30,22 @@ document.addEventListener('DOMContentLoaded', function() {
         body.classList.remove('showCart');
     });
 
-    listProduct.addEventListener('click', (event) => {
-        if (event.target.classList.contains('add-to-cart-btn')) {
-            if (event.target.dataset.id) {
+    // ✅ Tambah ke keranjang dengan cek login dulu
+    if (listProduct) {
+        listProduct.addEventListener('click', (event) => {
+            if (event.target.classList.contains('add-to-cart-btn')) {
                 try {
+                    if (!isLoggedIn) {
+                        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
+                        return;
+                    }
+                    
+                    if (window.userRole !== "admin" && window.userRole !== "pelanggan") {
+                        alert("Akun Anda tidak memiliki akses untuk menambahkan keranjang.");
+                        return;
+                    }
+
+
                     // Mengambil data dari atribut data-* yang terpisah
                     const productData = {
                         idproduk: event.target.dataset.id,
@@ -39,11 +56,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     addToCartLocal(productData);
                 } catch (e) {
                     console.error("Error adding product to cart:", e);
-                    // alert("Produk berhasil ditambahkan."); // Dihapus: Hindari alert()
+                    alert("Terjadi kesalahan saat menambahkan produk ke keranjang.");
                 }
             }
-        }
-    });
+        });
+    }
 
     listCart.addEventListener('click', (event) => {
         let positionClick = event.target;
@@ -59,96 +76,84 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Event listener tombol Checkout
-if (checkoutBtn) {
-    checkoutBtn.addEventListener('click', () => {
-        if (carts.length > 0) {
-            instantCheckout('/checkout/instant-process'); // Ganti dengan rute yang benar
-        } else {
-            // Seharusnya menggunakan modal kustom, bukan alert
-            console.warn('Keranjang Anda kosong. Tidak dapat melanjutkan checkout.');
-        }
-    });
-}
+    // ✅ Event listener tombol Checkout yang memanggil sync + cek login
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', () => {
+            // 🔐 CEK LOGIN
+            if (!isLoggedIn) {
+                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
 
-// --- FUNGSI BARU/REVISI: INSTANT CHECKOUT ---
-function instantCheckout(instantProcessUrl) {
-    if (carts.length === 0) {
-        console.warn('Keranjang kosong. Tidak dapat melanjutkan.');
-        return;
+            if (carts.length > 0) {
+                // Mengambil URL redirect dari atribut HTML (misal: data-redirect-url="/checkout")
+                const redirectUrl = checkoutBtn.dataset.redirectUrl || '/checkout'; 
+                
+                // Panggil sinkronisasi ke /checkout/sync, lalu fungsi sync akan melakukan redirect
+                syncCartToServer('/checkout/sync', redirectUrl); 
+            } else {
+                alert('Keranjang Anda kosong. Tidak dapat melanjutkan checkout.');
+            }
+        });
     }
 
-    const originalText = checkoutBtn.innerText;
-    
-    // Tampilkan status memproses
-    checkoutBtn.innerText = 'Memproses Pesanan...';
-    checkoutBtn.setAttribute('disabled', 'true');
+    // --- Functions ---
 
-    fetch(instantProcessUrl, { // fetch ke /checkout/instant-process
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') 
-        },
-        // Mengirim data keranjang langsung sebagai payload
-        body: JSON.stringify({ cart: carts }) 
-    })
-    .then(response => {
-        // --- DEBUGGING CRITICAL: Tangkap respons NON-JSON/NON-2XX ---
-        if (!response.ok) {
-            // Jika status bukan 2xx (misalnya 419, 500), coba baca sebagai teks (HTML)
-            return response.text().then(text => {
-                const status = response.status;
-                
-                if (text.startsWith('<!DOCTYPE html>')) {
-                    console.error(`ERROR ${status}: Server merespons dengan HTML (Redirect/CSRF/Error 500).`);
-                    console.error('SERVER RESPONSE (HTML/REDIRECT):', text);
-                    throw new Error(`Server Error ${status}. Cek Console untuk detail HTML.`);
-                }
-                
-                try {
-                    // Coba parse sebagai JSON meskipun status non-ok (jika server mengirim error JSON)
-                    const errorJson = JSON.parse(text);
-                    throw new Error(errorJson.message || `Error ${status} tidak terdefinisi.`);
-                } catch (e) {
-                    // Jika gagal parsing, artinya respons non-JSON dan non-HTML murni
-                    throw new Error(`Error ${status}: Respons server tidak terduga.`);
-                }
-            });
+    // FUNGSI: Sinkronisasi Keranjang ke Server
+    function syncCartToServer(syncUrl, redirectUrl) { // Menerima dua parameter URL
+        if (carts.length === 0) {
+            alert('Keranjang kosong. Tidak dapat melanjutkan.');
+            return;
         }
-        // Jika respons OK (2xx), lanjutkan membaca sebagai JSON
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) { 
-            // Hapus keranjang lokal setelah sukses
-            localStorage.removeItem('shoppingCart');
-            carts = []; 
-            renderCart(); // Render ulang keranjang kosong
-            // Redirect ke halaman sukses sesuai respons dari Controller
-            window.location.href = data.redirect_url; 
-        } else {
-            // Alert diganti console.error untuk kepatuhan, harusnya pakai modal kustom
-            console.error('Gagal Checkout Instan:', data.message);
-            // Tambahkan alert sementara agar pengguna tahu, namun ini melanggar pedoman platform
-            // alert('Gagal Checkout Instan: ' + data.message); 
-        }
-    })
-    .catch(error => {
-        console.error('Fatal Error saat Instant Checkout:', error);
-        // Alert diganti console.error untuk kepatuhan, harusnya pakai modal kustom
-        // alert('Terjadi kesalahan koneksi atau server: ' + error.message);
-    })
-    .finally(() => {
-        // Hanya hapus disabled jika tombol ada
-        if (checkoutBtn) {
+
+        const originalText = checkoutBtn.innerText;
+        
+        // Tampilkan status memproses
+        checkoutBtn.innerText = 'Memproses...';
+        checkoutBtn.setAttribute('disabled', 'true');
+
+        fetch(syncUrl, { // fetch ke /checkout/sync
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({ cart: carts }) 
+        })
+        .then(response => {
+            // 🔐 Kalau backend balikin 401 (middleware auth nendang)
+            if (response.status === 401) {
+                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
+                return null; // hentikan chain
+            }
+
+            if (!response.ok) {
+                // Tangkap error jika status HTTP bukan 200
+                throw new Error('Server returned status: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return; // sudah di-redirect (401)
+
+            if (data.success) {
+                window.location.href = redirectUrl; 
+            } else {
+                // Tampilkan pesan kegagalan dari Controller (jika ada)
+                alert('Gagal menyinkronkan pesanan ke server. Coba lagi.');
+            }
+        })
+        .catch(error => {
+            console.error('Error saat proses/sinkronisasi:', error);
+            alert('Terjadi kesalahan koneksi atau server: ' + error.message);
+        })
+        .finally(() => {
+            // Kembalikan status tombol hanya jika TIDAK terjadi redirect (yaitu, terjadi error)
             checkoutBtn.innerText = originalText;
             updateCheckoutButtonState(); 
-        }
-    });
-}
+        });
+    }
 
-    
     function addToCartLocal(product) {
         let positionInCart = carts.findIndex((value) => value.idproduk == product.idproduk);
         if (positionInCart < 0) {
@@ -165,7 +170,6 @@ function instantCheckout(instantProcessUrl) {
         saveCartToLocalStorage();
         renderCart();
         updateCartQuantityIcon();
-        // alert('Produk berhasil ditambahkan ke keranjang!');
     }
 
     function changeQuantityLocal(idProduk, type) {
@@ -187,7 +191,9 @@ function instantCheckout(instantProcessUrl) {
     }
 
     function removeFromCartLocal(idProduk) {
-        // PERHATIAN: Dialog confirm/alert dihapus. Gunakan modal UI kustom untuk konfirmasi.
+        if (!confirm('Apakah Anda yakin ingin menghapus produk ini dari keranjang?')) {
+            return;
+        }
         carts = carts.filter(item => item.idproduk != idProduk);
         saveCartToLocalStorage();
         renderCart();
@@ -207,12 +213,11 @@ function instantCheckout(instantProcessUrl) {
         if (carts.length > 0) {
             emptyCartMessage.style.display = 'none';
             carts.forEach(item => {
-                // --- VALIDASI TAMBAHAN BARU ---
+                // VALIDASI TAMBAHAN
                 if (!item || !item.namaproduk || !item.idproduk) {
                     console.warn("Item korup dilewati:", item);
-                    return; // Skip item ini
+                    return;
                 }
-                // -----------------------------
 
                 const quantity = parseInt(item.jumlah || 0);
                 const price = parseFloat(item.harga || 0);
@@ -244,7 +249,6 @@ function instantCheckout(instantProcessUrl) {
             emptyCartMessage.style.display = 'block';
         }
 
-        // Pastikan total harga dan kuantitas di-update setelah loop
         totalPriceDisplay.innerText = `Rp.${totalPrice.toLocaleString('id-ID')}`;
         cartQuantitySpan.innerText = totalQuantity;
         updateCheckoutButtonState();
@@ -281,8 +285,7 @@ function instantCheckout(instantProcessUrl) {
             try {
                 loadedCarts = JSON.parse(storedCart);
                 
-                // --- FILTRASI DAN SANITASI BARU ---
-                // Hanya simpan item yang memiliki ID dan Nama Produk yang valid
+                // FILTRASI DAN SANITASI
                 carts = loadedCarts.filter(item => 
                     item && 
                     item.idproduk && 
@@ -290,7 +293,6 @@ function instantCheckout(instantProcessUrl) {
                     parseInt(item.jumlah) > 0 
                 );
 
-                // Jika ada data yang tidak valid, simpan versi yang sudah bersih ke LocalStorage
                 if (loadedCarts.length !== carts.length) {
                     console.warn(`${loadedCarts.length - carts.length} item keranjang korup telah dibersihkan.`);
                     saveCartToLocalStorage();
@@ -298,7 +300,6 @@ function instantCheckout(instantProcessUrl) {
 
             } catch (e) {
                 console.error("Error parsing stored cart:", e);
-                // Jika parsing gagal total, reset keranjang
                 carts = [];
                 localStorage.removeItem('shoppingCart');
             }
@@ -306,7 +307,7 @@ function instantCheckout(instantProcessUrl) {
             carts = [];
         }
         
-        renderCart(); // Render keranjang yang sudah bersih
+        renderCart();
         loadingCartMessage.style.display = 'none';
         updateCartQuantityIcon();
         updateCheckoutButtonState();

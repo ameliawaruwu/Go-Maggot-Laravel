@@ -25,7 +25,7 @@
         </li>
 
         <li>
-            <a href="" class="text-decoration-none">
+            <a href="/publication" class="text-decoration-none">
                 <i class='bx bx-library' ></i>
                 <span class="text">Publikasi Artikel</span>
             </a>

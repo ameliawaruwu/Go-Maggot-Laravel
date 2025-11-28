@@ -38,12 +38,17 @@ class Pengguna extends Authenticatable
         'tanggal_daftar'
     ];
 
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     public function pesanan()
     {
         return $this->hasMany(Pesanan::class, 'id_pengguna');
     }
     public function reviews() {
-        return $this->hasMany(Reviews::class, 'id_review');
+        return $this->hasMany(Review::class, 'id_review');
     }
     
 }
