@@ -34,7 +34,7 @@ class StudyController extends Controller
                                  ->limit(3) 
                                  ->get();
 
-        // Kirim data topik belajar dan artikel
+        // Mengirim data topik belajar dan artikel
         return view('study.index', [
             'topics' => $this->studyTopics,
             'articles' => $latestArticles // Mengirim data dari database
