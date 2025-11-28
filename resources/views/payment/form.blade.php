@@ -12,16 +12,14 @@
     @endif
 
    
-    <!--Bagian sukses pembayaran -->
-   
+       
     @if ($payment_success)
         <div class="thank-you-container text-center">
             <h2> Terima Kasih!</h2>
             <h2>Checkout dan Pembayaran Berhasil Terkirim</h2>
             <p class="lead">Pesanan Anda telah berhasil diproses.</p>
             
-            <!-- Menggunakan variabel total_pembayaran dari Controller -->
-            <p>Jumlah Pembayaran: <strong>Rp {{ number_format($total_pembayaran, 0, ',', '.') }}</strong></p>
+                        <p>Jumlah Pembayaran: <strong>Rp {{ number_format($total_pembayaran, 0, ',', '.') }}</strong></p>
             <p>ID Pesanan Anda: <strong>{{ $id_pesanan }}</strong></p>
 
             <p class="text-muted">Kami akan segera memproses pesanan Anda. Silakan cek status pesanan secara berkala.</p>
@@ -37,13 +35,10 @@
     @else
    
 
-    <!-- Bagian form pembayaran  -->
-
-        <div class="container form-container">
+            <div class="container form-container">
             <h1><center>Form Pembayaran</center></h1>
 
-            <!-- Cek ketersediaan ID pesanan  -->
-            @if ($id_pesanan === null)
+                        @if ($id_pesanan === null)
                 <div class="alert alert-warning">
                     <p><strong>Perhatian:</strong> ID Pesanan tidak ditemukan.</p>
                     <p>Silakan kembali ke halaman awal/checkout untuk memulai proses pesanan.</p>
@@ -54,16 +49,12 @@
             @else
                 
                 
-                <!--Form pembayaran-->
-                <form id="paymentForm" method="post" action="{{ route('payment.process') }}" enctype="multipart/form-data" autocomplete="off">
-    @csrf {{-- Token CSRF wajib --}}
-    </form>
-
-                    <center><h2>Scan QR Code</h2></center>
+                                <form id="paymentForm" method="post" action="{{ route('payment.process') }}" enctype="multipart/form-data" autocomplete="off">
+                @csrf {{-- Token CSRF wajib --}}
+                                        <center><h2>Scan QR Code</h2></center>
                     <center><img src="{{ asset('images/Contoh QR.jpeg') }}" alt="QR Code" width="200" height="200"></center>
 
-                    <!-- Data detail pengirim dari variabel Controller  -->
-                    <label for="name">Nama Pengirim/Pemilik Rekening</label>
+                                        <label for="name">Nama Pengirim/Pemilik Rekening</label>
                     <input type="text" id="name" name="name" placeholder="Nama lengkap" value="{{ $name }}" required>
                     
                     <label for="phone">No Telepon Pengirim</label>
@@ -78,8 +69,7 @@
                     <input type="hidden" name="id_pesanan" value="{{ $id_pesanan }}">
 
                     <button type="submit" class="btn btn-success mt-3">Kirim Bukti Pembayaran</button>
-                </form>
-            @endif
+                </form>             @endif
         </div>
     @endif
 @endsection
@@ -100,5 +90,3 @@
         });
     </script>
 @endsection
-
-

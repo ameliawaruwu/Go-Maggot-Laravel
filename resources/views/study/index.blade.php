@@ -42,7 +42,7 @@
             <div class="col-md-3 mx-2 mb-4">
                 <div class="card shadow-sm" style="border-radius: 15px; overflow:hidden;">
 
-                    <img src="{{ asset('images/' . $article->gambar) }}" 
+                    <img src="{{ asset('photo/' . $article->gambar) }}" 
                          class="card-img-top" 
                          alt="{{ $article->judul }}" 
                          style="height:200px; object-fit:cover;"

@@ -19,7 +19,8 @@ class Pesanan extends Model
         'nomor_telepon',
         'tanggal_pesanan',
         'metode_pembayaran',
-        'total_harga'
+        'total_harga',
+        'id_status_pesanan',
     ];
 
     protected $dates = [
@@ -36,4 +37,11 @@ class Pesanan extends Model
         return $this->belongsTo(Pengguna::class, 'id_status_pesanan');
     }
     
+
+    public function detailPesanan()
+    {
+        return $this->hasMany(DetailPesanan::class, 'id_pesanan', 'id_pesanan');
+    }
 }
+    
+

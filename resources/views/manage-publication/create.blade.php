@@ -8,7 +8,7 @@
     <div class="left">
         <h1>Tambah Artikel Baru</h1>
         <ul class="breadcrumb">
-            <li><a href="#" class="text-decoration-none">Artikel</a></li>
+            <li><a href="{{ route('publication.index') }}" class="text-decoration-none">Artikel</a></li>
             <li><i class='bx bx-chevron-right'></i></li>
             <li><a href="#" class="text-decoration-none">Tambah Baru</a></li>
         </ul>
@@ -31,25 +31,26 @@
             </div>
         @endif
 
-        <form action="{{ route('publication.store') }}" method="POST">
+        <form action="{{ route('publication.simpan') }}" method="POST" enctype="multipart/form-data">
             @csrf
-
-            <div class="form-group mb-4">
-            <label for="id_artikel">ID Artikel</label>
-            <input type="text" id="id_artikel" name="id_artikel" class="form-control"
-                value="{{ old('id_artikel') }}" required>
-            </div>
 
             <div class="form-group mb-4">
                 <label for="judul">Judul Artikel</label>
                 <input type="text" id="judul" name="judul" class="form-control"
-                       value="{{ old('judul') }}" required>
+                        value="{{ old('judul') }}" required>
             </div>
 
             <div class="form-group mb-4">
                 <label for="penulis">Penulis</label>
                 <input type="text" id="penulis" name="penulis" class="form-control"
-                       value="{{ old('penulis') }}" required>
+                        value="{{ old('penulis') }}" required>
+            </div>
+            
+            <!-- Tambah  Gambar -->
+            <div class="form-group mb-4">
+                <label for="gambar">Gambar Artikel</label>
+                <input type="file" id="gambar" name="gambar" class="form-control" accept="image/*">
+                <small class="form-text">Maksimal 2MB (jpeg, png, jpg, dll.).</small>
             </div>
 
             <div class="form-group mb-4">
@@ -60,7 +61,7 @@
             <div class="form-group mb-4">
                 <label for="hak_cipta">Hak Cipta</label>
                 <input type="text" id="hak_cipta" name="hak_cipta" class="form-control"
-                       value="{{ old('hak_cipta') }}" required>
+                        value="{{ old('hak_cipta') }}" required>
             </div>
 
             <div class="form-group mb-4">
