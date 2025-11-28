@@ -17,15 +17,8 @@
                 <span class="text">Analitik</span>
             </a>
         </li>
-<<<<<<< HEAD
-
-        {{-- 
-        <li class="{{ Request::routeIs('gallery.index') ? 'active' : '' }}">
-            <a href="{{ route('gallery.index') }}" class="text-decoration-none">
-=======
         <li class="{{}}">
             <a href="" class="text-decoration-none"> 
->>>>>>> esa
                 <i class='bx bx-images'></i>
                 <span class="text">Galeri</span>
             </a>

@@ -15,7 +15,6 @@ class ManageStatusPesananController extends Controller
         return view('manage-status-pesanan.index', compact('status'));
     }
 
-    // FORM TAMBAH (route: /manageStatus-input)
     public function input()
     {
         return view('manage-status-pesanan.create');

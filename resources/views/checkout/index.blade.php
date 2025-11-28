@@ -8,7 +8,6 @@
      <!-- Menampilkan pesan sukses atau error dari Controller (sesi)  -->
     <div id="checkoutMessageArea" class="row justify-content-center mb-4">
         <div class="col-12">
-            <!-- {{-- Menggunakan alert class Bootstrap untuk pesan yang lebih rapi --}} -->
             @if(session('success'))
                 <div class="alert alert-success text-center" role="alert">
                     {{ session('success') }}
@@ -38,6 +37,8 @@
             <form id="checkoutForm" method="POST" action="{{ route('checkout.process') }}">
                 @csrf 
 
+                <input type="hidden" name="id_pesanan" value="{{ $draftOrderId }}">
+
                 <div class="form-group mb-3">
                     <label for="nama_penerima">Nama Penerima</label>
                     <input type="text" id="nama_penerima" name="nama_penerima" value="{{ old('nama_penerima') }}" required class="form-control">
@@ -57,21 +58,21 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label for="kota">Kota</label>
-                    <select id="kota" name="kota" required class="form-select">
-                        <option value="">Pilih Kota</option>
-                        <option value="Bandung" {{ old('kota') == 'Bandung' ? 'selected' : '' }}>Bandung</option>
-                        <option value="Jakarta" {{ old('kota') == 'Jakarta' ? 'selected' : '' }}>Jakarta</option>
-                    </select>
-                    @error('kota') <span class="text-danger">{{ $message }}</span> @enderror
+                <label for="kota">Pengiriman</label>
+                <select id="pengiriman" name="pengiriman" required class="form-select"> <option value="">Pengiriman</option>
+                    <option value="Instan" {{ old('pengiriman') == 'Instan' ? 'selected' : '' }}>Instan</option>
+                    <option value="Reguler" {{ old('pengiriman') == 'Reguler' ? 'selected' : '' }}>Reguler</option>
+                    <option value="Kargo" {{ old('pengiriman') == 'Kargo' ? 'selected' : '' }}>Kargo</option>
+                </select>
+                @error('Pengiriman') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
                 
                 <div class="form-group mb-4">
                     <label for="metode_pembayaran">Metode Pembayaran</label>
                     <select id="metode_pembayaran" name="metode_pembayaran" required class="form-select">
                         <option value="">-- Pilih Metode Pembayaran --</option>
-                        <option value="Qris" {{ old('metode_pembayaran') == 'Qris' ? 'selected' : '' }}>Qris</option>
-                        <option value="Tunai" {{ old('metode_pembayaran') == 'Tunai' ? 'selected' : '' }}>Tunai (COD)</option>
+                        <option value="QRIS" {{ old('metode_pembayaran') == 'QRIS' ? 'selected' : '' }}>QRIS</option>
+                        <option value="COD" {{ old('metode_pembayaran') == 'COD' ? 'selected' : '' }}>COD</option>
                     </select>
                     @error('metode_pembayaran') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>

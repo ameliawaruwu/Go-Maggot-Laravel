@@ -43,12 +43,12 @@
 
             <form action="{{ route('publication.index') }}" method="GET" class="d-flex search-form">
                 <input type="text" name="search_query" placeholder="Cari artikel..." class="form-control me-2"
-                       value="{{ old('search_query', $searchQuery ?? '') }}" style="width:200px;">
+                        value="{{ old('search_query', $searchQuery ?? '') }}" style="width:200px;">
                 <button type="submit" class="btn btn-outline-secondary"><i class='bx bx-search'></i></button>
             </form>
         </div>
 
-        @if(empty($articles))
+        @if($articles->isEmpty())
             <p class="text-center text-muted">Tidak ada artikel yang ditemukan.</p>
         @else
             <div class="table-responsive">
@@ -58,7 +58,8 @@
                             <th width="50">ID</th>
                             <th>Judul</th>
                             <th>Penulis</th>
-                            <th>Tanggal</th>
+                            <th>Tanggal</th> 
+                            <th>Gambar</th> 
                             <th>Konten</th>
                             <th>Hak Cipta</th>
                             <th class="text-center" width="120">Aksi</th>
@@ -67,24 +68,31 @@
                     <tbody>
                         @foreach ($articles as $article)
                             <tr>
-                                <td>{{ $article['id_artikel'] }}</td>
-                                <td>{{ $article['judul'] }}</td>
-                                <td>{{ $article['penulis'] }}</td>
-                                <td>{{ $article['tanggal'] }}</td>
-                                <td>{{ Str::limit(strip_tags($article['konten']), 40) }}</td>
-                                <td>{{ $article['hak_cipta'] }}</td>
+                                <td>{{ Str::limit($article->id_artikel, 8) }}</td>
+                                <td>{{ $article->judul }}</td>
+                                <td>{{ $article->penulis }}</td>
+                                <td>{{ $article->tanggal }}</td>
+                                <td>
+                                    @if ($article->gambar)
+                                        <img src="{{ asset('photo/' . $article->gambar) }}" alt="{{ $article->judul }}" style="width: 70px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>{{ Str::limit(strip_tags($article->konten), 40) }}</td>
+                                <td>{{ $article->hak_cipta }}</td>
 
                                 <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
 
-                                        <a href="{{ route('publication.edit', $article['id_artikel']) }}"
+                                        <a href="{{ route('publication.edit', $article->id_artikel) }}"
                                            class="btn btn-sm btn-warning text-dark">
                                             <i class='bx bxs-edit-alt'></i>
                                         </a>
 
-                                        <form action="{{ route('publication.destroy', $article['id_artikel']) }}"
+                                        <form action="{{ route('publication.destroy', $article->id_artikel) }}"
                                               method="POST" class="m-0 delete-form"
-                                              data-article-title="artikel: {{ $article['judul'] }}">
+                                              data-article-title="artikel: {{ $article->judul }}">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger">

@@ -36,7 +36,7 @@
                     </button>
                 </a>
 
-                {{-- Tombol add to cart (FORMAT SUDAH FIX UNTUK JS) --}}
+                {{-- Tombol add to cart --}}
                 <button class="add-to-cart-btn"
                     data-id="{{ $p->id_produk }}"
                     data-nama="{{ $p->nama_produk }}"
@@ -50,7 +50,7 @@
     </div>
 </div>
 
-{{-- CART SIDEBAR --}}
+{{-- Cart sidebar --}}
 <div class="cartTab">
     <h1>Keranjang Saya</h1>
 
@@ -63,7 +63,6 @@
     <div class="btn">
     <button class="close">Tutup</button>
 
-    {{-- Gunakan data-redirect-url untuk JS --}}
     <button id="checkoutBtn" data-redirect-url="{{ route('checkout.index') }}">
         Checkout
     </button>

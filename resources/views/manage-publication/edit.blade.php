@@ -8,9 +8,9 @@
     <div class="left">
         <h1>Edit Artikel</h1>
         <ul class="breadcrumb">
-            <li><a href="#">Artikel</a></li>
+            <li><a href="{{ route('publication.index') }}" class="text-decoration-none">Artikel</a></li>
             <li><i class='bx bx-chevron-right'></i></li>
-            <li><a class="active" href="#">Edit Artikel</a></li>
+            <li><a class="active text-decoration-none" href="#">Edit Artikel</a></li>
         </ul>
     </div>
 </div>
@@ -31,35 +31,53 @@
             </div>
         @endif
 
- 
-
-        <form action="{{ route('publication.update', $article->id_artikel) }}" method="POST">
-    @csrf
-    @method('PUT')
+        <form action="{{ route('publication.update', $article->id_artikel) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
 
             <div class="form-group mb-4">
                 <label for="judul">Judul Artikel</label>
                 <input type="text" id="judul" name="judul" class="form-control"
-                       value="{{ old('judul', $article['judul']) }}" required>
+                        value="{{ old('judul', $article['judul']) }}" required>
             </div>
 
             <div class="form-group mb-4">
                 <label for="penulis">Penulis</label>
                 <input type="text" id="penulis" name="penulis" class="form-control"
-                       value="{{ old('penulis', $article['penulis']) }}" required>
+                        value="{{ old('penulis', $article['penulis']) }}" required>
             </div>
+            
+        
+            <div class="form-group mb-4">
+                <label for="gambar">Gambar Artikel</label>
+                
+                @if ($article->gambar)
+                    <div class="mb-2">
+                        <p class="mb-1" style="font-weight: bold;">Gambar Saat Ini:</p>
+                       <!-- Menampilkan gambar saat ini -->
+                        <img src="{{ asset('photo/' . $article->gambar) }}" alt="Gambar {{ $article->judul }}" style="max-width: 200px; height: auto; border: 1px solid #ccc; padding: 5px; border-radius: 5px;">
+                    </div>
+                @else
+                    <p class="mb-1" style="color: #666;">Belum ada gambar.</p>
+                @endif
+                
+                <!-- Input untuk unggah gambar baru-->
+                <input type="file" id="gambar" name="gambar" class="form-control" accept="image/*">
+                <small class="form-text">Unggah file baru</small>
+            </div>
+
 
             <div class="form-group mb-4">
                 <label>Tanggal</label>
                 <input type="text" class="form-control"
-                       value="{{ \Carbon\Carbon::parse($article['tanggal'])->format('d/m/Y') }}"
-                       disabled>
+                        value="{{ \Carbon\Carbon::parse($article['tanggal'])->format('d/m/Y') }}"
+                        disabled>
             </div>
 
             <div class="form-group mb-4">
                 <label for="hak_cipta">Hak Cipta</label>
                 <input type="text" id="hak_cipta" name="hak_cipta" class="form-control"
-                       value="{{ old('hak_cipta', $article['hak_cipta']) }}" required>
+                        value="{{ old('hak_cipta', $article['hak_cipta']) }}" required>
             </div>
 
             <div class="form-group mb-4">

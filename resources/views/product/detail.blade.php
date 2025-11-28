@@ -16,10 +16,9 @@
 <section>
     <div class="container flex" style="display: flex; gap: 40px; align-items: flex-start;">
 
-        {{-- FOTO PRODUK --}}
+        {{-- Foto produk --}}
         <div class="left" style="flex: 1; text-align: center;">
             <div class="main_image">
-                {{-- DITAMBAH ID untuk fungsionalitas thumbnail --}}
                 <img id="main-product-image" 
                      src="{{ asset('photo/' . ($data->gambar ?? 'placeholder.jpg')) }}"
                      class="slide"
@@ -29,34 +28,28 @@
             </div>
 
             {{-- Thumbnail (option flex) --}}
-            {{-- DITAMBAH ONCLICK dan inline style agar thumbnail terlihat --}}
             <div class="option flex product-thumbnails mt-2" style="display: flex; justify-content: center; gap: 10px;">
-                
-                {{-- Thumbnail 1: Gambar Utama (Untuk inisialisasi) --}}
+            
                 <img src="{{ asset('photo/' . ($data->gambar ?? 'placeholder.jpg')) }}" 
                      onclick="changeMainImage('{{ asset('photo/' . ($data->gambar ?? 'placeholder.jpg')) }}')"
                      alt="Thumbnail 1" 
                      style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; cursor: pointer;">
-                
-                {{-- Thumbnail 2 (maggot removebg.png) --}}
+
                 <img src="{{ asset('images/maggot removebg.png') }}" 
                      onclick="changeMainImage('{{ asset('images/maggot removebg.png') }}')"
                      alt="Thumbnail 2" 
                      style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; cursor: pointer;">
                 
-                {{-- Thumbnail 3 (kompos remove bg.png) --}}
                 <img src="{{ asset('images/kompos remove bg.png') }}" 
                      onclick="changeMainImage('{{ asset('images/kompos remove bg.png') }}')"
                      alt="Thumbnail 3" 
                      style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; cursor: pointer;">
                  
-                {{-- Thumbnail 4 (Bundling Maggot.png) --}}
                 <img src="{{ asset('images/Bundling Maggot.png') }}" 
                      onclick="changeMainImage('{{ asset('images/Bundling Maggot.png') }}')"
                      alt="Thumbnail 4" 
                      style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; cursor: pointer;">
 
-                {{-- Thumbnail 5 (Kandang.png) --}}
                 <img src="{{ asset('images/Kandang.png') }}" 
                      onclick="changeMainImage('{{ asset('images/Kandang.png') }}')"
                      alt="Thumbnail 5" 
@@ -64,14 +57,12 @@
             </div>
         </div>
 
-        {{-- DETAIL PRODUK --}}
+        {{-- Detail Produk --}}
         <div class="right" style="flex: 2; padding-left: 20px;">
             <h3>{{ $data->nama_produk ?? 'Nama Produk' }}</h3>
 
-            {{-- RATING BINTANG --}}
             <div class="product-rating">
                 <div class="stars" style="color: gold;">
-                    {{-- Markup bintang 5 --}}
                     <i class="fas fa-star"></i><i class="fas fa-star"></i>
                     <i class="fas fa-star"></i><i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
@@ -98,7 +89,7 @@
     </div>
 </section>
 
-{{-- SPESIFIKASI PRODUK --}}
+{{-- Spesifikasi produk --}}
 <div class="bagiandesk" style="margin-top: 30px; padding: 15px; border: 1px solid #eee; background-color: #f9f9f9;">
     <h2>Spesifikasi Produk</h2><br>
 
@@ -112,7 +103,7 @@
 
 </div>
 
-{{-- REVIEW --}}
+{{-- Review --}}
 <div class="bagianakhir" style="margin-top: 30px; margin-bottom: 50px; padding: 15px; border: 1px solid #eee; background-color: white;">
     <h2>Penilaian Produk</h2><br>
 

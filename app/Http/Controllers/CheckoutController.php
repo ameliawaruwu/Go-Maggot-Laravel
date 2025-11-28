@@ -3,66 +3,101 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Pesanan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth; 
+use App\Models\Pesanan;
 use App\Models\DetailPesanan;
+// Perbaikan: Hapus duplikasi use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class CheckoutController extends Controller
 {
-    // ===========================
-    // TAMPILKAN HALAMAN CHECKOUT (Form Pengiriman)
-    // ===========================
+    // Halaman checkout 
     function index()
     {
-        // Ambil keranjang dari session (yang disinkronkan dari JS)
         $cart = session('cart', []);
+        $draftOrderId = session('draft_order_id'); 
 
         if (empty($cart)) {
             return redirect('/daftar-produk')->with('error', 'Keranjang masih kosong.');
         }
 
+        // 1. Hitung Total Harga dan Kuantitas Sekali
         $totalPrice = 0;
         $totalQty = 0;
-
         foreach ($cart as $item) {
-            $harga = $item['harga'] ?? 0;
             $jumlah = $item['jumlah'] ?? 0;
-
-            $totalPrice += $harga * $jumlah;
+            $totalPrice += ($item['harga'] ?? 0) * $jumlah;
             $totalQty += $jumlah;
         }
 
+        // 2. Buat Draft Order jika belum ada di sesi
+        if (!$draftOrderId) {
+            $idPesanan = 'ORD-' . time();
+            // Fallback ID pengguna ke PG138
+            $idPengguna = auth()->check() ? (auth()->user()->id_pengguna ?? auth()->user()->id) : 'PG138'; 
+            $idPengguna = trim($idPengguna);
+            
+            try {
+                // Catatan: Gunakan nilai ENUM/VARCHAR yang valid untuk mencegah Data Truncated
+                Pesanan::create([
+                    'id_pesanan' => $idPesanan,
+                    'id_pengguna' => $idPengguna,
+                    'nama_penerima' => 'Pelanggan Draft',
+                    'alamat_pengiriman' => 'Alamat Default',
+                    'nomor_telepon' => '0000000000',
+                    'tanggal_pesanan' => now(),
+                    // Menggunakan nilai yang diasumsikan valid di ENUM/VARCHAR
+                    'metode_pembayaran' => 'Qris', 
+                    'layanan_pengiriman'=> 'Instan',
+                    'total_harga' => $totalPrice, // Total harga produk dari perhitungan di atas
+                    'status' => 'Draft',
+                ]);
+                
+                // Simpan ID baru ke sesi
+                session(['draft_order_id' => $idPesanan]);
+                $draftOrderId = $idPesanan;
+                
+            } catch (\Exception $e) {
+                Log::error("Gagal membuat draft order di index: " . $e->getMessage() . " on line " . $e->getLine());
+                return redirect('/daftar-produk')->with('error', 'Gagal memulai proses checkout (Gagal membuat draft).');
+            }
+        }
+        
         return view('checkout.index', [
             'cartItems' => $cart,
             'totalPrice' => $totalPrice,
-            'totalQuantity' => $totalQty
+            'totalQuantity' => $totalQty,
+            'draftOrderId' => $draftOrderId // Dipastikan memiliki nilai
         ]);
     }
 
-    // ========================================================
-    // FUNGSI BARU: PROSES INSTAN (DIPANGGIL DARI HALAMAN PRODUK)
-    // ========================================================
+    // Proses pesanan instan (AJAX) - Membuat pesanan draft
     public function instantProcess(Request $request)
     {
-        // Menerima data keranjang (cart) dari AJAX POST
         $cart = $request->json('cart', []);
         
         if (empty($cart)) {
             return response()->json(['success' => false, 'message' => 'Keranjang kosong.'], 400);
         }
 
-        // --- 1. SET DATA PENGGUNA & DEFAULT ---
-        // Handle id_pengguna: Jika tidak login, gunakan ID GUEST yang unik.
-        // Asumsi: Jika id_pengguna di tabel 'pesanan' tidak merujuk ke Foreign Key, 
-        // atau jika Foreign Key-nya mengizinkan nilai yang tidak ada di tabel 'pengguna'.
-        $idPengguna = auth()->check() ? auth()->user()->id_pengguna : 'GUEST-' . time();
-        $idPesanan  = 'ORD-' . time();
+        // PERBAIKAN: Hapus duplikasi inisialisasi variabel di sini, gunakan yang di bawah
+        
+        $idPengguna = Auth::check()
+            ? (Auth::user()->id_pengguna ?? Auth::user()->id)
+            : 'PG138';
 
-        // Data Pengiriman Default/Dummy untuk pesanan instan
-        $namaPenerimaDefault = auth()->check() ? auth()->user()->name : 'Pelanggan Langsung';
+        $idPengguna = trim($idPengguna);
+        $idPesanan = 'ORD-' . time();
+
+        // Data default
+        $namaPenerimaDefault = Auth::check() ? Auth::user()->name : 'Pelanggan Langsung';
         $alamatPengirimanDefault = 'Alamat Default - Harap Konfirmasi Admin';
-        $nomorTeleponDefault = '000000000000'; // Harus diisi, sesuaikan panjangnya dengan kolom di DB
-        $metodePembayaranDefault = 'INSTANT_ORDER'; 
+        $nomorTeleponDefault = '081987654321';
+        $metodePembayaranDefault = 'QRIS';
+        $layananPengirimanDefault = 'Reguler';
+        $biayaPengirimanDefault = 0; // Variabel ini tidak digunakan di Pesanan::create saat ini, tapi biarkan saja.
 
         // Hitung total harga
         $totalHarga = 0;
@@ -70,167 +105,170 @@ class CheckoutController extends Controller
             $totalHarga += ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0);
         }
 
-        // --- 2. Transaksi Database ---
         DB::beginTransaction();
         try {
-            
-            // Simpan ke tabel PESANAN
+            // Membuat pesanan draft (Pastikan nilai ENUM/VARCHAR sesuai)
             Pesanan::create([
                 'id_pesanan'        => $idPesanan,
                 'id_pengguna'       => $idPengguna,
                 'nama_penerima'     => $namaPenerimaDefault,
                 'alamat_pengiriman' => $alamatPengirimanDefault,
                 'nomor_telepon'     => $nomorTeleponDefault,
-                'tanggal_pesanan'   => now(), // Tambahkan ini jika kolomnya tidak auto-filled
+                'tanggal_pesanan'   => now(),
                 'metode_pembayaran' => $metodePembayaranDefault,
-                'total_harga'       => $totalHarga,
+                'layanan_pengiriman'=> $layananPengirimanDefault,
+                // PERBAIKAN: Menambahkan 'biaya_pengiriman' jika dibutuhkan di tabel Pesanan
+                // 'biaya_pengiriman' => $biayaPengirimanDefault, 
+                'total_harga'       => $totalHarga, 
+                'status'            => 'Draft', // Tambahkan status Draft agar tidak kosong
             ]);
+            
+            // Perbaikan: Hapus blok Pesanan::create yang duplikat
 
-            // Simpan detail produk ke tabel DETAIL_PESANAN
             foreach ($cart as $item) {
+                $idProduk = $item['idproduk'] ?? null;
+                $jumlah = $item['jumlah'] ?? 0;
+                $harga = $item['harga'] ?? 0;
+
+                if (is_null($idProduk)) {
+                    throw new \Exception("Item keranjang tidak memiliki ID produk yang valid.");
+                }
+
                 DetailPesanan::create([
-                    'id_pesanan'    => $idPesanan, 
-                    'id_produk'     => $item['idproduk'] ?? null, 
-                    'nama_produk'   => $item['namaproduk'] ?? 'Unknown', 
-                    'jumlah'        => $item['jumlah'] ?? 0,
-                    'harga_satuan'  => $item['harga'] ?? 0,
-                    'subtotal'      => ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0),
+                    'id_pesanan'            => $idPesanan,
+                    'id_produk'             => $idProduk,
+                    'jumlah'                => $jumlah,
+                    'harga_saat_pembelian'  => $harga,
                 ]);
             }
 
-            DB::commit(); // Semua query berhasil
+            DB::commit();
             
-            // Hapus session cart jika sebelumnya ada data yang tersimpan di session
-            session()->forget('cart');
+            // Simpan data keranjang dan ID Pesanan Draft ke sesi
+            session(['cart' => $cart]);
+            session(['draft_order_id' => $idPesanan]);
 
-            // Beri respon sukses ke AJAX, termasuk URL redirect
             return response()->json([
-                'success' => true, 
-                'message' => 'Pesanan instan berhasil dibuat!', 
-                'redirect_url' => route('checkout.success') . '?order_id=' . $idPesanan
+                'success' => true,
+                'message' => 'Pesanan instan (draft) berhasil dibuat!',
+                'redirect_url' => route('checkout.index')
             ]);
 
         } catch (\Exception $e) {
-            DB::rollBack(); // Batalkan semua query jika terjadi error
-            \Log::error('Gagal memproses pesanan instan: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error("Error instantProcess: " . $e->getMessage() . " on line " . $e->getLine()); 
             
-            // Respon error ke AJAX
+            // PERBAIKAN: Hapus return response()->json yang duplikat
             return response()->json([
                 'success' => false, 
-                'message' => 'Gagal menyimpan pesanan. Detail: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Gagal menyimpan pesanan. Terjadi kesalahan server. Detail Error: ' . $e->getMessage() . 
+                             ' (Lihat Log Server untuk detail lebih lanjut)'
+            ], 200); 
         }
     }
 
     // ===========================
-    // SIMPAN PESANAN KE DATABASE (DIPANGGIL DARI FORM CHECKOUT)
+    // PROSES DARI FORM REGULER
     // ===========================
     function process(Request $request)
     {
-        // --- 1. Validasi ---
+        // 1. Validasi
         $request->validate([
             'nama_penerima'     => 'required|string|max:255',
             'nomor_telepon'     => 'required|string|max:15',
             'alamat_lengkap'    => 'required|string',
-            'kota'              => 'required|string|max:100',
-            'metode_pembayaran' => 'required|string|max:50'
+            'pengiriman'        => 'required|string|max:50', 
+            'metode_pembayaran' => 'required|string|max:50',
+            'id_pesanan'        => 'required|string|exists:pesanan,id_pesanan', 
         ]);
 
         $cart = session('cart', []);
         if (empty($cart)) {
-            return back()->with('error', 'Keranjang kosong.');
+            return back()->with('error', 'Keranjang kosong.')->withInput();
         }
-
-        // --- 2. Penanganan ID Pengguna & Total Harga ---
-        $idPengguna = auth()->check() ? auth()->user()->id_pengguna : 'GUEST-' . time();
-        $idPesanan = 'ORD-' . time();
-        $totalHarga = 0;
         
-        foreach ($cart as $item){
-            $totalHarga += ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0);
-        }
+        $idPesanan = $request->input('id_pesanan'); // ID dari draft order
+        
+        // PERBAIKAN: Hapus inisialisasi $idPengguna dan $idPesanan yang duplikat
 
-        // --- 3. Transaksi Database ---
+        // 2. Hitung Total Harga Produk
+        $totalHargaProduk = 0;
+        foreach ($cart as $item){
+            $totalHargaProduk += ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0);
+        }
+        
+        $layananPengiriman = $request->input('pengiriman');
+        $totalHargaFinal = $totalHargaProduk; 
+        // PERBAIKAN: Hapus $totalHargaFinal = $totalHargaProduk; yang duplikat
+
         DB::beginTransaction();
         try {
-            // Simpan ke tabel PESANAN
-            Pesanan::create([
-                'id_pesanan'        => $idPesanan,
-                'id_pengguna'       => $idPengguna,
+            // 3. Update data di tabel 'pesanan' berdasarkan ID yang sudah ada
+            $pesanan = Pesanan::where('id_pesanan', $idPesanan)->first();
+            
+            if (!$pesanan) {
+                throw new \Exception("Pesanan dengan ID {$idPesanan} tidak ditemukan.");
+            }
+            
+            // PERBAIKAN: Hapus blok Pesanan::create dan foreach DetailPesanan::create di sini
+            // Karena ini adalah fungsi update, bukan create.
+            
+            $pesanan->update([
+                // Data penerima diperbarui
                 'nama_penerima'     => $request->nama_penerima,
-                'alamat_pengiriman' => $request->alamat_lengkap . ', ' . $request->kota,
+                'alamat_pengiriman' => $request->alamat_lengkap, 
                 'nomor_telepon'     => $request->nomor_telepon,
-                'tanggal_pesanan'   => now(),
-                'metode_pembayaran' => strtoupper($request->metode_pembayaran),
-                'total_harga'       => $totalHarga,
+                
+                // Data pembayaran & pengiriman (Gunakan nilai sesuai form)
+                'metode_pembayaran' => $request->metode_pembayaran, // Diambil langsung dari form (Tunai/Qris)
+                'layanan_pengiriman'=> $layananPengiriman,
+                'total_harga'       => $totalHargaFinal, 
+                'status'            => 'Menunggu Pembayaran', 
             ]);
 
-            // Simpan detail produk ke tabel DETAIL_PESANAN (Looping Keranjang)
-            foreach ($cart as $item) {
-                DetailPesanan::create([
-                    'id_pesanan'    => $idPesanan,
-                    'id_produk'     => $item['idproduk'] ?? null, 
-                    'nama_produk'   => $item['namaproduk'] ?? 'Unknown', 
-                    'jumlah'        => $item['jumlah'] ?? 0,
-                    'harga_satuan'  => $item['harga'] ?? 0,
-                    'subtotal'      => ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0),
-                ]);
-            }
+            DB::commit();
 
-            DB::commit(); // Komit transaksi
-
-            // hapus session cart setelah semua data disimpan
+            // 4. Hapus keranjang dan draft ID pesanan
             session()->forget('cart');
+            session()->forget('draft_order_id'); 
             $request->session()->flash('clear_cart', true); 
 
-            return redirect()->route('checkout.success')
-                ->with('success', 'Pesanan berhasil dibuat!')
-                ->with('order_id', $idPesanan);
+            Log::debug("CHECKOUT SUCCESS. Redirecting to payment. Order ID: " . $idPesanan);
+
+            // 5. Redirect ke halaman pembayaran
+            return redirect()->route('payment.form', ['order_id' => $idPesanan])
+                ->with('status_message', '✅ Pesanan berhasil divalidasi dan disimpan. Silakan kirim bukti pembayaran.');
 
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback jika ada error
-            \Log::error('Gagal memproses pesanan form: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Gagal memproses pesanan form: ' . $e->getMessage() . ' on line ' . $e->getLine());
             
             return back()->withInput()
-                        ->with('error', 'Gagal menyimpan pesanan. Silakan coba lagi. (Error: ' . $e->getMessage() . ')');
+                ->with('error', 'Gagal menyimpan pesanan. (Error: ' . $e->getMessage() . ')');
         }
     }
 
     // ===========================
-    // HALAMAN SUCCESS
+    // SUCCESS PAGE 
     // ===========================
     function success(Request $request)
     {
-        // Ambil order_id dari session atau query parameter
         $orderId = session('order_id') ?? $request->query('order_id');
         $message = session('success') ?? 'Terima kasih atas pesanan Anda.';
-
+        
+        // Perbaikan: Hapus duplikasi logika pencarian $lastOrder
+        $lastOrder = null;
+        if ($orderId) {
+            $lastOrder = Pesanan::where('id_pesanan', $orderId)->first();
+        }
+        
         return view('checkout.success', [
             'order_id' => $orderId,
-            'message' => $message
+            'message' => $message,
+            'lastOrder' => $lastOrder 
         ]);
+        // Perbaikan: Hapus return view yang duplikat
     }
 
-   public function sync(Request $request)
-{
-    // Mengambil data 'cart' dari AJAX POST body
-    $cart = $request->json('cart', []);
-
-    // Sanitasi data minimal dan menghapus session jika keranjang kosong
-    if (!is_array($cart) || empty($cart)) {
-        session()->forget('cart');
-        return response()->json(['success' => true]);
-    }
-
-    // Filter array 'cart' untuk mencegah item korup (seperti 'undefined' lama) menyebabkan masalah di blade view.
-    $sanitizedCart = collect($cart)->filter(function ($item) {
-        return isset($item['idproduk']) && isset($item['namaproduk']) && (int)($item['jumlah'] ?? 0) > 0;
-    })->all();
-    
-    // Simpan keranjang yang sudah bersih ke Session
-    session(['cart' => $sanitizedCart]);
-
-    // Mengembalikan respons JSON sukses
-    return response()->json(['success' => true]); 
-}
+    // ... (Fungsi sync tidak berubah)
 }

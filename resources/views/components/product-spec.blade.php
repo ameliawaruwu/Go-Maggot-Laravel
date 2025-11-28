@@ -1,5 +1,5 @@
 @props([
-    'label' => 'Item', // Menambahkan default untuk menghindari error
+    'label' => 'Item', // default agar tidak error 
     'value' => 'N/A'
 ])
 
