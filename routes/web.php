@@ -92,7 +92,7 @@ Route::get('/publication', [ManagePublicationController::class, 'tampil'])
 Route::get('/publication/input', [ManagePublicationController::class, 'input'])
     ->name('publication.create');
 Route::post('/publication/simpan', [ManagePublicationController::class, 'simpan'])
-    ->name('publication.store');
+    ->name('publication.simpan');
 Route::get('/publication/edit/{id}', [ManagePublicationController::class, 'edit'])
     ->name('publication.edit');
 Route::put('/publication/update/{id}', [ManagePublicationController::class, 'update'])
