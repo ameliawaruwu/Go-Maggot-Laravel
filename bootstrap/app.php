@@ -11,7 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            // WAJIB ADA:
+            'auth'  => \App\Http\Middleware\Authenticate::class,
+
+            // optional tapi bagus kalau ada:
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+
+            // middleware role buat admin
+            'role'  => \App\Http\Middleware\RoleMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

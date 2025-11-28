@@ -13,6 +13,7 @@
   </div>
 
   <div class="footer_grid">
+
     <div class="footer_col">
       <div class="logo">
         <a href="{{ route('home') }}"><span>Go</span>Maggot</a>
@@ -29,7 +30,19 @@
       <a href="{{ route('about') }}"><i class="ri-arrow-right-s-line"></i>About</a>
       <a href="{{ route('product.index') }}"><i class="ri-arrow-right-s-line"></i>Products</a>
       <a href="{{ route('study.index') }}"><i class="ri-arrow-right-s-line"></i>Blog</a>
-      <a href="{{ route('login') }}"><i class="ri-arrow-right-s-line"></i>Logout</a>
+
+      {{-- ✔️ LOGOUT YANG BENAR --}}
+      @auth
+      <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+          @csrf
+          <button style="">
+            <i class="ri-arrow-right-s-line"></i>Logout
+          </button>
+      </form>
+      @else
+      <a href="{{ route('login') }}"><i class="ri-arrow-right-s-line"></i>Login</a>
+      @endauth
+
     </div>
 
     <div class="footer_col">
@@ -47,6 +60,7 @@
       <input type="text" placeholder="Enter Email">
       <button>Subscribe <i class="ri-arrow-drop-right-line"></i></button>
     </div>
+
   </div>
 
   <div class="footer_bottom">
