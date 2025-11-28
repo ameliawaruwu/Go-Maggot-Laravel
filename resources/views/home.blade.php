@@ -102,7 +102,7 @@
     </div>
   </section>
 
-    {{-- TESTIMONIAL SECTION --}}   
+  {{-- TESTIMONIAL SECTION --}}
   <section id="testimonials">
     <div class="testimonial-heading">
       <h1>Our Testimonials</h1>
@@ -198,7 +198,19 @@
       </div>
     </div>
 
-    <a class="testimoni-btn" href="{{ route('feedback') }}">Give Us Feedback</a>
+    {{-- BUTTON FEEDBACK: beda perilaku kalau login / belum --}}
+    @auth
+        {{-- USER SUDAH LOGIN → langsung ke halaman feedback --}}
+        <a class="testimoni-btn" href="{{ route('feedback') }}">
+          Give Us Feedback
+        </a>
+    @else
+        {{-- USER BELUM LOGIN → diarahkan ke login dulu, habis login balik ke /feedback --}}
+        <a class="testimoni-btn"
+           href="{{ route('login', ['redirect' => route('feedback')]) }}">
+          Give Us Feedback
+        </a>
+    @endauth
   </section>
 
 

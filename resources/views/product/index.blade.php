@@ -37,12 +37,19 @@
                 </a>
 
                 {{-- Tombol add to cart --}}
-                <button class="add-to-cart-btn"
+              
+               <button class="add-to-cart-btn"
+
                     data-id="{{ $p->id_produk }}"
+
                     data-nama="{{ $p->nama_produk }}"
+
                     data-harga="{{ $p->harga }}"
+
                     data-gambar="{{ asset('photo/' . $p->gambar) }}">
+
                     Masukkan Keranjang
+
                 </button>
             </div>
         @endforeach
