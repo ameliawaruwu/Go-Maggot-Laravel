@@ -94,13 +94,6 @@ Route::post('/payment/process', [PaymentController::class, 'processPayment'])->n
 // STATUS PESANAN 
 Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
 
-// PRODUCT ROUTES 
-Route::get('/daftar-produk', [ProductController::class, 'index'])->name('product.index');
-Route::get('/product-detail/{id_produk}', [ProductController::class, 'show']);
-Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
-Route::get('/produk/detail/{id}', [ProductController::class, 'show'])->name('product.detail');
-
-
 
 // ===============================
 // ROUTE YANG WAJIB LOGIN (AUTH)
