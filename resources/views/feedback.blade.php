@@ -12,6 +12,20 @@
     <h2 class="header">PRODUCT REVIEWS</h2>
     <h3>Product Quality</h3>
 
+    {{-- Pesan sukses --}}
+    @if (session('success'))
+      <div style="margin-bottom:15px; padding:10px; background:#d4edda; color:#155724; border-radius:4px;">
+        {{ session('success') }}
+      </div>
+    @endif
+
+    {{-- Pesan error validasi --}}
+    @if ($errors->any())
+      <div style="margin-bottom:15px; padding:10px; background:#f8d7da; color:#721c24; border-radius:4px;">
+        {{ $errors->first() }}
+      </div>
+    @endif
+
     <div class="stars" id="product-rating">
       <span class="star" data-value="1">★</span>
       <span class="star" data-value="2">★</span>
@@ -20,8 +34,9 @@
       <span class="star" data-value="5">★</span>
     </div>
 
-    <form action="#" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('feedback.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
+
       <input type="hidden" name="rating_produk" id="rating_produk">
       <input type="hidden" name="rating_seller" id="rating_seller">
 
@@ -78,14 +93,27 @@
 
 @push('scripts')
 <script>
-  document.querySelectorAll(".stars").forEach(starContainer => {
-    const stars = starContainer.querySelectorAll(".star");
+  function handleStarGroup(containerId, hiddenInputId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const stars = container.querySelectorAll(".star");
+    const hidden = document.getElementById(hiddenInputId);
+
     stars.forEach(star => {
       star.addEventListener("click", () => {
         const value = parseInt(star.dataset.value);
-        stars.forEach(s => s.classList.toggle("selected", parseInt(s.dataset.value) <= value));
+        stars.forEach(s => {
+          s.classList.toggle("selected", parseInt(s.dataset.value) <= value);
+        });
+        if (hidden) hidden.value = value;
       });
     });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    handleStarGroup("product-rating", "rating_produk");
+    handleStarGroup("seller-service-rating", "rating_seller");
   });
 </script>
 @endpush

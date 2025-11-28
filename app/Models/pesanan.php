@@ -39,29 +39,11 @@ class Pesanan extends Model
         return $this->belongsTo(Pengguna::class, 'id_status_pesanan');
     }
     
-    // --- Penambahan Relasi Baru ---
-    
-    /**
-     * Relasi One-to-Many ke DetailPesanan (Satu Pesanan memiliki banyak Detail Produk).
-     * Diasumsikan Foreign Key di tabel 'detail_pesanan' adalah 'id_pesanan'.
-     */
+
     public function detailPesanan()
     {
         return $this->hasMany(DetailPesanan::class, 'id_pesanan', 'id_pesanan');
     }
-    
-    /**
-     * Relasi Many-to-One ke StatusPesanan (Satu Pesanan memiliki satu Status Terkini).
-     * StatusPesanan::class harus sudah di-import di bagian atas file jika menggunakan namespace.
-     */
-    public function status()
-    {
-        // Parameter 1: Model tujuan (StatusPesanan::class)
-        // Parameter 2: Foreign Key di tabel Pesanan ('id_status_pesanan')
-        // Parameter 3: Primary Key di tabel StatusPesanan ('id_status_pesanan')
-        return $this->belongsTo(StatusPesanan::class, 'id_status_pesanan', 'id_status_pesanan');
-    }
-    
 }
     
 
