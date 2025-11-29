@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\Session;
 class CheckoutController extends Controller
 {
     /**
-     * 
-     * @param string 
+     * * @param string 
      * @return string
      * @throws \Exception 
      */
@@ -33,7 +32,30 @@ class CheckoutController extends Controller
         return $statusId;
     }
 
-    // Halaman checkout
+    /**
+     * 
+     * * @return string
+     */
+    private function generateNewIdPesanan(): string
+    {
+        $latestOrder = Pesanan::where('id_pesanan', 'like', 'PSN%')
+                                ->orderBy('id_pesanan', 'desc')
+                                ->first();
+
+        $lastNumber = 0;
+        if ($latestOrder) {
+            $lastId = $latestOrder->id_pesanan;
+            $numberPart = substr($lastId, 3); 
+            $lastNumber = (int) $numberPart;
+        }
+
+        $newNumber = $lastNumber + 1;
+        $newIdPesanan = 'PSN' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+
+        return $newIdPesanan;
+    }
+
+    // Menampilkan halaman checkout
     function index()
     {
         $cart = session('cart', []);
@@ -60,19 +82,19 @@ class CheckoutController extends Controller
 
         // Membuat draft order jika belum ada di sesi
         if (!$draftOrderId) {
-            $idPesanan = 'ORD-' . time();
+            $idPesanan = $this->generateNewIdPesanan();
 
             // Mengambil id pengguna
             $idPengguna = Auth::user()->id_pengguna ?? Auth::user()->id;
             $idPengguna = trim($idPengguna);
 
             try {
-                // Mendapatkan ID Status 'Menunggu Pembayaran'
+                // Menetapkan status awal 'Menunggu Pembayaran'
                 $targetStatus = 'Menunggu Pembayaran';
                 $idStatusMenunggu = $this->getStatusIdByName($targetStatus);
 
                 Pesanan::create([
-                    'id_pesanan'         => $idPesanan,
+                    'id_pesanan'        => $idPesanan,
                     'id_pengguna'        => $idPengguna,
                     'nama_penerima'      => Auth::user()->name ?? 'Pelanggan',
                     'alamat_pengiriman'  => 'Alamat Default',
@@ -85,7 +107,7 @@ class CheckoutController extends Controller
                     'id_status_pesanan'  => $idStatusMenunggu,
                 ]);
 
-                // Menyimpan ID baru ke sesi
+                // Menyimpan ID pesanan baru ke sesi
                 session(['draft_order_id' => $idPesanan]);
                 $draftOrderId = $idPesanan;
 
@@ -104,7 +126,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    // Proses pesanan instan (AJAX) - Membuat pesanan draft
+    // Membuat pesanan draft
     public function instantProcess(Request $request)
     {
         $cart = $request->json('cart', []);
@@ -125,7 +147,8 @@ class CheckoutController extends Controller
         $idPengguna = Auth::user()->id_pengguna ?? Auth::user()->id;
         $idPengguna = trim($idPengguna);
 
-        $idPesanan = 'ORD-' . time();
+        // **PERUBAHAN DISINI:** Gunakan fungsi generateNewIdPesanan()
+        $idPesanan = $this->generateNewIdPesanan();
 
         // Data default pengguna
         $namaPenerimaDefault = Auth::user()->name;
@@ -201,10 +224,10 @@ class CheckoutController extends Controller
         }
     }
 
-   // Proses dari form
+    // Proses dari form
     function process(Request $request)
     {
-        // 1. Validasi
+        // Validasi
         $request->validate([
             'nama_penerima'     => 'required|string|max:255',
             'nomor_telepon'     => 'required|string|max:15',

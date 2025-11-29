@@ -133,7 +133,6 @@ Route::get('/product-detail/{id_produk}', [ProductController::class, 'show']);
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
-// Sinkronisasi AJAX dari JavaScript ke Session
 Route::post('/checkout/sync', [CheckoutController::class, 'sync']);
 Route::post('/checkout/instant-process', [CheckoutController::class, 'instantProcess'])->name('checkout.instant');
 // Route::post('/checkout/to-form', [CheckoutController::class, 'redirectToCheckoutForm'])->name('checkout.redirect');
@@ -142,20 +141,10 @@ Route::post('/checkout/instant-process', [CheckoutController::class, 'instantPro
 Route::get('/pembayaran/{order_id}', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
 Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
 
-
-// // Halaman detail produk (walaupun belum dibuat, route-nya disiapkan)
-// Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
-
-// // Route POST untuk memproses form pembayaran (mengirim data ke tabel pembayaran)
-// Route::post('/payment', [PaymentController::class, 'processPayment'])->name('payment.process');
-
-// // Tampilan halaman checkout
-// Route::get('produk', [ProductController::class, 'index'])->name('product.index');
-// Route::get('/produk/detail/{id}', [ProductController::class, 'show'])->name('product.detail');
-
-
 // STATUS PESANAN 
 Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
+
+
 
 
 // ===============================

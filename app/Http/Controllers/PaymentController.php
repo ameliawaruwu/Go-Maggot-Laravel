@@ -47,6 +47,7 @@ class PaymentController extends Controller
             'current_status'    => null,
         ];
 
+        // Menerima ID Pesanan dari URL parameter atau query string
         $id_pesanan = $order_id_param ?? $request->query('order_id');
 
         if (!$id_pesanan) {
@@ -54,6 +55,7 @@ class PaymentController extends Controller
             return view('payment.form', $page_data);
         }
 
+        // Mencari Pesanan berdasarkan ID
         $order = Pesanan::where('id_pesanan', $id_pesanan)->first();
 
         if (!$order) {
@@ -136,7 +138,10 @@ class PaymentController extends Controller
 
                 Log::info("Record Pembayaran ID: {$pembayaran->id_pembayaran} berhasil diupdate. ID Pengguna: {$userId}");
             } else {
+                $new_payment_id = 'PAY-' . time() . '-' . uniqid(); 
+
                 Pembayaran::create([
+                    'id_pembayaran'     => $new_payment_id, 
                     'id_pesanan'        => $order_id,
                     'id_pengguna'       => $userId,
                     'total_bayar'       => $order->total_harga,
@@ -147,7 +152,7 @@ class PaymentController extends Controller
                     'id_status_pesanan' => $newStatusId,
                 ]);
 
-                Log::info("Record pembayaran baru dibuat untuk pesanan {$order_id}.");
+                Log::info("Record pembayaran baru dibuat untuk pesanan {$order_id} dengan ID: {$new_payment_id}.");
                 $warning_message = " Peringatan: Record pembayaran dibuat baru, pastikan alur checkout sudah benar.";
             }
 
