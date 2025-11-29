@@ -23,7 +23,8 @@ class DashboardController extends Controller
         $recentOrders = Pesanan::with([
                 'pengguna',
                 'status',           
-                'detailPesanan.produk'    
+                'detailPesanan.produk',
+                'pembayaran'
             ])->orderBy('created_at', 'desc')->take(10)->get();
         $statuses = StatusPesanan::orderBy('urutan_tampilan', 'asc')->get();
 

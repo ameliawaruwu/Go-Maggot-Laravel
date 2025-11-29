@@ -133,18 +133,18 @@
                             Rp {{ number_format($order->total_harga, 0, ',', '.') }}
                         </td>
 
-                        <td class="text-center">
-                            @if(!empty($order->bukti_pembayaran))
-                                <a href="{{ asset('photos/' . $order->bukti_pembayaran) }}"
-                                   target="_blank"
-                                   class="btn btn-sm btn-outline-primary">
+                       <td class="text-center">
+                            @if($order->pembayaran && !empty($order->pembayaran->bukti_bayar))
+                                <a href="{{ asset('photo/' . $order->pembayaran->bukti_bayar) }}"
+                                target="_blank"
+                                class="btn btn-sm btn-outline-primary">
                                     <i class='bx bx-image-alt'></i> Lihat
                                 </a>
+
                             @else
-                                <span class="text-muted small fst-italic">Belum Upload</span>
+                                <span class="text-muted small ">Belum Upload</span>
                             @endif
                         </td>
-
                        
                         <td>
                             <div class="d-flex flex-column gap-1">

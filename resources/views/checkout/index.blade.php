@@ -5,7 +5,7 @@
 @section('content')
 
 <div class="container py-5">
-     <!-- Menampilkan pesan sukses atau error dari Controller (sesi)  -->
+     <!-- Menampilkan pesan sukses atau error -->
     <div id="checkoutMessageArea" class="row justify-content-center mb-4">
         <div class="col-12">
             @if(session('success'))

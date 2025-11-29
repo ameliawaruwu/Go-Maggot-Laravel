@@ -20,13 +20,11 @@ class PesananSeeder extends Seeder
         if ($pengguna->isEmpty() || $status->isEmpty() || $produk->isEmpty()) {
             return;
         }
-
-        // Membuat 10 pesanan PSN001 – PSN010
+        
         for ($i = 1; $i <= 10; $i++) {
 
             $idPesanan = 'PSN' . str_pad($i, 3, '0', STR_PAD_LEFT);
 
-            // 1. BUAT PESANAN
             $pesanan = Pesanan::updateOrCreate([
                 'id_pesanan' => $idPesanan
             ],[
@@ -37,7 +35,7 @@ class PesananSeeder extends Seeder
                 'tanggal_pesanan'   => now(),
                 'metode_pembayaran' => fake()->randomElement(['QRIS','COD']),
                 'id_status_pesanan' => $status->random()->id_status_pesanan,
-                'total_harga'       => 0, // dihitung ulang nanti
+                'total_harga'       => 0, 
             ]);
             $jumlahBarang = rand(1, 3);
             $totalHarga = 0;
@@ -56,11 +54,11 @@ class PesananSeeder extends Seeder
                     'harga_saat_pembelian'  => $pilihProduk->harga,
                 ]);
 
-                // Tambah total
+            
+                $pilihProduk->decrement('stok', $qty);
                 $totalHarga += ($pilihProduk->harga * $qty);
             }
 
-            // 3. UPDATE TOTAL HARGA DI PESANAN
             $pesanan->update([
                 'total_harga' => $totalHarga
             ]);

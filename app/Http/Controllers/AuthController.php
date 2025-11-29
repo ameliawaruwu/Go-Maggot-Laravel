@@ -9,13 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
-    // show login
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    // Login
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -27,21 +25,15 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-
-            // 1️⃣ Kalau ada query ?redirect=... (dari JS keranjang)
             if ($request->filled('redirect')) {
                 return redirect()->to($request->input('redirect'));
             }
-
-            // 2️⃣ Kalau datang dari middleware auth (url.intended)
             if (session()->has('url.intended')) {
                 return redirect()->intended('/home');
             }
             if (Auth::user()->role === 'admin') {
                 return redirect('/dashboard');
             }
-
-            // 4️⃣ User biasa -> home
             return redirect('/home');
         }
 
@@ -51,59 +43,64 @@ class AuthController extends Controller
             ])
             ->onlyInput('email');
     }
-    // ======================
-    //     SHOW REGISTER
-    // ======================
+
     public function showRegisterForm()
     {
         return view('auth.register');
     }
 
-    // ======================
-    //     REGISTER PROSES
-    // ======================
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:6'
+        ]);
 
-public function register(Request $request)
-{
-    $request->validate([
-        'name'     => 'required|string|max:255',
-        'email'    => 'required|email|unique:users,email',
-        'password' => 'required|min:6'
-    ]);
+        $lastPengguna = DB::table('pengguna')
+                        ->orderBy('id_pengguna', 'desc')
+                        ->first();
 
-    // 1️⃣ Buat user Laravel dulu (tabel users)
-    $user = User::create([
-        'name'     => $request->name,
-        'email'    => $request->email,
-        'password' => bcrypt($request->password),
-        'role'     => 'user',
-    ]);
+        if ($lastPengguna) {
+            $lastNumber = (int) substr($lastPengguna->id_pengguna, 2); 
+            $nextNumber = $lastNumber + 1; 
+        } else {
+            $nextNumber = 1;
+        }
 
-    // 2️⃣ Buat ID Pengguna PGxxx
-    $idPengguna = 'PG' . str_pad($user->id, 3, '0', STR_PAD_LEFT);
+        $idPengguna = 'PG' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $user = User::create([
+            'name'        => $request->name,
+            'email'       => $request->email,
+            'password'    => bcrypt($request->password),
+            'role'        => 'user',
+            'id_pengguna' => $idPengguna, 
+        ]);
 
-    // 3️⃣ Simpan ke tabel pengguna (PAKAI username & password, BUKAN 'nama')
-    DB::table('pengguna')->insert([
-        'id_pengguna'   => $idPengguna,
-        'username'      => $user->name,     // ✅ kolomnya 'username'
-        'email'         => $user->email,
-        'password'      => $user->password, // ✅ wajib diisi karena NOT NULL
-        // kolom lain (nomor_telepon, alamat, dll) boleh NULL jadi tidak wajib diisi
-    ]);
+        DB::table('pengguna')->insert([
+            'id_pengguna'   => $idPengguna,
+            'username'      => $user->name,
+            'email'         => $user->email,
+            'password'      => $user->password, 
 
-    // 4️⃣ Simpan id_pengguna juga ke tabel users
-    $user->update([
-        'id_pengguna' => $idPengguna,
-    ]);
+            'alamat'        => null,
+            'nomor_telepon' => null,
+            'foto_profil'   => null,
+            'created_at'    => now(),
+            'updated_at'    => now(),
+        ]);
 
-    return redirect()
-        ->route('login')
-        ->with('success', 'Registrasi berhasil! Silakan login dengan akun yang baru kamu buat.');
-}
+        if (!$user->id_pengguna) {
+            $user->update([
+                'id_pengguna' => $idPengguna,
+            ]);
+        }
 
-    // ======================
-    //        LOGOUT
-    // ======================
+        return redirect()
+            ->route('login')
+            ->with('success', 'Registrasi berhasil! ID Member Anda: ' . $idPengguna . '. Silakan login.');
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();

@@ -51,7 +51,7 @@
 <script>
     // skrip hanya berjalan saat halaman dimuat
     document.addEventListener('DOMContentLoaded', function() {
-        // menghapus kunci 'shoppingCart' dari LocalStorage
+        // menghapus kunci shoppingCart dari LocalStorage
         localStorage.removeItem('shoppingCart');
         console.log('Keranjang Lokal Dihapus: Pesanan sukses disimpan.');
     });
