@@ -42,7 +42,6 @@
 
 
             <div class="status-tracker">
-                <!-- {{-- Menggunakan Blade Component Status Tracker --}} -->
                 <x-status-tracker :class="$dikemas_class" text="Sedang Dikemas" />
                 <x-status-tracker :class="$dikirim_class" text="Sedang Dikirim" />
                 <x-status-tracker :class="$sampai_class" text="Sudah Sampai" />
@@ -57,7 +56,7 @@
                     ← Kembali
                 </a>
                 
-                <!--Tombol Aksi Utama (Refresh Status, Bentuk Pil-->
+                <!--Tombol "Refresh status"-->
                 <a href="{{ route('orders.status', ['order_id' => $pesanan_data['id_pesanan']]) }}" class="btn bg-blue-500 hover:bg-blue-600 text-black px-6 py-2 rounded-full transition duration-300 shadow-md">
                     Refresh Status
                 </a>

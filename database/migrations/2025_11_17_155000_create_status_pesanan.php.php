@@ -12,13 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('status_pesanan', function (Blueprint $table) {
-        $table->uuid('id_status_pesanan')->primary();
-        $table->string('status')->default('Menunggu Pembayaran');
-        $table->string('deskripsi');
-        $table->integer('urutan_tampilan');
-        $table->timestamps();
-    });
-
+            $table->string('id_status_pesanan', 10)->primary();
+            $table->string('status')->default('Menunggu Pembayaran');
+            $table->string('deskripsi');
+            $table->integer('urutan_tampilan');
+            $table->timestamps();
+        });
     }
 
     /**

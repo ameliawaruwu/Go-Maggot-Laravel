@@ -25,10 +25,11 @@
             <p class="text-muted">Kami akan segera memproses pesanan Anda. Silakan cek status pesanan secara berkala.</p>
             
             <div class="actions mt-4">
-                <a href="{{ route('home') }}" class="btn btn-primary">Kembali ke Beranda</a> 
+                <a href="{{ route('home') }}" class="btn btn-success">Kembali ke Beranda</a> 
+                <a href="{{ route('feedback') }}" class="btn btn-success">Beri Review</a>
                 
                 @if($id_pesanan)
-                    <a href="{{ route('orders.status', ['order_id' => $id_pesanan]) }}" class="btn btn-secondary">Cek Status Pesanan</a>
+                    <a href="{{ route('orders.status', ['order_id' => $id_pesanan]) }}" class="btn btn-success">Cek Status Pesanan</a>
                 @endif
             </div>
         </div>
