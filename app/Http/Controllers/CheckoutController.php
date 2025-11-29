@@ -146,8 +146,6 @@ class CheckoutController extends Controller
         // Mengambil id pengguna
         $idPengguna = Auth::user()->id_pengguna ?? Auth::user()->id;
         $idPengguna = trim($idPengguna);
-
-        // **PERUBAHAN DISINI:** Gunakan fungsi generateNewIdPesanan()
         $idPesanan = $this->generateNewIdPesanan();
 
         // Data default pengguna

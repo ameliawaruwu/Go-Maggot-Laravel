@@ -107,6 +107,7 @@ class PaymentController extends Controller
 
             $proof_name = null;
 
+            
             if ($request->hasFile('payment_proof')) {
                 $file = $request->file('payment_proof');
                 $fileName = time() . '_' . $file->getClientOriginalName();
