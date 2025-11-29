@@ -59,7 +59,7 @@ class ProdukSeeder extends Seeder
                     'stok'             => 87,
                     'gambar'           => null,
                 ],
-                // DATA 4
+              
                 [
                     'id_produk'       => 'PR04',
                     'nama_produk'      => 'Kandang Maggot',
@@ -70,6 +70,8 @@ class ProdukSeeder extends Seeder
                     'pengiriman'       => 'Exspress',
                     'berat'            => '5 Kg',
                     'harga'            => 150000,
+                    'stok'             => 60,
+                    'gambar'           => null,
                 ],
                 
                 [

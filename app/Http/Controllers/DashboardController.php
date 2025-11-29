@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pesanan;
 use App\Models\Pengguna;
-use App\Models\StatusPesanan; // Import Model Status
+use App\Models\StatusPesanan;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -13,23 +13,18 @@ class DashboardController extends Controller
     public function index()
     {
         $today = Carbon::today();
-
-        $newOrdersToday = Pesanan::whereDate('created_at', $today)->count();
-        $totalRegisteredUsers = Pengguna::count();
-        $activeUsersToday = Pengguna::whereDate('last_login', $today)->count();
-        
-        // Hitung sales (Hanya yg status 'Selesai' misalnya, ID statusnya SP004)
+        $newOrdersToday        = Pesanan::whereDate('created_at', $today)->count();
+        $totalRegisteredUsers  = Pengguna::count();
+        $activeUsersToday      = Pengguna::whereDate('last_login', $today)->count();
         $totalSalesToday = Pesanan::whereDate('created_at', $today)
-                                  ->where('id_status_pesanan', 'SP004') 
-                                  ->sum('total_harga');
+            ->where('id_status_pesanan', 'SP004')
+            ->sum('total_harga');
 
-        // Ambil Order + Relasi Pengguna + Relasi StatusPesanan
-        $recentOrders = Pesanan::with(['pengguna', 'statusPesanan'])
-                               ->orderBy('created_at', 'desc')
-                               ->take(10)
-                               ->get();
-
-        // Ambil semua pilihan status untuk Dropdown
+        $recentOrders = Pesanan::with([
+                'pengguna',
+                'status',           
+                'detailPesanan.produk'    
+            ])->orderBy('created_at', 'desc')->take(10)->get();
         $statuses = StatusPesanan::orderBy('urutan_tampilan', 'asc')->get();
 
         return view('dashboard.index', compact(
@@ -38,26 +33,32 @@ class DashboardController extends Controller
             'activeUsersToday',
             'totalSalesToday',
             'recentOrders',
-            'statuses' // Kirim data status ke view
+            'statuses'
         ));
     }
 
-    // Update Status (Sekarang update ID-nya)
+
     public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'id_status_pesanan' => 'required|exists:status_pesanan,id_status_pesanan'
-        ]);
+{
+    $request->validate([
+        'id_status_pesanan' => 'required|exists:status_pesanan,id_status_pesanan'
+    ]);
 
-        $pesanan = Pesanan::findOrFail($id);
-        
-        // Update Foreign Key
-        $pesanan->id_status_pesanan = $request->id_status_pesanan;
-        $pesanan->save();
+    // 1. Cari Pesanan
+    $pesanan = Pesanan::where('id_pesanan', $id)->firstOrFail();
 
-        // Ambil nama status baru untuk pesan sukses
-        $namaStatusBaru = $pesanan->statusPesanan->status; 
+    // 2. Update ID Statusnya
+    $pesanan->id_status_pesanan = $request->id_status_pesanan;
+    $pesanan->save();
 
-        return back()->with('success', "Status pesanan berhasil diperbarui menjadi '$namaStatusBaru'.");
-    }
+    // 3. --- PERBAIKAN DISINI ---
+    // Kita harus refresh dulu biar Laravel sadar datanya sudah berubah
+    $pesanan->refresh(); 
+
+    // 4. Ambil nama status (Sekarang pasti aman)
+    // Kita pakai tanda tanya (??) buat jaga-jaga kalau datanya masih error
+    $namaStatusBaru = $pesanan->statusPesanan->status ?? 'Status Diperbarui';
+
+    return back()->with('success', "Status pesanan berhasil diperbarui menjadi '$namaStatusBaru'.");
+}
 }

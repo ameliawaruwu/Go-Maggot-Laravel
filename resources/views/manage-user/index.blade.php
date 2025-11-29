@@ -15,20 +15,11 @@
                 <li><a href="/manageUser" class="text-decoration-none">Pengguna</a></li>
             </ul>
         </div>
-        
-        {{-- Tombol Tambah User --}}
         <a href="/manageUser-input" class="btn-download" style="padding: 10px 15px; border-radius: 8px; font-weight: 600; text-decoration:none;">
             <i class='bx bxs-plus-circle'></i>
             <span class="text">Tambah Pengguna</span>
         </a>
     </div>
-
-    {{-- Pesan Sukses --}}
-    @if(session('success'))
-        <div class="alert alert-success" style="margin-top: 20px; padding: 15px; background-color: #d4edda; color: #155724; border-radius: 5px;">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="table-data">
         <div class="order">
@@ -56,7 +47,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- Loop variabel $pengguna dari Controller --}}
                         @foreach ($pengguna as $pgn)
                             <tr>
                                 {{-- ID Pengguna --}}

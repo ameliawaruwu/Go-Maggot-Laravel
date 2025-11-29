@@ -48,7 +48,7 @@ class AnalyticsController extends Controller
         // --- 3. STATUS ORDER (Pie Chart) ---
         $orderStatus = Pesanan::select('id_status_pesanan', DB::raw('count(*) as total'))
             ->groupBy('id_status_pesanan')
-            ->with('statusPesanan') // Pastikan relasi ini ada di Model Pesanan
+            ->with('status') // Pastikan relasi ini ada di Model Pesanan
             ->get();
 
         $statusLabels = $orderStatus->map(function($item) {

@@ -64,8 +64,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Order Status Chart -->
+        
         <div class="col-lg-6 mb-4">
             <div class="card shadow border-0">
                 <div class="card-header py-3 bg-white">
@@ -83,10 +82,7 @@
 @endsection
 
 @push('scripts')
-<!-- Load Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Passing Data PHP ke JS -->
 <script>
     // Membuat variabel global agar bisa dibaca oleh file external js
     window.analyticsData = {
@@ -99,7 +95,5 @@
         statusCounts: {!! json_encode($statusCounts) !!}
     };
 </script>
-
-<!-- Load Script Custom -->
 <script src="{{ asset('js/admin/analitik.js') }}"></script>
 @endpush

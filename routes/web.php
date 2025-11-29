@@ -22,28 +22,13 @@ use App\Http\Controllers\ManageSettingController;
 use App\Http\Controllers\ManageStatusPesananController;
 use App\Http\Controllers\AuthController;
 
-
-// ===============================
-// AUTH ROUTES
-// ===============================
-
-// LOGIN
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-
 // REGISTER
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
-
 // LOGOUT
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-
-
-// ===============================
-// PUBLIC ROUTES (BISA DI AKSES TANPA LOGIN)
-// ===============================
-
 Route::get('/', fn() => view('welcome'));
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -64,10 +49,6 @@ Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.
 Route::get('/produk/detail/{id}', [ProductController::class, 'show'])->name('product.detail');
 
 
-
-// ===============================
-// ROUTE YANG WAJIB LOGIN (AUTH)
-// ===============================
 
 Route::middleware(['auth'])->group(function () {
 
@@ -94,15 +75,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
 });
 
+ 
 
-
-// ===============================
-// ADMIN ROUTES (KHUSUS ADMIN)
-// ===============================
-// middleware: auth + role:admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/pesanan/status/{id}', [DashboardController::class, 'updateStatus'])
+    ->name('pesanan.updateStatus');
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
     // MANAGE PRODUK
@@ -153,18 +132,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // MANAGE SETTING
     Route::get('/managesetting', [ManageSettingController::class, 'index'])->name('settings.index');
     Route::post('/managesetting', [ManageSettingController::class, 'update'])->name('settings.update');
+
+    
 });
 
-
-
-// ===============================
-// STUDY, ARTICLE, QNA, GALERI
-// ===============================
 
 Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
 Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
 Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
-
 Route::get('/qna', [QnaController::class, 'index'])->name('qna');
-
 Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');
