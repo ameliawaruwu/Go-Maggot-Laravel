@@ -65,9 +65,7 @@ Route::get('/produk/detail/{id}', [ProductController::class, 'show'])->name('pro
 
 
 
-// ===============================
-// ROUTE YANG WAJIB LOGIN (AUTH)
-// ===============================
+//route wajib login 
 
 Route::middleware(['auth'])->group(function () {
 
@@ -96,9 +94,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-// ===============================
-// ADMIN ROUTES (KHUSUS ADMIN)
-// ===============================
+//route admin
 // middleware: auth + role:admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
