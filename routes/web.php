@@ -40,9 +40,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 
-// ===============================
-// PUBLIC ROUTES (BISA DI AKSES TANPA LOGIN)
-// ===============================
+//public routes 
 
 Route::get('/', fn() => view('welcome'));
 
