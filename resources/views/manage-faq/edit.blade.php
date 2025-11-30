@@ -47,8 +47,8 @@
                         Batal
                     </a>
 
-                    <button type="submit" class="btn btn-warning fw-bold">
-                        Update FAQ
+                    <button type="submit" class="btn btn-warning">
+                        Update
                     </button>
                 </div>
             </form>
