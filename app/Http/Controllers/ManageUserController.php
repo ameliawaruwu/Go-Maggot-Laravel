@@ -24,7 +24,7 @@ class ManageUserController extends Controller
         if($a->hasFile('foto_profil')){
             $file = $a->file('foto_profil'); // nangkap inputan foto
             $namaFile = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('photo'), $namaFile); // file di upload ke folder uploads
+            $file->move(public_path('photo'), $namaFile); // file di upload ke folder photo
         }
 
         Pengguna::create(

@@ -118,7 +118,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/manageProduk-hapus/{id_produk}', [ManageProductsController::class, 'delete']);
     // MANAGE PENGGUNA
     Route::get('/manageUser', [ManageUserController::class, 'index']);
-    Route::get('manageUser-input', [ManageUserController::class, 'input']);
+    Route::get('/manageUser-input', [ManageUserController::class, 'input']);
     Route::post('/manageUser-simpan', [ManageUserController::class, 'simpan']);
     Route::get('/manageUser-edit/{id_pengguna}', [ManageUserController::class, 'edit']);
     Route::post('/manageUser-update/{id_pengguna}', [ManageUserController::class, 'update']);
