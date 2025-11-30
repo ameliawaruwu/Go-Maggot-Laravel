@@ -35,12 +35,16 @@ document.addEventListener('DOMContentLoaded', function() {
         listProduct.addEventListener('click', (event) => {
             if (event.target.classList.contains('add-to-cart-btn')) {
                 try {
-                    // 🔐 CEK LOGIN
                     if (!isLoggedIn) {
-                        // redirect ke login + simpan halaman sekarang
                         window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
                         return;
                     }
+                    
+                    if (window.userRole !== "admin" && window.userRole !== "pelanggan") {
+                        alert("Akun Anda tidak memiliki akses untuk menambahkan keranjang.");
+                        return;
+                    }
+
 
                     // Mengambil data dari atribut data-* yang terpisah
                     const productData = {

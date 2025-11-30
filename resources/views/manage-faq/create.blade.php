@@ -12,7 +12,7 @@
                 <li><i class='bx bx-chevron-right'></i></li>
                 <li><a href="#" class="text-decoration-none">Tambah Baru</a></li>
             </ul>
-        </div>
+        </div> 
     </div>
 
     <div class="card shadow-sm border-0 mt-3">

@@ -125,7 +125,6 @@ class ArtikelSeeder extends Seeder
                                 Maggot BSF (Black Soldier Fly) adalah larva dari lalat tentara hitam (<em>Hermetia illucens</em>)
                                 yang dikenal sebagai solusi pengelolaan limbah organik dan pakan alternatif.
                             </p>
-                            <br>
 
                             <h4>Karakteristik Maggot BSF</h4>
                             <ul>
@@ -141,7 +140,6 @@ class ArtikelSeeder extends Seeder
                                 <li>4. Habitat :</li>
                                 <p>Lingkungan lembap dengan bahan organik tinggi seperti limbah dapur atau pertanian.</p>
                             </ul>
-                            <br>
 
                             <div id='image2' style='text-align:center;'>
                                 

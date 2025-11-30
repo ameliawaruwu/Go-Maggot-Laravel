@@ -53,7 +53,7 @@ class ProdukFactory extends Factory
             'pengiriman' => $this->faker->randomElement([
                 'Instan',
                 'Reguler',
-                'Exspress',
+                'Cargo',
             ]),
 
             'berat'=> $this->faker->randomElement([

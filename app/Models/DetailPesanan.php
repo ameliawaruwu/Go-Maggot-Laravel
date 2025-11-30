@@ -44,13 +44,11 @@ class DetailPesanan extends Model
         });
     }
 
-    // Relasi ke Pesanan
     public function pesanan()
     {
         return $this->belongsTo(Pesanan::class, 'id_pesanan', 'id_pesanan');
     }
 
-    // Relasi ke Produk
     public function produk()
     {
         return $this->belongsTo(Produk::class, 'id_produk', 'id_produk');

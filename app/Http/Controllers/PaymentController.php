@@ -3,126 +3,188 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session; 
-use App\Models\Pesanan; // <-- Pastikan model Pesanan di-import!
-use App\Models\Pembayaran; // <-- Pastikan ini di-import
-use Illuminate\Support\Facades\Log; // Tambahkan Log jika belum ada, untuk debugging
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Pesanan;
+use App\Models\Pembayaran;
 
 class PaymentController extends Controller
 {
-    // Hapus atau abaikan properti $dummyOrder karena kita akan menggunakan DB
-    // protected $dummyOrder = [...] 
+    /**
+     * 
+     */
+    private function getStatusIdByName(string $statusName): string
+    {
+        $statusId = DB::table('status_pesanan')
+            ->where('status', $statusName)
+            ->value('id_status_pesanan');
+
+        if (is_null($statusId)) {
+            Log::error("Status Pesanan '{$statusName}' tidak ditemukan.");
+            throw new \Exception("ID Status Pesanan untuk '{$statusName}' tidak ditemukan. Pastikan data status sudah ada.");
+        }
+
+        return $statusId;
+    }
 
     /**
-     * Menampilkan formulir pembayaran atau halaman sukses.
-     * Mengambil data pesanan dari DB berdasarkan order_id.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * 
      */
     public function showPaymentForm(Request $request, $order_id_param = null)
     {
-     
         $page_data = [
-            'id_pesanan'        => null, // Default
+            'id_pesanan'        => null,
             'payment_success'   => $request->query('status') === 'success',
-            'message'           => Session::get('status_message'), // Ambil pesan dari session
-            'name'              => old('name', null), // Default
-            'phone'             => old('phone', null), // Default
-            'address'           => old('address', null), // Default
-            'total_pembayaran'  => 0, // Default
-            'metode_pembayaran' => null, // Default
+            'message'           => Session::get('status_message'),
+            'name'              => old('name', null),
+            'phone'             => old('phone', null),
+            'address'           => old('address', null),
+            'total_pembayaran'  => 0,
+            'metode_pembayaran' => null,
+            'current_status'    => null,
         ];
-        
-           $id_pesanan = $order_id_param ?? $request->query('order_id');
-        
-        // Cek jika ID Pesanan tidak ada di URL query
-        if (!$id_pesanan) {
-            $page_data['message'] = "⚠️ ID Pesanan tidak ditemukan. Mohon ulangi proses checkout.";
-            return view('payment.form', $page_data); // Mengirim semua variabel default
-        } 
-        
-        // 1. Ambil data pesanan dari database
-        $order = Pesanan::where('id_pesanan', $id_pesanan)->first();
 
-        // Cek jika pesanan tidak ditemukan
-        if (!$order) {
-            $page_data['message'] = "❌ Pesanan dengan ID {$id_pesanan} tidak ditemukan di database.";
-            return view('payment.form', $page_data); // Mengirim semua variabel default
+        // Menerima ID Pesanan dari URL parameter atau query string
+        $id_pesanan = $order_id_param ?? $request->query('order_id');
+
+        if (!$id_pesanan) {
+            $page_data['message'] = "ID Pesanan tidak ditemukan. Mohon ulangi proses checkout.";
+            return view('payment.form', $page_data);
         }
 
-        // 2. Jika pesanan ditemukan, timpa nilai default dengan data dari objek $order
-        $page_data['id_pesanan'] = $order->id_pesanan;
-        $page_data['name'] = old('name', $order->nama_penerima); 
-        $page_data['phone'] = old('phone', $order->nomor_telepon);
-        $page_data['address'] = old('address', $order->alamat_pengiriman);
-        $page_data['total_pembayaran'] = $order->total_harga; 
+        // Mencari Pesanan berdasarkan ID
+        $order = Pesanan::where('id_pesanan', $id_pesanan)->first();
+
+        if (!$order) {
+            $page_data['message'] = "Pesanan dengan ID {$id_pesanan} tidak ditemukan di database.";
+            return view('payment.form', $page_data);
+        }
+
+        $page_data['id_pesanan']        = $order->id_pesanan;
+        $page_data['name']              = old('name', $order->nama_penerima);
+        $page_data['phone']             = old('phone', $order->nomor_telepon);
+        $page_data['address']           = old('address', $order->alamat_pengiriman);
+        $page_data['total_pembayaran']  = $order->total_harga;
         $page_data['metode_pembayaran'] = $order->metode_pembayaran;
+        $page_data['current_status']    = $order->status;
 
-
-        // 3. Kembalikan view dengan data lengkap
         return view('payment.form', $page_data);
     }
 
     /**
-     * Memproses data form pembayaran (Simulasi POST).
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * 
      */
     public function processPayment(Request $request)
     {
-        // 1. Validasi Input Pembayaran (Wajib karena ada file upload)
         $request->validate([
-            'id_pesanan' => 'required|string',
-            'name' => 'required|string|max:255',
-            'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048', // Max 2MB
+            'id_pesanan'     => 'required|string',
+            'name'           => 'required|string|max:255',
+            'payment_proof'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $order_id = $request->input('id_pesanan'); 
-        $order = Pesanan::where('id_pesanan', $order_id)->first();
+        $order_id = $request->input('id_pesanan');
 
-        if (!$order) {
-            return back()->with('status_message', 'Pesanan tidak valid. Gagal memproses pembayaran.')->withInput();
-        }
-        
-        // 2. Upload Bukti Pembayaran
-        $proof_name = null;
-        if ($request->hasFile('payment_proof')) {
-            $file = $request->file('payment_proof');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            // Simpan file ke storage/app/public/payment_proofs
-            $file->storeAs('public/payment_proofs', $fileName);
-            $proof_name = $fileName; 
-        }
-
-        // 3. Simpan data ke tabel 'pembayaran'
+        DB::beginTransaction();
         try {
-            Pembayaran::create([
-                'id_pembayaran' => 'PAY-' . time(), 
-                'id_pengguna'  => $order->id_pengguna,
-                'id_pesanan' => $order_id,
-                'bukti_bayar'  => $proof_name, // Simpan nama file bukti bayar
-                'tanggal_bayar' => now(),
-                // Anda mungkin perlu menambahkan kolom lain sesuai skema tabel pembayaran Anda (misal: 'total_bayar' => $order->total_harga)
-            ]);
+            $order = Pesanan::where('id_pesanan', $order_id)->first();
+
+            if (!$order) {
+                throw new \Exception("Pesanan ID: {$order_id} tidak ditemukan. Gagal memproses pembayaran.");
+            }
+
+            Log::info("Processing payment for Order #{$order_id}");
+
+            $userId = Auth::id();
+            if (!$userId) {
+                $userId = $order->id_pengguna ?? null;
+            }
+
+            $newStatusString = 'Diproses';
+            $newStatusId     = $this->getStatusIdByName($newStatusString);
+
+            $proof_name = null;
+
             
-            // 4. Update status di tabel 'pesanan'
-            $order->update(['status' => 'Menunggu Konfirmasi Pembayaran']);
+            if ($request->hasFile('payment_proof')) {
+                $file = $request->file('payment_proof');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+
+                $file->storeAs('bukti_bayar', $fileName, 'public');
+                $proof_name = $fileName;
+
+                Log::info("Bukti pembayaran diunggah: {$proof_name}");
+            }
+
+            $order->update([
+                'status'            => $newStatusString,
+                'id_status_pesanan' => $newStatusId,
+            ]);
+
+            Log::info("Status Pesanan #{$order_id} diupdate menjadi: {$newStatusString} ({$newStatusId})");
+
+            $pembayaran = Pembayaran::where('id_pesanan', $order_id)->first();
+            $warning_message = '';
+
+            if ($pembayaran) {
+                $pembayaran->update([
+                    'bukti_bayar'       => $proof_name,
+                    'tanggal_bayar'     => now(),
+                    'status_pembayaran' => $newStatusString,
+                    'id_status_pesanan' => $newStatusId,
+                    'id_pengguna'       => $userId,
+                ]);
+
+                Log::info("Record Pembayaran ID: {$pembayaran->id_pembayaran} berhasil diupdate. ID Pengguna: {$userId}");
+            } else {
+                $new_payment_id = 'PAY-' . time() . '-' . uniqid(); 
+
+                Pembayaran::create([
+                    'id_pembayaran'     => $new_payment_id, 
+                    'id_pesanan'        => $order_id,
+                    'id_pengguna'       => $userId,
+                    'total_bayar'       => $order->total_harga,
+                    'metode_pembayaran' => $order->metode_pembayaran,
+                    'bukti_bayar'       => $proof_name,
+                    'tanggal_bayar'     => now(),
+                    'status_pembayaran' => $newStatusString,
+                    'id_status_pesanan' => $newStatusId,
+                ]);
+
+                Log::info("Record pembayaran baru dibuat untuk pesanan {$order_id} dengan ID: {$new_payment_id}.");
+                $warning_message = " Peringatan: Record pembayaran dibuat baru, pastikan alur checkout sudah benar.";
+            }
+
+            DB::commit();
+
+            Log::info("Transaksi pembayaran untuk Pesanan #{$order_id} berhasil di-commit.");
+
+            $success_message =
+                "Bukti Pembayaran untuk Pesanan #{$order_id} berhasil dikirim! Status pesanan kini {$newStatusString}."
+                . $warning_message;
+
+            return redirect()
+                ->route('payment.form', [
+                    'order_id' => $order_id,
+                    'status'   => 'success',
+                ])
+                ->with('status_message', $success_message);
 
         } catch (\Exception $e) {
-            Log::error('Gagal menyimpan pembayaran: ' . $e->getMessage());
-            return back()->withInput()->with('status_message', '❌ Gagal menyimpan data pembayaran. Error: ' . $e->getMessage());
-        }
-        
-        $success_message = "✅ Bukti Pembayaran untuk Pesanan #{$order_id} berhasil dikirim! Menunggu konfirmasi admin.";
 
-        // 5. Redirect ke halaman form pembayaran dengan status sukses
-        return redirect()
-            ->route('payment.form', [
-                'order_id' => $order_id,
-                'status' => 'success'
-            ])
-            ->with('status_message', $success_message);
+            DB::rollBack();
+            Log::error(
+                'Gagal memproses pembayaran #' . $order_id . ': '
+                . $e->getMessage()
+                . "\nTrace: " . $e->getTraceAsString()
+            );
+
+            return back()->withInput()->with(
+                'status_message',
+                'Gagal menyimpan data pembayaran. Error: ' . $e->getMessage()
+            );
+        }
     }
 }

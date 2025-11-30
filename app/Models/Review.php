@@ -8,16 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Review extends Model
 {
     use HasFactory;
-
-    // Nama tabel di database
     protected $table = 'reviews';
-
-    // Primary key bukan auto-increment integer
     protected $primaryKey = 'id_review';
     public $incrementing = false;
     protected $keyType = 'string';
 
-    // Kolom yang boleh diisi mass-assignment
     protected $fillable = [
         'id_review',
         'id_pengguna',
@@ -32,4 +27,15 @@ class Review extends Model
         'tanggal_review',
         'status',
     ];
+
+
+    public function pengguna()
+    {
+        return $this->belongsTo(Pengguna::class, 'id_pengguna', 'id_pengguna');
+    }
+
+    public function produk()
+    {
+        return $this->belongsTo(Produk::class, 'id_produk', 'id_produk');
+    }
 }

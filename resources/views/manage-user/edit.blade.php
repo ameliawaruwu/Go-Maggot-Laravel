@@ -20,23 +20,8 @@
             <div class="head">
                 <h3>Form Edit User (ID: {{ $pengguna->id_pengguna }})</h3>
             </div>
-            
-            @if ($errors->any())
-                <div class="form-message error" style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: #ffe6e6; color: #ff0000;">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            {{-- Action ke Route Update Manual --}}
             <form action="/manageUser-update/{{ $pengguna->id_pengguna }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                {{-- Hapus @method('PUT') karena controller kamu sepertinya menggunakan POST biasa atau route::post --}}
-                
-                {{-- ID Pengguna (Readonly & dikirim sebagai input karena controller butuh $x->id_pengguna) --}}
                 <div class="form-group mb-4">
                     <label for="id_pengguna" style="font-weight: bold;">ID Pengguna</label>
                     <input type="text" id="id_pengguna" name="id_pengguna" class="form-control" 
@@ -60,20 +45,16 @@
                 
                 <div class="form-group mb-4">
                     <label for="password" style="font-weight: bold;">Password (Opsional)</label>
-                    <input type="password" id="password" name="password" class="form-control" minlength="6" 
+                    <input type="password" id="password" name="password" class="form-control" value="{{ old('password', $pengguna->password) }}" minlength="6" 
                            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
                     <small class="text-muted">Biarkan kosong jika tidak ingin mengubah password.</small>
                 </div>
-
-                {{-- Field Nomor Telepon (Sesuai Controller) --}}
                 <div class="form-group mb-4">
                     <label for="nomor_telepon" style="font-weight: bold;">Nomor Telepon</label>
                     <input type="text" id="nomor_telepon" name="nomor_telepon" class="form-control" 
                            value="{{ old('nomor_telepon', $pengguna->nomor_telepon) }}" 
                            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
                 </div>
-
-                {{-- Field Alamat (Sesuai Controller) --}}
                 <div class="form-group mb-4">
                     <label for="alamat" style="font-weight: bold;">Alamat</label>
                     <textarea id="alamat" name="alamat" class="form-control" rows="3" 
@@ -83,17 +64,15 @@
                 <div class="form-group mb-4">
                     <label for="role" style="font-weight: bold;">Role</label>
                     <select id="role" name="role" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                        <option value="customer" {{ old('role', $pengguna->role) == 'customer' ? 'selected' : '' }}>Customer</option>
+                        <option value="pelanggan" {{ old('role', $pengguna->role) == 'pelanggan' ? 'selected' : '' }}>Pelanggan</option>
                         <option value="admin" {{ old('role', $pengguna->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                     </select>
                 </div>
-                
-                {{-- Upload Foto & Preview --}}
                 <div class="form-group mb-4">
                     <label style="font-weight: bold;">Foto Profil Saat Ini</label><br>
                     @if($pengguna->foto_profil)
                         <img src="{{ asset('photo/' . $pengguna->foto_profil) }}" alt="Foto Profil" 
-                             style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
+                             style="width: 100px; height: 100px; object-fit: cover; margin-bottom: 10px;">
                     @else
                         <p style="color: gray;">Belum ada foto.</p>
                     @endif
@@ -104,9 +83,9 @@
                     <small class="text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB.</small>
                 </div>
 
-                <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <a href="/manageUser" class="btn btn-secondary" style="padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px;">Batal</a>
-                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px; background: #ffc107; color: black; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Update</button>
+                <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 5px; margin-top: 10px;">
+                    <a href="/manageUser" class="btn btn-secondary" style="padding: 5px 10px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Batal</a>
+                    <button type="submit" class="btn btn-primary" style="padding: 5px 10px; background: #ffc107; color: white; border: none; border-radius: 4px; cursor: pointer;">Update</button>
                 </div>
             </form>
         </div>

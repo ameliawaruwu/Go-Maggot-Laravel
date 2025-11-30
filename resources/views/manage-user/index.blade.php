@@ -1,10 +1,6 @@
 @extends('layouts.admin')
 
 @section('content')
-
-<link rel="stylesheet" href="{{ asset('Admin-HTML/css/admin.css') }}">
-<link rel="stylesheet" href="{{ asset('Admin-HTML/css/adminUser.css') }}"> 
-
 <main>
     <div class="head-title">
         <div class="left">
@@ -15,20 +11,11 @@
                 <li><a href="/manageUser" class="text-decoration-none">Pengguna</a></li>
             </ul>
         </div>
-        
-        {{-- Tombol Tambah User --}}
         <a href="/manageUser-input" class="btn-download" style="padding: 10px 15px; border-radius: 8px; font-weight: 600; text-decoration:none;">
             <i class='bx bxs-plus-circle'></i>
             <span class="text">Tambah Pengguna</span>
         </a>
     </div>
-
-    {{-- Pesan Sukses --}}
-    @if(session('success'))
-        <div class="alert alert-success" style="margin-top: 20px; padding: 15px; background-color: #d4edda; color: #155724; border-radius: 5px;">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="table-data">
         <div class="order">
@@ -47,7 +34,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Id</th>
+                            <th>ID Pengguna</th>
                             <th>Nama User</th>
                             <th>Email</th>
                             <th>Foto Profil</th>
@@ -56,37 +43,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- Loop variabel $pengguna dari Controller --}}
                         @foreach ($pengguna as $pgn)
                             <tr>
-                                {{-- ID Pengguna --}}
-                                <td>{{ $pgn->id_pengguna }}</td>
-
-                                {{-- Nama User --}}
+                                <td style="height: 70px; display: flex; align-items: center; justify-content: center;">{{ $pgn->id_pengguna }} </td>
                                 <td>{{ $pgn->username }}</td>
-
-                                {{-- Email --}}
                                 <td>{{ $pgn->email }}</td>
-
-                                {{-- Foto Profil --}}
                                 <td>
                                     @if($pgn->foto_profil)
-                                        {{-- Path folder 'photo' sesuai controller --}}
                                         <img src="{{ asset('photo/' . $pgn->foto_profil) }}" 
                                              style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" 
                                              alt="Foto Profil">
                                     @else
-                                        <span style="color: gray; font-size: 12px;">No Image</span>
+                                        <span style="color: gray; font-size: 12px;">Tidak Ada Foto</span>
                                     @endif
                                 </td>
-
-                                {{-- Role --}}
                                 <td>
                                         {{ $pgn->role }}
                                     </span>
                                 </td>
-
-                                {{-- Action --}}
                                 <td>
                                     <div style="display: flex; gap: 5px;">
                                         {{-- Tombol Edit --}}
@@ -95,8 +69,6 @@
                                            style="padding: 5px 10px; border-radius: 5px; text-decoration: none; background-color: #ffc107;">
                                             <i class='bx bxs-edit'></i>
                                         </a>
-
-                                       
                                         <a href="/manageUser-hapus/{{ $pgn->id_pengguna }}" 
                                            class="btn btn-sm btn-danger" 
                                            onclick="return confirm('Yakin ingin menghapus user {{ $pgn->username }}?')"

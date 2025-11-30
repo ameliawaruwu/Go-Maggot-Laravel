@@ -31,11 +31,10 @@
       <a href="{{ route('product.index') }}"><i class="ri-arrow-right-s-line"></i>Products</a>
       <a href="{{ route('study.index') }}"><i class="ri-arrow-right-s-line"></i>Blog</a>
 
-      {{-- ✔️ LOGOUT YANG BENAR --}}
       @auth
       <form action="{{ route('logout') }}" method="POST" style="display:inline;">
           @csrf
-          <button style="">
+          <button type="submit">
             <i class="ri-arrow-right-s-line"></i>Logout
           </button>
       </form>

@@ -23,24 +23,16 @@ use App\Http\Controllers\ManageStatusPesananController;
 use App\Http\Controllers\AuthController;
 
 
-// ===============================
-// AUTH ROUTES
-// ===============================
+//auth 
 
 // LOGIN
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-
 // REGISTER
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
-
 // LOGOUT
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-
-
-//public routes 
 
 Route::get('/', fn() => view('welcome'));
 
@@ -51,23 +43,32 @@ Route::view('/contact', 'contact')->name('contact');
 Route::view('/help', 'help')->name('help');
 Route::view('/portfolio', 'portfolio')->name('portfolio');
 
-Route::view('/cart', 'cart')->name('cart'); // tampilan cart saja
+Route::get('/', function () {
+    return view('welcome');
+});
 
-
-
-// PRODUCT ROUTES
+// PRODUK
 Route::get('/daftar-produk', [ProductController::class, 'index'])->name('product.index');
 Route::get('/product-detail/{id_produk}', [ProductController::class, 'show']);
-Route::get('/products/{id}', [ProductController::class, 'show'])->name('product.show');
-Route::get('/produk/detail/{id}', [ProductController::class, 'show'])->name('product.detail');
+
+// CHECKOUT
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::post('/checkout/sync', [CheckoutController::class, 'sync']);
+Route::post('/checkout/instant-process', [CheckoutController::class, 'instantProcess'])->name('checkout.instant');
+// Route::post('/checkout/to-form', [CheckoutController::class, 'redirectToCheckoutForm'])->name('checkout.redirect');
+
+// PEMBAYARAN
+Route::get('/pembayaran/{order_id}', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
+Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+
+// STATUS PESANAN 
+Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
 
 
-
-//route wajib login 
 
 Route::middleware(['auth'])->group(function () {
-
-    // FEEDBACK PAGE (WAJIB LOGIN)
     Route::get('/feedback', function () {
         return view('feedback');
     })->name('feedback');
@@ -90,15 +91,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
 });
 
+// STUDY, ARTICLE, QNA, GALERI
+Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
+Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
+Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
+// FAQ 
+Route::get('/qna', [QnaController::class, 'index'])->name('qna');
+// GALERI
+Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');
 
 
-//route admin
-// middleware: auth + role:admin
+
+// Admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
-
-    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/pesanan/status/{id}', [DashboardController::class, 'updateStatus'])
+    ->name('pesanan.updateStatus');
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
-
     // MANAGE PRODUK
     Route::get('/manageProduk', [ManageProductsController::class, 'index']);
     Route::get('/manageProduk-input', [ManageProductsController::class, 'input']);
@@ -106,10 +115,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/manageProduk-edit/{id_produk}', [ManageProductsController::class, 'edit']);
     Route::post('/manageProduk-update/{id_produk}', [ManageProductsController::class, 'update']);
     Route::get('/manageProduk-hapus/{id_produk}', [ManageProductsController::class, 'delete']);
-
     // MANAGE PENGGUNA
     Route::get('/manageUser', [ManageUserController::class, 'index']);
-    Route::get('manageUser-input', [ManageUserController::class, 'input']);
+    Route::get('/manageUser-input', [ManageUserController::class, 'input']);
     Route::post('/manageUser-simpan', [ManageUserController::class, 'simpan']);
     Route::get('/manageUser-edit/{id_pengguna}', [ManageUserController::class, 'edit']);
     Route::post('/manageUser-update/{id_pengguna}', [ManageUserController::class, 'update']);
@@ -147,18 +155,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // MANAGE SETTING
     Route::get('/managesetting', [ManageSettingController::class, 'index'])->name('settings.index');
     Route::post('/managesetting', [ManageSettingController::class, 'update'])->name('settings.update');
+
+    // MANAGE GALLERI
 });
 
-
-
-// ===============================
-// STUDY, ARTICLE, QNA, GALERI
-// ===============================
-
-Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
-Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
-Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
-
-Route::get('/qna', [QnaController::class, 'index'])->name('qna');
-
-Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');

@@ -13,7 +13,7 @@
 
 {{-- KARTU STATISTIK --}}
 <div class="row g-4 mb-4">
-    {{-- ... (Bagian kartu statistik sama seperti sebelumnya) ... --}}
+
     <div class="col-lg-4">
         <div class="card p-3 shadow-sm border-0">
             <div class="d-flex align-items-center">
@@ -25,6 +25,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-lg-4">
         <div class="card p-3 shadow-sm border-0">
             <div class="d-flex align-items-center">
@@ -36,6 +37,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-lg-4">
         <div class="card p-3 shadow-sm border-0">
             <div class="d-flex align-items-center">
@@ -47,12 +49,14 @@
             </div>
         </div>
     </div>
+
 </div>
+
 
 {{-- TABEL RIWAYAT ORDER --}}
 <div class="card shadow mt-4 border-0">
     <div class="card-header bg-white py-3">
-        <h6 class="fw-bold m-0 text-primary">Riwayat Order Terbaru</h6>
+        <h6 class="fw-bold m-0 text-black">Riwayat Order Terbaru</h6>
     </div>
 
     <div class="card-body">
@@ -61,9 +65,10 @@
             <table class="table table-hover align-middle">
                 <thead class="table-light text-center">
                     <tr>
-                        <th>Order ID</th>
+                        <th>ID Pesanan</th>
                         <th>Pelanggan</th>
-                        <th>Tanggal</th>
+                        <th>Produk</th>
+                        <th>Tanggal Pesan</th>
                         <th class="text-end">Total</th>
                         <th class="text-center">Bukti Pembelian</th>
                         <th style="width: 220px;">Status Pesanan</th>
@@ -72,12 +77,10 @@
 
                 <tbody>
                     @forelse ($recentOrders as $order)
-                    @php
-                        // Ambil Nama Status dari Relasi
-                        // Gunakan null coalescing (??) untuk jaga-jaga jika relasi putus/null
-                        $namaStatus = $order->statusPesanan->status ?? 'Tidak Diketahui';
 
-                        // Logika Warna Badge
+                    @php
+                        $namaStatus = $order->statusPesanan;
+
                         $badgeClass = match ($namaStatus) {
                             'Menunggu Pembayaran' => 'bg-warning text-dark',
                             'Diproses'            => 'bg-info text-dark',
@@ -89,60 +92,85 @@
                     @endphp
 
                     <tr>
-                        <td class="text-center fw-bold">ORD{{ $order->id }}</td>
-                        
-                        <td>
-                            {{ $order->pengguna->username ?? 'Guest' }}
-                        </td>
-                        
-                        <td class="text-center">{{ $order->created_at->format('d M Y') }}</td>
-                        
-                        <td class="text-end fw-bold">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</td>
 
-                        <td class="text-center">
-                            @if(!empty($order->bukti_pembayaran))
-                                <a href="{{ asset('bukti_pembayaran/' . $order->bukti_pembayaran) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class='bx bx-image-alt'></i> Lihat
-                                </a>
+                        <td class="text-center fw-bold">{{ $order->id_pesanan }}</td>
+
+                        {{-- Pelanggan --}}
+                        <td>{{ $order->pengguna->username ?? 'Guest' }}</td>
+
+                        <td>
+                            @if ($order->detailPesanan->count() > 0)
+                                <div style="font-size: 0.85rem;">
+                                    @foreach ($order->detailPesanan as $detail)
+                                        <div class="d-flex justify-content-between align-items-center border-bottom mb-1 pb-1">
+                                            <div>
+                                                {{-- Nama Produk --}}
+                                                <span class="fw-bold text-dark">
+                                                    {{ $detail->produk->nama_produk ?? 'Produk dihapus' }}
+                                                </span>
+                                                <br>
+                                                {{-- Jumlah x Harga Satuan --}}
+                                                <span class="text-muted" style="font-size: 0.75rem;">
+                                                    {{ $detail->jumlah }} x Rp {{ number_format($detail->harga_saat_pembelian, 0, ',', '.') }}
+                                                </span>
+                                            </div>
+                                            
+                                            
+                                        </div>
+                                    @endforeach
+                                </div>
                             @else
-                                <span class="text-muted small fst-italic">Belum Upload</span>
+                                <span class="text-muted small fst-italic">Tidak ada detail produk</span>
                             @endif
                         </td>
 
+
+                        <td class="text-center">
+                            {{ \Carbon\Carbon::parse($order->tanggal_pesanan)->format('d M Y') }}
+                        </td>
+
+                        <td class="text-end fw-bold">
+                            Rp {{ number_format($order->total_harga, 0, ',', '.') }}
+                        </td>
+
+                       <td class="text-center">
+                            @if($order->pembayaran && !empty($order->pembayaran->bukti_bayar))
+                                <a href="{{ asset('photo/' . $order->pembayaran->bukti_bayar) }}"
+                                target="_blank"
+                                class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-image-alt'></i> Lihat
+                                </a>
+
+                            @else
+                                <span class="text-muted small ">Belum Upload</span>
+                            @endif
+                        </td>
+                       
                         <td>
                             <div class="d-flex flex-column gap-1">
-                                
-                                {{-- FORM UPDATE STATUS (Menggunakan ID Status) --}}
-                                <form action="{{ route('pesanan.updateStatus', $order->id) }}" method="POST">
+                                <form action="{{ route('pesanan.updateStatus', $order->id_pesanan) }}" method="POST">
                                     @csrf
-                                    
-                                    {{-- Name input sekarang adalah 'id_status_pesanan' --}}
-                                    <select name="id_status_pesanan" class="form-select form-select-sm cursor-pointer" onchange="this.form.submit()">
-                                        
-                                        {{-- Loop Data Status dari Controller --}}
+                                    <select name="id_status_pesanan" 
+                                            class="form-select form-select-sm cursor-pointer"
+                                            onchange="this.form.submit()">
+
                                         @foreach ($statuses as $st)
-                                            <option value="{{ $st->id_status_pesanan }}" 
+                                            <option value="{{ $st->id_status_pesanan }}"
                                                 {{ $order->id_status_pesanan == $st->id_status_pesanan ? 'selected' : '' }}>
                                                 {{ $st->status }}
                                             </option>
                                         @endforeach
-
                                     </select>
                                 </form>
 
-                                {{-- Label Badge Status --}}
-                                <div class="text-center">
-                                    <span class="badge {{ $badgeClass }} rounded-pill font-size-sm">
-                                        {{ $namaStatus }}
-                                    </span>
-                                </div>
                             </div>
                         </td>
+
                     </tr>
 
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center py-4 text-muted">Belum ada order terbaru.</td>
+                        <td colspan="7" class="text-center py-4 text-muted">Belum ada order terbaru.</td>
                     </tr>
                     @endforelse
                 </tbody>

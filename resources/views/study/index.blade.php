@@ -9,7 +9,7 @@
 </div>
 
 <div class="Sub-topik">
-    <h2>Ayo Belajar!</h2>
+    <h2 style="color: black;">Ayo Belajar!</h2>
     <ul>
         {{-- Topik pembelajaran --}}
         @foreach ($topics as $topic)
