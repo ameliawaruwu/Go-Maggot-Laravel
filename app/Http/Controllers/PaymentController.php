@@ -107,15 +107,16 @@ class PaymentController extends Controller
 
             $proof_name = null;
 
-            
+            // ✅ PERBAIKAN: Simpan ke public/photo (bukan storage)
             if ($request->hasFile('payment_proof')) {
                 $file = $request->file('payment_proof');
-                $fileName = time() . '_' . $file->getClientOriginalName();
+                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
 
-                $file->storeAs('bukti_bayar', $fileName, 'public');
+                // Simpan langsung ke folder public/photo
+                $file->move(public_path('photo'), $fileName);
                 $proof_name = $fileName;
 
-                Log::info("Bukti pembayaran diunggah: {$proof_name}");
+                Log::info("Bukti pembayaran diunggah: {$proof_name} ke public/photo");
             }
 
             $order->update([
@@ -129,6 +130,15 @@ class PaymentController extends Controller
             $warning_message = '';
 
             if ($pembayaran) {
+                // ✅ Hapus file lama jika ada
+                if (!empty($pembayaran->bukti_bayar)) {
+                    $oldFile = public_path('photo/' . $pembayaran->bukti_bayar);
+                    if (file_exists($oldFile)) {
+                        @unlink($oldFile);
+                        Log::info("File lama dihapus: {$pembayaran->bukti_bayar}");
+                    }
+                }
+
                 $pembayaran->update([
                     'bukti_bayar'       => $proof_name,
                     'tanggal_bayar'     => now(),
