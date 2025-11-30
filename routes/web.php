@@ -69,7 +69,6 @@ Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])
 
 
 Route::middleware(['auth'])->group(function () {
-    // FEEDBACK PAGE (WAJIB LOGIN)
     Route::get('/feedback', function () {
         return view('feedback');
     })->name('feedback');

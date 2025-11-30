@@ -15,7 +15,7 @@ class ProdukSeeder extends Seeder
     {
 
         Produk::factory()
-            ->count(6) 
+            ->count(8) 
             ->state(new Sequence(
               
                 [
@@ -67,7 +67,7 @@ class ProdukSeeder extends Seeder
                     'kategori'         => 'Kandang Maggot',
                     'merk'             => 'GoMaggot',
                     'masa_penyimpanan' => '14 hari',
-                    'pengiriman'       => 'Exspress',
+                    'pengiriman'       => 'Reguler',
                     'berat'            => '5 Kg',
                     'harga'            => 150000,
                     'stok'             => 60,
@@ -95,12 +95,42 @@ class ProdukSeeder extends Seeder
                     'kategori'         => 'Lainnya',
                     'merk'             => 'GoMaggot',
                     'masa_penyimpanan' => '7 Hari',
-                    'pengiriman'       => 'Exspress',
+                    'pengiriman'       => 'Cargo',
                     'berat'            => '5 Kg',
                     'harga'            => 120000,
-                    'stok'             => 5,
+                    'stok'             => 23,
                     'gambar'           => null,
                 ],
+
+                [
+                    'id_produk'       => 'PR07',
+                    'nama_produk'      => 'Paket Bundling 3',
+                    'deskripsi_produk' => 'Paket Komplit budidaya manggot',
+                    'kategori'         => 'Lainnya',
+                    'merk'             => 'GoMaggot',
+                    'masa_penyimpanan' => '7 Hari',
+                    'pengiriman'       => 'Instan',
+                    'berat'            => '5 Kg',
+                    'harga'            => 120000,
+                    'stok'             => 34,
+                    'gambar'           => null,
+                ],
+
+                [
+                    'id_produk'       => 'PR08',
+                    'nama_produk'      => 'Paket Bundling 4',
+                    'deskripsi_produk' => 'Paket Komplit budidaya manggot',
+                    'kategori'         => 'Lainnya',
+                    'merk'             => 'GoMaggot',
+                    'masa_penyimpanan' => '7 Hari',
+                    'pengiriman'       => 'Cargo',
+                    'berat'            => '5 Kg',
+                    'harga'            => 120000,
+                    'stok'             => 60,
+                    'gambar'           => null,
+                ],
+
+                
             ))
             ->create();
     }

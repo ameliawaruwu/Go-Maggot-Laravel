@@ -31,7 +31,7 @@
             </div>
         @endif
 
-        <form action="{{ route('publication.simpan') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('publication.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="form-group mb-4">
