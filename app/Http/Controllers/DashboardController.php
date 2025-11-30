@@ -44,20 +44,10 @@ class DashboardController extends Controller
     $request->validate([
         'id_status_pesanan' => 'required|exists:status_pesanan,id_status_pesanan'
     ]);
-
-    // 1. Cari Pesanan
     $pesanan = Pesanan::where('id_pesanan', $id)->firstOrFail();
-
-    // 2. Update ID Statusnya
     $pesanan->id_status_pesanan = $request->id_status_pesanan;
     $pesanan->save();
-
-    // 3. --- PERBAIKAN DISINI ---
-    // Kita harus refresh dulu biar Laravel sadar datanya sudah berubah
-    $pesanan->refresh(); 
-
-    // 4. Ambil nama status (Sekarang pasti aman)
-    // Kita pakai tanda tanya (??) buat jaga-jaga kalau datanya masih error
+    $pesanan->refresh(); // refresh agar status berubah
     $namaStatusBaru = $pesanan->statusPesanan->status ?? 'Status Diperbarui';
 
     return back()->with('success', "Status pesanan berhasil diperbarui menjadi '$namaStatusBaru'.");

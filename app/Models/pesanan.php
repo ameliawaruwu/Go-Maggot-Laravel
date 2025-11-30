@@ -36,7 +36,7 @@ class Pesanan extends Model
 
     public function status()
     {
-        return $this->belongsTo(Pengguna::class, 'id_status_pesanan');
+        return $this->belongsTo(StatusPesanan::class, 'id_status_pesanan');
     }
     
 
@@ -49,6 +49,8 @@ class Pesanan extends Model
     {
         return $this->hasOne(Pembayaran::class, 'id_pesanan', 'id_pesanan');
     }
+
+    
 }
     
 

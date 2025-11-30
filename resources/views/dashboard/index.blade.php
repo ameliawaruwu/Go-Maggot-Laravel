@@ -95,7 +95,7 @@
 
                         <td class="text-center fw-bold">{{ $order->id_pesanan }}</td>
 
-                        {{-- PELANGGAN --}}
+                        {{-- Pelanggan --}}
                         <td>{{ $order->pengguna->username ?? 'Guest' }}</td>
 
                         <td>

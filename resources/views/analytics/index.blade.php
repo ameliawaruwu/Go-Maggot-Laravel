@@ -23,7 +23,6 @@
     <hr class="mb-4">
 
     <div class="row g-4">
-        <!-- Sales Chart -->
         <div class="col-lg-6 mb-4">
             <div class="card shadow border-0">
                 <div class="card-header py-3 bg-white">
@@ -84,7 +83,6 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Membuat variabel global agar bisa dibaca oleh file external js
     window.analyticsData = {
         dates: {!! json_encode($dates) !!},
         sales: {!! json_encode($salesData) !!},
