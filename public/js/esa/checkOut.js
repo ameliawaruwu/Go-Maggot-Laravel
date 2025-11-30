@@ -1,9 +1,6 @@
 /**
  * File: public/js/checkout.js
  * Bertanggung jawab untuk logika sisi klien di halaman keranjang dan checkout.
- * * CATATAN PENTING: Logika displayCart() yang mengambil data dari URL telah dihapus
- * karena halaman checkout.index.blade.php sudah menerima data keranjang ($cartItems) 
- * langsung dari controller (Session Laravel).
  */
 
 // URL endpoint
@@ -14,18 +11,16 @@ const CHECKOUT_INDEX_URL = '/checkout';
 document.addEventListener('DOMContentLoaded', function() {
     
     // ===============================================
-    // 1. Logika Event Handler Tombol Checkout (di Halaman Cart/Keranjang)
-    //    Tombol ini biasanya ada di halaman keranjang (bukan checkout)
+    // 1. Event Handler Tombol Checkout di Cart
     // ===============================================
+    const checkoutButton = document.getElementById('checkoutBtn'); // <--- FIXED
 
-    const checkoutButton = document.getElementById('checkout-button');
     if (checkoutButton) {
-        // Hanya tambahkan event listener jika tombol ditemukan
         checkoutButton.addEventListener('click', handleInstantCheckout);
     }
-    
+
     // ===============================================
-    // 2. Logging saat Form Checkout Index disubmit
+    // 2. Logging Form Submit di Halaman Checkout
     // ===============================================
     const checkoutForm = document.getElementById('checkoutForm');
     if (checkoutForm) {
@@ -34,41 +29,38 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (draftOrderIdInput) {
                 console.log("FORM SUBMIT: Data dikirim ke /checkout/process.");
-                console.log("DRAFT ORDER ID: ", draftOrderIdInput.value || 'Kosong');
+                console.log("DRAFT ORDER ID:", draftOrderIdInput.value || 'Kosong');
             } else {
                 console.warn("FORM SUBMIT: Input 'id_pesanan' tidak ditemukan.");
             }
-
-            // Jika form submission diblok oleh validasi browser atau JS lain,
-            // maka redirect tidak akan terjadi.
         });
     }
 
-    // Pengecekan Fungsi Display Cart (Dibiarkan kosong untuk mencegah error 'Cannot set properties of null')
+    // Display cart (opsional)
     try {
         if (typeof displayCart === 'function') {
-            displayCart(); 
+            displayCart();
         }
     } catch (e) {
         console.error("Error saat menjalankan displayCart:", e.message);
     }
 });
 
+
 /**
- * Mengirim data keranjang (cart) ke endpoint instantProcess (AJAX)
- * untuk membuat Pesanan Draft. (Ini dipanggil dari halaman KERANJANG)
+ * Handle checkout instan dari halaman keranjang
  */
 function handleInstantCheckout(e) {
     e.preventDefault();
-    const cart = getCartFromStorage(); // Asumsi: mengambil data dari localStorage/session JS
-    
+    const cart = getCartFromStorage();
+
     if (cart.length === 0) {
         alert('Keranjang belanja kosong!');
         return;
     }
 
-    // Tampilkan loading (jika ada)
-    const checkoutButton = document.getElementById('checkout-button');
+    // Tampilkan loading
+    const checkoutButton = document.getElementById('checkoutBtn'); // <--- FIXED
     if (checkoutButton) {
         checkoutButton.disabled = true;
         checkoutButton.textContent = 'Memproses...';
@@ -85,9 +77,8 @@ function handleInstantCheckout(e) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // REDIRECT BERHASIL KE HALAMAN CHECKOUT (checkout.index)
             console.log(data.message);
-            window.location.href = data.redirect_url; 
+            window.location.href = data.redirect_url;
         } else {
             alert('Gagal memproses pesanan draft: ' + data.message);
             console.error('AJAX Error:', data);
@@ -98,24 +89,16 @@ function handleInstantCheckout(e) {
         console.error('Fetch Error:', error);
     })
     .finally(() => {
-        // Kembalikan tombol ke kondisi awal
         if (checkoutButton) {
             checkoutButton.disabled = false;
-            checkoutButton.textContent = 'CHECKOUT';
+            checkoutButton.textContent = 'Checkout';
         }
     });
 }
 
-// --- FUNGSI DUMMY / PENDUKUNG ---
 
-/**
- * Mengambil data keranjang dari sumber sisi klien (misalnya localStorage).
- * Implementasi ini HARUS sesuai dengan cara Anda menyimpan keranjang di sisi klien.
- */
+// Fungsi pendukung
 function getCartFromStorage() {
-    // Implementasi yang Anda berikan di query tidak menggunakan ini,
-    // tetapi ini adalah praktik yang baik jika tombol CHECKOUT dipanggil
-    // dari halaman keranjang yang menyimpan data di localStorage.
     try {
         const cartJson = localStorage.getItem('cart');
         return cartJson ? JSON.parse(cartJson) : [];
@@ -125,19 +108,11 @@ function getCartFromStorage() {
     }
 }
 
-/**
- * Fungsi ini dibiarkan KOSONG untuk menghindari error. 
- * Logika penampilan keranjang sudah ditangani oleh Laravel Blade.
- */
 function displayCart() {
-    // Logika penampilan keranjang sudah di handle oleh Blade (@include('components.cart-summary'))
-    // Jika Anda ingin mengupdate total di bagian bawah form, gunakan querySelector yang tepat:
-
     const totalQtyElement = document.getElementById('totalProdukDisplay');
     const totalHargaElement = document.getElementById('totalHargaFormDisplay');
-    
-    // Contoh untuk memastikan elemen-elemen ini ada
+
     if (!totalQtyElement || !totalHargaElement) {
-        console.warn("Elemen total (totalProdukDisplay atau totalHargaFormDisplay) tidak ditemukan di form.");
+        console.warn("Elemen total tidak ditemukan.");
     }
 }
