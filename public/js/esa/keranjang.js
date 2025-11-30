@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
     const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
 
+    console.log('CSRF TOKEN DI JS:', csrfToken);
+
+
     let carts = []; 
     let products = [];
 
@@ -155,6 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': csrfToken
             },
+            credentials: 'same-origin', 
             body: JSON.stringify({ cart: carts }) 
         })
         .then(response => {
