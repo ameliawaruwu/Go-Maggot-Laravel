@@ -17,8 +17,9 @@
                 <span class="text">Analitik</span>
             </a>
         </li>
-        <li class="{{}}">
-            <a href="" class="text-decoration-none"> 
+
+        <li class="{{ request()->routeIs('gallery.*') ? 'active' : '' }}">
+            <a href="{{ route('gallery.index') }}" class="text-decoration-none"> 
                 <i class='bx bx-images'></i>
                 <span class="text">Galeri</span>
             </a>
@@ -47,7 +48,7 @@
 
         <li>
             <a href="/manageReview" class="text-decoration-none">
-                <i class='bx  bx-edit'  ></i> 
+                <i class='bx  bx-edit'></i> 
                 <span class="text">Reviews Produk</span>
             </a>
         </li>
