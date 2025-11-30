@@ -9,48 +9,47 @@ use App\Models\Artikel;
 class GalleryController extends Controller
 {
     /**
-     * 
+     * Halaman galeri untuk user (frontend)
      */
     public function index()
     {
         // Mengambil semua data dari tabel galeri
         $galeriData = Galeri::all();
         
+        // Mapping data ke format yang dipakai di view & component
         $galleryItems = $galeriData->map(function ($item) {
+            // sementara: semua gambar diarahkan ke artikel default
             $linkTarget = route('article.show', ['id_artikel' => 'ART-DEFAULT']); 
             
             return [
-                'name' => $item->keterangan, 
+                'name'        => $item->keterangan, 
                 'description' => $item->keterangan, 
-                "imageUrl" => asset('photo/' . $item->gambar), 
-                'link' => $linkTarget,
+                'imageUrl'    => asset('photo/' . $item->gambar), // file di public/photo
+                'link'        => $linkTarget,
             ];
         });
 
+        // pakai view resources/views/gallery/gallery.blade.php
         return view('gallery.gallery', compact('galleryItems'));
     }
 
     /**
-     * 
-     * @param string 
-     * @return \Illuminate\View\View
+     * Menampilkan detail artikel (kalau sudah dikaitkan)
      */
     public function showArtikel($id_artikel) 
     {
-        // Mencari artikel berdasarkan id_artikel 
         $articleData = Artikel::where('id_artikel', $id_artikel)->first();
 
-        // Pengecekan jika artikel tidak ditemukan
         if (!$articleData) {
             abort(404, 'Artikel tidak ditemukan.'); 
         }
 
         $article = [
-            'judul' => $articleData->judul,
-            'penulis' => $articleData->penulis,
-            'tanggal' => $articleData->tanggal,
+            'judul'     => $articleData->judul,
+            'penulis'   => $articleData->penulis,
+            'tanggal'   => $articleData->tanggal,
             'hak_cipta' => $articleData->hak_cipta ?? 'Hak cipta dilindungi.',
-            'konten' => $articleData->konten, 
+            'konten'    => $articleData->konten, 
         ];
 
         return view('study.article-detail', compact('article'));
