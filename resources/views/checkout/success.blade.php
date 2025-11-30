@@ -27,7 +27,6 @@
                             <li class="list-group-item"><strong>Penerima:</strong> {{ $lastOrder->nama_penerima }} ({{ $lastOrder->nomor_telepon }})</li>
                             <li class="list-group-item"><strong>Alamat Pengiriman:</strong> {{ $lastOrder->alamat_pengiriman }}</li> 
                         </ul>
-
                         <a href="{{ route('payment.form', ['order_id' => $lastOrder->id_pesanan]) }}" 
                            class="btn btn-primary btn-lg mt-3 me-2">
                             Lanjut ke Pembayaran

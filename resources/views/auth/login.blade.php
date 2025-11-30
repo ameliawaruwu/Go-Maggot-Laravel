@@ -25,10 +25,12 @@
           {{ $errors->first() }}
         </div>
       @endif
+          
+      <form action="{{ route('login.post') }}" method="POST" autocomplete="off">
+      @csrf
 
-      {{-- 🚀 FORM LOGIN --}}
-      <form action="{{ route('login.post', ['redirect' => request('redirect')]) }}" method="POST" autocomplete="off">
-        @csrf
+    {{-- 🔁 TERUSKAN PARAM redirect DARI QUERY KE POST --}}
+    <input type="hidden" name="redirect" value="{{ request('redirect') }}">
         
         {{-- HIDDEN DUMMY (TRIK AGAR BROWSER TIDAK AUTO-FILL) --}}
         <input type="text" name="fakeusernameremembered" style="display:none">
