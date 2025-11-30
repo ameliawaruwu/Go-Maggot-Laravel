@@ -23,26 +23,6 @@ class DetailPesanan extends Model
         'harga_saat_pembelian', 
     ];
     
-    
-    /**
-     * 
-     * 
-     */
-    protected static function booted()
-    {
-        static::creating(function ($model) {
-            // Membuat ID unik
-            if (empty($model->id_detail)) {
-                $model->id_detail = 'DET-' . time() . uniqid();
-            }
-            
-            // Memindahkan data 'harga_satuan' ke 'harga_saat_pembelian'
-            if (isset($model->harga_satuan)) {
-                $model->harga_saat_pembelian = $model->harga_satuan;
-                unset($model->harga_satuan); // Hapus property sementara
-            }
-        });
-    }
 
     public function pesanan()
     {

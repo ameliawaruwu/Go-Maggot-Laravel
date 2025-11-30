@@ -83,6 +83,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/checkout/sync', [CheckoutController::class, 'sync']); // tombol checkout
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
+
+    // sementara
+    Route::post('/checkout/sync', [CheckoutController::class, 'sync'])
+    ->middleware('auth')
+    ->name('checkout.sync');
+
+// Route checkout lainnya
+Route::get('/checkout', [CheckoutController::class, 'index'])
+    ->middleware('auth')
+    ->name('checkout.index');
+
+Route::post('/checkout/process', [CheckoutController::class, 'process'])
+    ->middleware('auth')
+    ->name('checkout.process');
+
     // PAYMENT
     Route::get('/payment-form', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
     Route::post('/payment-form', [PaymentController::class, 'processPayment'])->name('payment.process');

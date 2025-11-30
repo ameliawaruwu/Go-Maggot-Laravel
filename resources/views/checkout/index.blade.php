@@ -37,7 +37,8 @@
             <form id="checkoutForm" method="POST" action="{{ route('checkout.process') }}">
                 @csrf 
 
-                <input type="hidden" name="id_pesanan" value="{{ $draftOrderId }}">
+                {{-- ✅ HAPUS BARIS INI - Tidak pakai draft order lagi --}}
+                {{-- <input type="hidden" name="id_pesanan" value="{{ $draftOrderId }}"> --}}
 
                 <div class="form-group mb-3">
                     <label for="nama_penerima">Nama Penerima</label>
@@ -58,13 +59,14 @@
                 </div>
 
                 <div class="form-group mb-3">
-                <label for="kota">Pengiriman</label>
-                <select id="pengiriman" name="pengiriman" required class="form-select"> <option value="">Pengiriman</option>
-                    <option value="Instan" {{ old('pengiriman') == 'Instan' ? 'selected' : '' }}>Instan</option>
-                    <option value="Reguler" {{ old('pengiriman') == 'Reguler' ? 'selected' : '' }}>Reguler</option>
-                    <option value="Kargo" {{ old('pengiriman') == 'Kargo' ? 'selected' : '' }}>Kargo</option>
-                </select>
-                @error('Pengiriman') <span class="text-danger">{{ $message }}</span> @enderror
+                    <label for="pengiriman">Pengiriman</label>
+                    <select id="pengiriman" name="pengiriman" required class="form-select">
+                        <option value="">-- Pilih Layanan Pengiriman --</option>
+                        <option value="Instan" {{ old('pengiriman') == 'Instan' ? 'selected' : '' }}>Instan</option>
+                        <option value="Reguler" {{ old('pengiriman') == 'Reguler' ? 'selected' : '' }}>Reguler</option>
+                        <option value="Kargo" {{ old('pengiriman') == 'Kargo' ? 'selected' : '' }}>Kargo</option>
+                    </select>
+                    @error('pengiriman') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
                 
                 <div class="form-group mb-4">
