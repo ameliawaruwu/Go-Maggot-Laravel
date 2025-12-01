@@ -66,6 +66,10 @@ Route::post('/payment/process', [PaymentController::class, 'processPayment'])->n
 // STATUS PESANAN 
 Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
 
+// Gallery
+Route::get('/study/artikel/{id_artikel}', [GalleryController::class, 'showArtikel'])->name('article.show');
+
+
 
 
 Route::middleware(['auth'])->group(function () {

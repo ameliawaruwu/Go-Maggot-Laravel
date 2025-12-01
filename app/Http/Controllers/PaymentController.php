@@ -107,7 +107,6 @@ class PaymentController extends Controller
 
             $proof_name = null;
 
-            // ✅ PERBAIKAN: Simpan ke public/photo (bukan storage)
             if ($request->hasFile('payment_proof')) {
                 $file = $request->file('payment_proof');
                 $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
@@ -130,7 +129,6 @@ class PaymentController extends Controller
             $warning_message = '';
 
             if ($pembayaran) {
-                // ✅ Hapus file lama jika ada
                 if (!empty($pembayaran->bukti_bayar)) {
                     $oldFile = public_path('photo/' . $pembayaran->bukti_bayar);
                     if (file_exists($oldFile)) {

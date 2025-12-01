@@ -12,4 +12,11 @@ class Galeri extends Model
     public $incrementing = false;
 
     protected $fillable = ['id_galeri', 'gambar', 'keterangan'];
+
+
+    public function artikel()
+    {
+    return $this->belongsTo(Artikel::class, 'id_artikel', 'id_artikel');
+    }
+    
 }
