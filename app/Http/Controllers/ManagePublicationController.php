@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session; // Untuk manajemen data
-use Illuminate\Support\Str; // Untuk Str::limit
-use Carbon\Carbon; // Untuk mendapatkan tanggal saat ini
+use Illuminate\Support\Facades\Session; 
+use Illuminate\Support\Str; 
+use Carbon\Carbon; 
 use App\Models\Artikel;
-use Illuminate\Support\Facades\File; // Untuk mengelola file
+use Illuminate\Support\Facades\File;
 
 class ManagePublicationController extends Controller
 {

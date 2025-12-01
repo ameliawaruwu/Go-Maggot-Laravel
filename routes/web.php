@@ -66,6 +66,10 @@ Route::post('/payment/process', [PaymentController::class, 'processPayment'])->n
 // STATUS PESANAN 
 Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
 
+// Gallery
+Route::get('/study/artikel/{id_artikel}', [GalleryController::class, 'showArtikel'])->name('article.show');
+
+
 
 
 Route::middleware(['auth'])->group(function () {
@@ -106,14 +110,14 @@ Route::post('/checkout/process', [CheckoutController::class, 'process'])
     Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
 });
 
-// STUDY, ARTICLE, QNA, GALERI
-Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
-Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
-Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
-// FAQ 
-Route::get('/qna', [QnaController::class, 'index'])->name('qna');
-// GALERI
-Route::get('/galeri', [HomeController::class, 'index'])->name('gallery.gallery');
+    // STUDY, ARTICLE, QNA, GALERI
+    Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
+    Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
+    Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
+    // FAQ 
+    Route::get('/qna', [QnaController::class, 'index'])->name('qna');
+    // GALERI
+    Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery.gallery');
 
 
 
@@ -172,5 +176,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/managesetting', [ManageSettingController::class, 'update'])->name('settings.update');
 
     // MANAGE GALLERI
+    Route::get('/gallery', [ManageGalleryController::class, 'index'])->name('gallery.index');
+    Route::get('/gallery/create', [ManageGalleryController::class, 'create'])->name('gallery.create');
+    Route::post('/gallery', [ManageGalleryController::class, 'store'])->name('gallery.store');
+    Route::get('/gallery/{id_galeri}/edit', [ManageGalleryController::class, 'edit'])->name('gallery.edit');
+    Route::put('/gallery/{id_galeri}', [ManageGalleryController::class, 'update'])->name('gallery.update');
+    Route::delete('/gallery/{id_galeri}', [ManageGalleryController::class, 'destroy'])->name('gallery.destroy');
 });
 

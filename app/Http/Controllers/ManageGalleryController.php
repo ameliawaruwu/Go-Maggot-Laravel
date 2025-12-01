@@ -2,170 +2,103 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Galeri;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str; // Tambahkan ini untuk Str::limit jika digunakan
 
 class ManageGalleryController extends Controller
 {
-    // Data galeri awal (Default) - Menggunakan file dari public/images
-    private $initialGalleries = [
-        ['id_galeri' => 1, 'gambar' => 'maggot-fresh.jpg', 'keterangan' => 'Panen Maggot BSF di kolam.','tanggal' => '2025-10-10'],
-        ['id_galeri' => 2, 'gambar' => 'pupuk-kompos.jpg', 'keterangan' => 'Pengolahan Kompos Organik.', 'tanggal' => '2025-10-15'],
-        ['id_galeri' => 3, 'gambar' => 'pelet-maggot.jpg', 'keterangan' => 'Proses pengeringan maggot.', 'tanggal' => '2025-09-28'],
-    ];
-
-    private function getGalleries()
-    {
-        if (!Session::has('galleries')) {
-            Session::put('galleries', $this->initialGalleries);
-        }
-        return Session::get('galleries');
-    }
-
-    private function saveGalleries($galleries)
-    {
-        // Menyimpan array yang sudah dimodifikasi kembali ke Session
-        Session::put('galleries', $galleries);
-    }
-    
-    private function getNextId($galleries)
-    {
-        $maxId = 0;
-        foreach ($galleries as $galeri) {
-            if ($galeri['id_galeri'] > $maxId) {
-                $maxId = $galeri['id_galeri'];
-            }
-        }
-        return $maxId + 1;
-    }
-    
-    private function getAvailableImages()
-    {
-        $imagesPath = public_path('images');
-        $imageFiles = [];
-
-        if (File::isDirectory($imagesPath)) {
-            $files = File::files($imagesPath); 
-            foreach ($files as $file) {
-                $imageFiles[] = $file->getFilename(); 
-            }
-        }
-        
-        if (!in_array('default-product.jpg', $imageFiles)) {
-             $imageFiles[] = 'default-product.jpg';
-        }
-
-        sort($imageFiles); 
-        return array_unique($imageFiles);
-    }
-
-
     public function index()
     {
-        $galleries = $this->getGalleries();
+        $galleries = Galeri::all();
         return view('manage-gallery.index', compact('galleries'));
     }
 
     public function create()
     {
-        $availableImages = $this->getAvailableImages();
-        return view('manage-gallery.create', compact('availableImages'));
+        return view('manage-gallery.create');
     }
-    
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'keterangan' => 'required|string|max:255',
-            'gambar' => 'required|string|max:255', 
+        $request->validate([
+            'id_galeri'   => 'required|string|max:50|unique:galeri,id_galeri',
+            'keterangan'  => 'required|string|max:255',
+            'gambar'      => 'required|image|mimes:jpg,jpeg,png,webp|max:3048',
         ]);
 
-        $galleries = $this->getGalleries();
-        $newId = $this->getNextId($galleries);
-        $currentDate = now()->toDateString(); 
+        $namaFile = null;
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $namaFile = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('photo'), $namaFile); // ← DI SINI
+        }
 
-        $newGaleri = [
-            'id_galeri' => $newId,
-            'gambar' => $validated['gambar'],
-            'keterangan' => $validated['keterangan'],
-            'tanggal' => $currentDate,
-        ];
+        Galeri::create([
+            'id_galeri'  => $request->id_galeri,
+            'keterangan' => $request->keterangan,
+            'gambar'     => $namaFile,
+        ]);
 
-        $galleries[] = $newGaleri;
-        $this->saveGalleries($galleries);
-
-        return redirect()->route('gallery.index')->with('status_message', 'Galeri **' . $newId . '** berhasil ditambahkan!');
+        return redirect()->route('gallery.index')->with('status_message', 'Galeri berhasil ditambahkan!');
     }
 
     public function edit($id)
     {
-        $id = (int) $id;
-        $galleries = $this->getGalleries();
-        
-        $galeri = collect($galleries)->firstWhere('id_galeri', $id);
-
-        if (!$galeri) {
-            return redirect()->route('gallery.index')->withErrors('Galeri tidak ditemukan.');
-        }
-        
-        $availableImages = $this->getAvailableImages();
-
-        return view('manage-gallery.edit', compact('galeri', 'availableImages'));
+        $galeri = Galeri::findOrFail($id);
+        return view('manage-gallery.edit', compact('galeri'));
     }
 
     public function update(Request $request, $id)
     {
-        $id = (int) $id;
-        
-        $validated = $request->validate([
-            'keterangan' => 'required|string|max:255',
-            'gambar' => 'required|string|max:255', 
+        $galeri = Galeri::findOrFail($id);
+
+        $request->validate([
+            'id_galeri'   => 'required|string|max:50|unique:galeri,id_galeri,' . $galeri->id_galeri . ',id_galeri',
+            'keterangan'  => 'required|string|max:255',
+            'gambar'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3048',
         ]);
 
-        $galleries = $this->getGalleries();
-        $indexToUpdate = -1;
+        $namaFile = $galeri->gambar;
 
-        foreach ($galleries as $index => $g) {
-            if ($g['id_galeri'] === $id) {
-                $indexToUpdate = $index;
-                break;
+        if ($request->hasFile('gambar')) {
+
+            // Hapus file lama
+            if ($galeri->gambar) {
+                $oldPath = public_path('photo/' . $galeri->gambar);
+                if (File::exists($oldPath)) {
+                    File::delete($oldPath);
+                }
             }
+
+            $file = $request->file('gambar');
+            $namaFile = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('photo'), $namaFile); // ← DI SINI
         }
 
-        if ($indexToUpdate === -1) {
-            return redirect()->route('gallery.index')->withErrors('Galeri yang akan diperbarui tidak ditemukan.');
-        }
+        $galeri->update([
+            'id_galeri'  => $request->id_galeri,
+            'keterangan' => $request->keterangan,
+            'gambar'     => $namaFile,
+        ]);
 
-        $galleries[$indexToUpdate]['gambar'] = $validated['gambar'];
-        $galleries[$indexToUpdate]['keterangan'] = $validated['keterangan'];
-
-        $this->saveGalleries($galleries);
-
-        return redirect()->route('gallery.index')->with('status_message', 'Galeri ID **' . $id . '** berhasil diperbarui!');
+        return redirect()->route('gallery.index')->with('status_message', 'Galeri berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
-        $id = (int) $id;
-        $galleries = $this->getGalleries();
-        
-        $initialCount = count($galleries);
-        
-        // 1. FILTER: Hapus item dari array
-        $galleries = array_filter($galleries, fn($g) => $g['id_galeri'] !== $id);
-        $finalCount = count($galleries);
-        
-        // Cek validasi
-        if ($initialCount === $finalCount) {
-            return redirect()->route('gallery.index')->withErrors('Galeri yang akan dihapus tidak ditemukan.');
+        $galeri = Galeri::findOrFail($id);
+
+        // hapus file di /public/photo
+        if ($galeri->gambar) {
+            $path = public_path('photo/' . $galeri->gambar);
+            if (File::exists($path)) {
+                File::delete($path);
+            }
         }
 
-        $this->saveGalleries(array_values($galleries)); 
-        
-        return redirect()->route('gallery.index')->with([
-            'status_message' => 'Galeri ID **' . $id . '** berhasil dihapus!', 
-            'status_type' => 'success' 
-        ]);
+        $galeri->delete();
+
+        return redirect()->route('gallery.index')->with('status_message', 'Galeri berhasil dihapus!');
     }
 }

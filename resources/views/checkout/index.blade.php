@@ -36,8 +36,6 @@
             <h3>Detail Pengiriman & Pembayaran</h3>
             <form id="checkoutForm" method="POST" action="{{ route('checkout.process') }}">
                 @csrf 
-
-                {{-- ✅ HAPUS BARIS INI - Tidak pakai draft order lagi --}}
                 {{-- <input type="hidden" name="id_pesanan" value="{{ $draftOrderId }}"> --}}
 
                 <div class="form-group mb-3">
