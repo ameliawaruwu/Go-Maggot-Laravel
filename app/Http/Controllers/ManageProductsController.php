@@ -97,13 +97,7 @@ class ManageProductsController extends Controller
                 File::delete($path);
             }
         }
-
-
         $produk->delete();
         return redirect('/manageProduk');
-    }
-
-
-    
-    
+    }   
 }
