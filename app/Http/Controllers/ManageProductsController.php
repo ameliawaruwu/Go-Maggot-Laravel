@@ -20,7 +20,7 @@ class ManageProductsController extends Controller
     }
 
     function simpan( Request $a){
-        // cara upload foto
+        // upload foto
         $namaFile =  null;
         if($a->hasFile('gambar')){
             $file = $a->file('gambar'); // nangkap inputan foto
