@@ -11,37 +11,36 @@ use Illuminate\Support\Facades\File;
 
 class ManagePublicationController extends Controller
 {
-   // Menampilkan semua artikel
+
     function tampil()
     {
         $articles = Artikel::orderBy('id_artikel', 'DESC')->get();
         return view('manage-publication.index', compact('articles'));
     }
 
-    // Ke halaman input artikel
+   
     function input()
     {
-        $articles = Artikel::all();
         return view('manage-publication.create');
     }
 
-    //Simpan artikel baru
+   
     function simpan(Request $req)
     {
-        $req->validate([
-            'judul' => 'required',
-            'penulis' => 'required',
-            'konten' => 'required',
-            'hak_cipta' => 'required',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048' 
-        ]);
+        // $req->validate([
+        //     'judul' => 'required',
+        //     'penulis' => 'required',
+        //     'konten' => 'required',
+        //     'hak_cipta' => 'required',
+        //     'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048' 
+        // ]);
 
-        // cara upload foto
+        
         $namaFile =  null;
         if($req->hasFile('gambar')){
-            $file = $req->file('gambar'); // nangkap inputan foto
+            $file = $req->file('gambar'); 
             $namaFile = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('photo'), $namaFile); // file di upload ke folder public/photo
+            $file->move(public_path('photo'), $namaFile); 
         }
 
         Artikel::create([
@@ -57,7 +56,7 @@ class ManagePublicationController extends Controller
         return redirect('/publication')->with('status_message', 'Artikel berhasil disimpan!');
     }
 
-    // Hapus artikel
+    
     function hapus($id_artikel)
     {
         $artikel = Artikel::findOrFail($id_artikel);
@@ -72,14 +71,14 @@ class ManagePublicationController extends Controller
         return redirect('/publication')->with('status_message', 'Artikel berhasil dihapus!');
     }
 
-    // Ke halaman edit
+    
     function edit($id_artikel)
     {
         $article = Artikel::findOrFail($id_artikel);
         return view('manage-publication.edit', compact('article'));
     }
 
-    // Melakukan update artikel
+
     public function update(Request $req, $id_artikel)
     {
         $artikel = Artikel::findOrFail($id_artikel);
@@ -115,7 +114,6 @@ class ManagePublicationController extends Controller
             'gambar' => $namaFile,
         ]);
 
-        // Redirect ke halaman index publikasi
         return redirect('/publication')->with('status_message', 'Artikel berhasil diupdate!');
     }
 
