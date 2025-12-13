@@ -8,9 +8,6 @@ use App\Models\Produk;
 
 class ProdukSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
 
@@ -31,7 +28,7 @@ class ProdukSeeder extends Seeder
                     'stok'             => 50,
                     'gambar'           => null,
                 ],
-                // DATA 2
+               
                 [
                      'id_produk'       => 'PR02',
                     'nama_produk'      => 'Maggot Dewasa',
