@@ -8,7 +8,7 @@ class QnaController extends Controller
 {
     public function index()
     {
-        // Mengambil data FAQ dari database
+        
         $faqs = Faq::all()->map(function ($faq) {
             return [
                 'question' => $faq->pertanyaan,

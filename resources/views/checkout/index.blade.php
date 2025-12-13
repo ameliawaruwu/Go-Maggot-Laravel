@@ -27,6 +27,7 @@
             <a href="{{ route('product.index') }}" class="back-to-cart">← Kembali ke keranjang</a>
             <h2>Keranjang Saya</h2>
 
+            <!-- Mengambil nilai dari function index -->
             @include('components.cart-summary', ['cartItems' => $cartItems])
 
             <h1 class="total-summary-checkout">Total Harga: <span id="overallTotalPriceDisplayCheckout">Rp.{{ number_format($totalPrice, 0, ',', '.') }}</span></h1>
