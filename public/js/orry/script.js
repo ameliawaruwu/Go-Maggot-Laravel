@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setupButton('myButonnnn', '/galeri');
 });
 
-// --- STAR RATING ---
+
 // Fungsi untuk mengatur bintang yang dipilih dan menyimpan nilai ke input tersembunyi
 function handleStarRating(starContainerId, hiddenInputId) {
     const starsContainer = document.getElementById(starContainerId);
