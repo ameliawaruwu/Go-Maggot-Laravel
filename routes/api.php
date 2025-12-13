@@ -3,6 +3,9 @@ use App\Http\Controllers\Api\ProdukApiController;
 use App\Http\Controllers\Api\StatusPesananApiController;
 use App\Http\Controllers\Api\PesananApiController;
 use App\Http\Controllers\Api\FaqApiController;
+use App\Http\Controllers\Api\GaleriApiController;
+use App\Http\Controllers\Api\ArtikelApiController;
+use App\Http\Controllers\Api\ReviewsApiController;
 
 Route::apiResource('produk', ProdukApiController::class);
 // Ini akan membuat rute:
@@ -35,3 +38,27 @@ Route::apiResource('faq', FaqApiController::class);
 // GET    /api/faq/{faq} -> show
 // PUT    /api/faq/{faq} -> update
 // DELETE /api/faq/{faq} -> destroy
+
+Route::apiResource('galeri', GaleriApiController::class);
+// Ini akan membuat rute:
+// GET    /api/galeri         -> index
+// POST   /api/galeri         -> store
+// GET    /api/galeri/{galeri} -> show
+// PUT    /api/galeri/{galeri} -> update
+// DELETE /api/galeri/{galeri} -> destroy
+
+Route::apiResource('artikel', ArtikelApiController::class);
+// Ini akan membuat rute:
+// GET    /api/artikel         -> index
+// POST   /api/artikel         -> store
+// GET    /api/artikel/{artikel} -> show
+// PUT    /api/artikel/{artikel} -> update
+// DELETE /api/artikel/{artikel} -> destroy
+
+Route::apiResource('reviews', ReviewsApiController::class);
+// Ini akan membuat rute:
+// GET    /api/reviews         -> index
+// POST   /api/reviews         -> store
+// GET    /api/reviews/{reviews} -> show
+// PUT    /api/reviews/{reviews} -> update
+// DELETE /api/reviews/{reviews} -> destroy
