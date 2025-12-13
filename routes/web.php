@@ -21,6 +21,7 @@ use App\Http\Controllers\ManageFaqController;
 use App\Http\Controllers\ManageSettingController;
 use App\Http\Controllers\ManageStatusPesananController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
 
 //auth 
@@ -71,7 +72,7 @@ Route::get('/study/artikel/{id_artikel}', [GalleryController::class, 'showArtike
 
 
 
-
+//middleware auth
 Route::middleware(['auth'])->group(function () {
     Route::get('/feedback', function () {
         return view('feedback');
@@ -79,6 +80,10 @@ Route::middleware(['auth'])->group(function () {
 
     // FEEDBACK SUBMIT (WAJIB LOGIN)
     Route::post('/feedback', [HomeController::class, 'storeFeedback'])->name('feedback.store');
+
+    // PROFILE
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // CHECKOUT
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
@@ -121,7 +126,7 @@ Route::post('/checkout/process', [CheckoutController::class, 'process'])
 
 
 
-// Admin
+// middleware auth Admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/pesanan/status/{id}', [DashboardController::class, 'updateStatus'])

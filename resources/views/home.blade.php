@@ -75,14 +75,16 @@
           <a class="product-btn" href="{{ route('product.index') }}">Buy Now</a>
         </div>
       </div>
+
       <div class="product">
         <img src="{{ asset('images/produk 2.jpg') }}" alt="">
         <div class="product-info">
           <h4 class="product-title">Paket Bundling</h4>
           <p class="product-price">Rp. 170.000</p>
-         <a class="product-btn" href="{{ route('product.index') }}">Buy Now</a>
+          <a class="product-btn" href="{{ route('product.index') }}">Buy Now</a>
         </div>
       </div>
+
       <div class="product">
         <img src="{{ asset('images/coba 2.jpg') }}" alt="">
         <div class="product-info">
@@ -91,6 +93,7 @@
           <a class="product-btn" href="{{ route('product.index') }}">Buy Now</a>
         </div>
       </div>
+
       <div class="product">
         <img src="{{ asset('images/coba.jpg') }}" alt="">
         <div class="product-info">
@@ -178,15 +181,15 @@
       {{-- BOX-4 --}}
       <div class="testimonial-box">
         <div class="box-top">
-            <div class="profile">
+          <div class="profile">
             <div class="profile-img">
-                <img src="{{ asset('images/profile  4.jpg') }}" alt="Jeno">
+              <img src="{{ asset('images/profile  4.jpg') }}" alt="Jeno">
             </div>
             <div class="name-user">
-                <strong>Jeno</strong>
-                <span>@Jenowrrl</span>
+              <strong>Jeno</strong>
+              <span>@Jenowrrl</span>
             </div>
-            </div>
+          </div>
           <div class="reviews">
             <i class="fas fa-star">★</i><i class="fas fa-star">★</i><i class="fas fa-star">★</i><i class="fas fa-star">★</i><i class="far fa-star">★</i>
           </div>
@@ -200,19 +203,16 @@
 
     {{-- BUTTON FEEDBACK: beda perilaku kalau login / belum --}}
     @auth
-        {{-- USER SUDAH LOGIN → langsung ke halaman feedback --}}
-        <a class="testimoni-btn" href="{{ route('feedback') }}">
-          Give Us Feedback
-        </a>
+      <a class="testimoni-btn" href="{{ route('feedback') }}">
+        Give Us Feedback
+      </a>
     @else
-        {{-- USER BELUM LOGIN → diarahkan ke login dulu, habis login balik ke /feedback --}}
-        <a class="testimoni-btn"
-           href="{{ route('login', ['redirect' => route('feedback')]) }}">
-          Give Us Feedback
-        </a>
+      <a class="testimoni-btn"
+         href="{{ route('login', ['redirect' => route('feedback')]) }}">
+        Give Us Feedback
+      </a>
     @endauth
   </section>
-
 
   {{-- GALERY --}}
   <div class="portofolio-wrapper"></div>
@@ -220,4 +220,5 @@
     <a href="{{ route('gallery.gallery') }}"></a>
     <button id="myButonnnn">Let's See<i class="ri-leaf-line"></i></button>
   </div>
+
 @endsection
