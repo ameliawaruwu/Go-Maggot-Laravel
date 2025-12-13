@@ -9,32 +9,30 @@ use App\Models\Artikel;
 class GalleryController extends Controller
 {
     /**
-     * Halaman galeri untuk user (frontend)
+     * 
      */
     public function index()
     {
-        // Mengambil semua data dari tabel galeri
+
         $galeriData = Galeri::all();
         
-        // Mapping data ke format yang dipakai di view & component
+        
         $galleryItems = $galeriData->map(function ($item) {
-            // sementara: semua gambar diarahkan ke artikel default
             $linkTarget = route('article.show', ['id_artikel' => 'ART-DEFAULT']); 
             
             return [
                 'name'        => $item->keterangan, 
                 'description' => $item->keterangan, 
-                'imageUrl'    => asset('photo/' . $item->gambar), // file di public/photo
+                'imageUrl'    => asset('photo/' . $item->gambar), 
                 'link'        => $linkTarget,
             ];
         });
 
-        // pakai view resources/views/gallery/gallery.blade.php
         return view('gallery.gallery', compact('galleryItems'));
     }
 
     /**
-     * Menampilkan detail artikel (kalau sudah dikaitkan)
+     * 
      */
     public function showArtikel($id_artikel) 
     {

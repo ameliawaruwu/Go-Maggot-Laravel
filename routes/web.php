@@ -47,6 +47,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
 // PRODUK
 Route::get('/daftar-produk', [ProductController::class, 'index'])->name('product.index');
 Route::get('/product-detail/{id_produk}', [ProductController::class, 'show']);
@@ -54,10 +55,7 @@ Route::get('/product-detail/{id_produk}', [ProductController::class, 'show']);
 // CHECKOUT
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
-Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 Route::post('/checkout/sync', [CheckoutController::class, 'sync']);
-Route::post('/checkout/instant-process', [CheckoutController::class, 'instantProcess'])->name('checkout.instant');
-// Route::post('/checkout/to-form', [CheckoutController::class, 'redirectToCheckoutForm'])->name('checkout.redirect');
 
 // PEMBAYARAN
 Route::get('/pembayaran/{order_id}', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
@@ -66,9 +64,17 @@ Route::post('/payment/process', [PaymentController::class, 'processPayment'])->n
 // STATUS PESANAN 
 Route::get('/status-pesanan/{order_id}', [OrderController::class, 'showStatus'])->name('orders.status');
 
+// BELAJAR
+Route::get('/belajar', [StudyController::class, 'index'])->name('study.index');
+Route::get('/study/artikel/{id_artikel}', [ArticleController::class, 'show'])->name('article.show');
+Route::get('/study/artikel', [ArticleController::class, 'index'])->name('article.index');
+
 // Gallery
 Route::get('/study/artikel/{id_artikel}', [GalleryController::class, 'showArtikel'])->name('article.show');
+Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery.gallery');
 
+ // FAQ 
+Route::get('/qna', [QnaController::class, 'index'])->name('qna');
 
 
 
@@ -184,3 +190,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/gallery/{id_galeri}', [ManageGalleryController::class, 'destroy'])->name('gallery.destroy');
 });
 
+// Route::post('/checkout/instant-process', [CheckoutController::class, 'instantProcess'])->name('checkout.instant');
+// Route::post('/checkout/to-form', [CheckoutController::class, 'redirectToCheckoutForm'])->name('checkout.redirect');
+// Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');

@@ -7,13 +7,12 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    // Menampilkan daftar produk
+
     function index(){
         $produk = Produk::where('stok', '>', 0)->get();
         return view('product.index', compact('produk'));
     }
 
-    // Detail Produk
     function show($id_produk){
         $produk = Produk::find($id_produk);
 

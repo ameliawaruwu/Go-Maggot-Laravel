@@ -75,6 +75,8 @@
     @endif
 @endsection
 
+
+ {{--  membuat  notifikasi muncul selama 5 detik  --}}
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
