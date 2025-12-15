@@ -4,29 +4,39 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  mixed ...$roles  role yang diizinkan: admin, user, dll
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$roles)
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // kalau belum login, lempar ke login
-        if (!Auth::check()) {
-            return redirect()->route('login');
+        $user = $request->user();
+
+        // 1. Cek Login (Pastikan user ada)
+        if (! $user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated. Silakan login terlebih dahulu.'
+            ], 401);
         }
 
-        $user = Auth::user();
-
-        // pastikan user punya kolom 'role'
-        if (!in_array($user->role, $roles)) {
-            abort(403); // Forbidden
+        // --- ADMIN BYPASS (PENTING) ---
+        // Jika role user adalah 'admin', langsung izinkan lewat.
+        // Admin tidak perlu dicek lagi, dia bebas akses ke mana saja.
+        if ($user->role === 'admin') {
+            return $next($request);
+        }
+        
+        if (! in_array($user->role, $roles)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akses Ditolak. Anda tidak memiliki izin.'
+            ], 403);
         }
 
         return $next($request);

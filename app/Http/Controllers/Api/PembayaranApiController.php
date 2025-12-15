@@ -13,11 +13,19 @@ use Illuminate\Support\Facades\Validator;
 class PembayaranApiController extends Controller
 {
     /**
-     * Daftar semua pembayaran (GET: /api/pembayaran)
+     * Daftar pembayaran (Hanya milik User yang Login)
+     * GET: /api/pembayaran
      */
-    public function index()
+    public function index(Request $request)
     {
-        $pembayaran = Pembayaran::with(['pesanan', 'pengguna'])->get();
+        // 1. Ambil user dari Token
+        $user = $request->user();
+
+        // 2. Filter pembayaran berdasarkan id_pengguna milik user tersebut
+        $pembayaran = Pembayaran::with(['pesanan']) // Tidak perlu load 'pengguna' lagi karena itu diri sendiri
+            ->where('id_pengguna', $user->id_pengguna)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $data = $pembayaran->map(function ($item) {
             $item->bukti_bayar_url = $item->bukti_bayar ? asset('photo/' . $item->bukti_bayar) : null;
@@ -25,23 +33,24 @@ class PembayaranApiController extends Controller
         });
 
         return response()->json([
-            'message' => 'Daftar pembayaran',
+            'message' => 'Daftar pembayaran Anda',
             'data' => $data
         ]);
     }
 
     /**
      * Menyimpan pembayaran baru (POST: /api/pembayaran)
-     * Pembayaran biasanya berasal dari proses pesanan, membutuhkan id_pesanan dan id_pengguna
      */
     public function store(Request $request)
     {
+        $user = $request->user(); // Ambil user yang login
+
         $validator = Validator::make($request->all(), [
             'id_pembayaran' => 'required|string|max:50|unique:pembayaran,id_pembayaran',
-            'id_pesanan' => 'required|string|exists:pesanan,id_pesanan',
-            'id_pengguna' => 'required|string|exists:pengguna,id_pengguna',
+            'id_pesanan'    => 'required|string|exists:pesanan,id_pesanan',
+            // id_pengguna tidak perlu divalidasi dari input, kita ambil otomatis dari token biar aman
             'tanggal_bayar' => 'nullable|date',
-            'bukti_bayar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'bukti_bayar'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -51,15 +60,13 @@ class PembayaranApiController extends Controller
             ], 422);
         }
 
-        // Pastikan pesanan dan pengguna sesuai
-        $pesanan = Pesanan::find($request->id_pesanan);
-        if (!$pesanan) {
-            return response()->json(['message' => 'Pesanan tidak ditemukan'], 404);
-        }
+        // Pastikan pesanan benar-benar milik user yang login
+        $pesanan = Pesanan::where('id_pesanan', $request->id_pesanan)
+                          ->where('id_pengguna', $user->id_pengguna)
+                          ->first();
 
-        $pengguna = Pengguna::find($request->id_pengguna);
-        if (!$pengguna) {
-            return response()->json(['message' => 'Pengguna tidak ditemukan'], 404);
+        if (!$pesanan) {
+            return response()->json(['message' => 'Pesanan tidak ditemukan atau bukan milik Anda'], 404);
         }
 
         $namaFile = null;
@@ -71,10 +78,10 @@ class PembayaranApiController extends Controller
 
         $pembayaran = Pembayaran::create([
             'id_pembayaran' => $request->id_pembayaran,
-            'id_pengguna' => $request->id_pengguna,
-            'id_pesanan' => $request->id_pesanan,
+            'id_pengguna'   => $user->id_pengguna, // Otomatis dari token
+            'id_pesanan'    => $request->id_pesanan,
             'tanggal_bayar' => $request->tanggal_bayar ?: now(),
-            'bukti_bayar' => $namaFile,
+            'bukti_bayar'   => $namaFile,
         ]);
 
         $pembayaran->bukti_bayar_url = $pembayaran->bukti_bayar ? asset('photo/' . $pembayaran->bukti_bayar) : null;
@@ -86,14 +93,19 @@ class PembayaranApiController extends Controller
     }
 
     /**
-     * Menampilkan detail pembayaran (GET: /api/pembayaran/{id_pembayaran})
+     * Menampilkan detail pembayaran
      */
-    public function show($id_pembayaran)
+    public function show(Request $request, $id_pembayaran)
     {
-        $pembayaran = Pembayaran::with(['pesanan', 'pengguna'])->find($id_pembayaran);
+        $user = $request->user();
+
+        // Cari pembayaran & pastikan milik user yang login
+        $pembayaran = Pembayaran::with(['pesanan'])
+            ->where('id_pengguna', $user->id_pengguna)
+            ->find($id_pembayaran);
 
         if (!$pembayaran) {
-            return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
+            return response()->json(['message' => 'Pembayaran tidak ditemukan atau Anda tidak memiliki akses'], 404);
         }
 
         $pembayaran->bukti_bayar_url = $pembayaran->bukti_bayar ? asset('photo/' . $pembayaran->bukti_bayar) : null;
@@ -105,22 +117,23 @@ class PembayaranApiController extends Controller
     }
 
     /**
-     * Memperbarui pembayaran (PUT/PATCH: /api/pembayaran/{id_pembayaran})
+     * Memperbarui pembayaran
      */
     public function update(Request $request, $id_pembayaran)
     {
-        $pembayaran = Pembayaran::find($id_pembayaran);
+        $user = $request->user();
+        
+        // Cari pembayaran milik user
+        $pembayaran = Pembayaran::where('id_pengguna', $user->id_pengguna)->find($id_pembayaran);
 
         if (!$pembayaran) {
-            return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
+            return response()->json(['message' => 'Pembayaran tidak ditemukan atau Anda tidak memiliki akses'], 404);
         }
 
         $validator = Validator::make($request->all(), [
             'id_pembayaran' => 'required|string|max:50|unique:pembayaran,id_pembayaran,' . $id_pembayaran . ',id_pembayaran',
-            'id_pesanan' => 'required|string|exists:pesanan,id_pesanan',
-            'id_pengguna' => 'required|string|exists:pengguna,id_pengguna',
             'tanggal_bayar' => 'nullable|date',
-            'bukti_bayar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'bukti_bayar'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -130,17 +143,7 @@ class PembayaranApiController extends Controller
             ], 422);
         }
 
-        // Validasi eksistensi pesanan/pengguna
-        $pesanan = Pesanan::find($request->id_pesanan);
-        if (!$pesanan) {
-            return response()->json(['message' => 'Pesanan tidak ditemukan'], 404);
-        }
-
-        $pengguna = Pengguna::find($request->id_pengguna);
-        if (!$pengguna) {
-            return response()->json(['message' => 'Pengguna tidak ditemukan'], 404);
-        }
-
+        // Logic update foto
         $namaFile = $pembayaran->bukti_bayar;
         if ($request->hasFile('bukti_bayar')) {
             if ($pembayaran->bukti_bayar) {
@@ -155,34 +158,32 @@ class PembayaranApiController extends Controller
             $file->move(public_path('photo'), $namaFile);
         }
 
-        $dataUpdate = [
+        $pembayaran->update([
             'id_pembayaran' => $request->id_pembayaran,
-            'id_pengguna' => $request->id_pengguna,
-            'id_pesanan' => $request->id_pesanan,
             'tanggal_bayar' => $request->tanggal_bayar ?: $pembayaran->tanggal_bayar,
-            'bukti_bayar' => $namaFile,
-        ];
+            'bukti_bayar'   => $namaFile,
+        ]);
 
-        $pembayaran->update($dataUpdate);
-
-        $updated = Pembayaran::with(['pesanan', 'pengguna'])->find($id_pembayaran);
-        $updated->bukti_bayar_url = $updated->bukti_bayar ? asset('photo/' . $updated->bukti_bayar) : null;
+        $pembayaran->bukti_bayar_url = $pembayaran->bukti_bayar ? asset('photo/' . $pembayaran->bukti_bayar) : null;
 
         return response()->json([
             'message' => 'Pembayaran berhasil diperbarui',
-            'data' => $updated
+            'data' => $pembayaran
         ]);
     }
 
     /**
-     * Menghapus pembayaran (DELETE: /api/pembayaran/{id_pembayaran})
+     * Menghapus pembayaran
      */
-    public function destroy($id_pembayaran)
+    public function destroy(Request $request, $id_pembayaran)
     {
-        $pembayaran = Pembayaran::find($id_pembayaran);
+        $user = $request->user();
+
+        // Cari pembayaran milik user
+        $pembayaran = Pembayaran::where('id_pengguna', $user->id_pengguna)->find($id_pembayaran);
 
         if (!$pembayaran) {
-            return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
+            return response()->json(['message' => 'Pembayaran tidak ditemukan atau Anda tidak memiliki akses'], 404);
         }
 
         if ($pembayaran->bukti_bayar) {

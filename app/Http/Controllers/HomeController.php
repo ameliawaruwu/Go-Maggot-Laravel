@@ -84,7 +84,7 @@ class HomeController extends Controller
         $tampilkanUsername = $request->has('username-toggle') ? '1' : '0';
 
         // 7️⃣ Generate id_review unik
-        $idReview = 'RV' . now()->format('ymdHis') . Str::random(3);
+        $idReview = 'REV' . str_pad($i, 3, '0', STR_PAD_LEFT);
 
         // 8️⃣ Simpan ke tabel reviews
         Review::create([

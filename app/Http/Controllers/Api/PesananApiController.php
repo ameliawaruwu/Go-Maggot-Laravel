@@ -9,10 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class PesananApiController extends Controller
 {
-    /**
-     * Mengambil semua data pesanan (GET: /api/pesanan)
-     * Dapat disesuaikan untuk paginasi jika diperlukan.
-     */
+   
     public function index()
     {
         $pesanan = Pesanan::with(['pengguna', 'status', 'detailPesanan', 'pembayaran'])->get();
@@ -155,5 +152,23 @@ class PesananApiController extends Controller
         $pesanan->delete();
 
         return response()->json(['message' => 'Pesanan berhasil dihapus']);
+    }
+
+    // pesanan yang login
+    public function riwayatPesanan(Request $request)
+    {
+        // 1. Ambil data user dari Token (Sanctum)
+        $user = $request->user();
+
+        // 2. Filter pesanan berdasarkan id_pengguna milik user tersebut
+        $pesanan = Pesanan::with(['status', 'detailPesanan', 'pembayaran'])
+            ->where('id_pengguna', $user->id_pengguna)
+            ->orderBy('created_at', 'desc') // Urutkan dari yang terbaru
+            ->get();
+
+        return response()->json([
+            'message' => 'Riwayat pesanan Anda',
+            'data' => $pesanan
+        ]);
     }
 }
