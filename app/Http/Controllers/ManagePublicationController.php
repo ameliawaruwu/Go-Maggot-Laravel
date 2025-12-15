@@ -12,6 +12,20 @@ use Illuminate\Support\Facades\File;
 class ManagePublicationController extends Controller
 {
 
+    private function generateNewIdArtikel(): string
+    {
+        $latestArticle = Artikel::where('id_artikel', 'like', 'ART%')
+            ->orderBy('id_artikel', 'desc')
+            ->first();
+
+        $lastNumber = 0;
+        if ($latestArticle) {
+            $lastNumber = (int) substr($latestArticle->id_artikel, 3);
+        }
+
+        return 'ART' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+    }
+
     function tampil()
     {
         $articles = Artikel::orderBy('id_artikel', 'DESC')->get();
@@ -44,7 +58,7 @@ class ManagePublicationController extends Controller
         }
 
         Artikel::create([
-            'id_artikel' => Str::uuid(), 
+            'id_artikel' => $this->generateNewIdArtikel(), 
             'judul' => $req->judul,
             'penulis' => $req->penulis,
             'tanggal' => Carbon::now()->toDateString(),
