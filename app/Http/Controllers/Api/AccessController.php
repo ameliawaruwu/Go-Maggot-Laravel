@@ -40,7 +40,7 @@ class AccessController extends Controller
                 'pesanan'         => Pesanan::orderBy('created_at', 'desc')->get(),
                 'detail_pesanan'  => DetailPesanan::all(),
                 'pembayaran'      => Pembayaran::all(),
-                'artikel'         => Artikel::all(),
+                'artikel'         => Artikel::orderBy('id_artikel', 'ASC')->get(),
                 'galeri'          => Galeri::all(),
                 'faq'             => Faq::all(),
                 'review'          => Review::all(),

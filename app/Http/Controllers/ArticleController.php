@@ -16,7 +16,7 @@ class ArticleController extends Controller
 
     public function index()
     {
-        $articles = Artikel::orderBy('tanggal', 'DESC')->get();
+        $articles = Artikel::orderBy('id_artikel', 'ASC')->get();
         return view('study.article-list', compact('articles'));
     }
 }

@@ -12,7 +12,7 @@ class ArtikelApiController extends Controller
 {
     public function index()
     {
-        $artikel = Artikel::all();
+        $artikel = Artikel::orderBy('id_artikel', 'ASC')->get();
         $data = $artikel->map(function($item) {
             if ($item->gambar) {
                 $item->gambar_url = asset('photo/' . $item->gambar);
