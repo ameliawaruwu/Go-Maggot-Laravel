@@ -145,7 +145,7 @@ class ProdukApiController extends Controller
             ], 422);
         }
 
-        $namaFile = $produk->gambar;
+        $namaFile = $produk->gambar; //gunakan file gambar lama
         
         // Cek jika ada file gambar baru diupload
         if ($request->hasFile('gambar')) {
