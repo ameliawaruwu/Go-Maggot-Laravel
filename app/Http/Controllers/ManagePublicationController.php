@@ -28,7 +28,7 @@ class ManagePublicationController extends Controller
 
     function tampil()
     {
-        $articles = Artikel::orderBy('id_artikel', 'DESC')->get();
+        $articles = Artikel::orderBy('id_artikel', 'ASC')->get();
         return view('manage-publication.index', compact('articles'));
     }
 
