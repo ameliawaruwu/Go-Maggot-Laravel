@@ -8,9 +8,7 @@ use App\Models\Artikel;
 
 class GalleryController extends Controller
 {
-    /**
-     * 
-     */
+   
     public function index()
     {
 

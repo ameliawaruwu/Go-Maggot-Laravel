@@ -41,6 +41,14 @@ class ManagePublicationController extends Controller
    
     function simpan(Request $req)
     { 
+        $validated = $req->validate([
+            'judul' => 'required|string|max:255',
+            'penulis' => 'required|string|max:255',
+            'konten' => 'required|string',
+            'hak_cipta' => 'required|string|max:255',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
+
         $namaFile =  null;
         if($req->hasFile('gambar')){
             $file = $req->file('gambar'); 
@@ -48,15 +56,11 @@ class ManagePublicationController extends Controller
             $file->move(public_path('photo'), $namaFile); 
         }
 
-        Artikel::create([
-            'id_artikel' => $this->generateNewIdArtikel(), 
-            'judul' => $req->judul,
-            'penulis' => $req->penulis,
-            'tanggal' => Carbon::now()->toDateString(),
-            'gambar' => $namaFile, 
-            'konten' => $req->konten,
-            'hak_cipta' => $req->hak_cipta
-        ]);
+        $validated['gambar'] = $namaFile;
+        $validated['id_artikel'] = $this->generateNewIdArtikel();
+        $validated['tanggal'] = Carbon::now()->toDateString();
+
+        Artikel::create($validated);
 
         return redirect('/publication')->with('status_message', 'Artikel berhasil disimpan!');
     }
@@ -89,11 +93,11 @@ class ManagePublicationController extends Controller
         $artikel = Artikel::findOrFail($id_artikel);
         $namaFile = $artikel->gambar; 
         
-        $req->validate([
-            'judul' => 'required',
-            'penulis' => 'required',
-            'konten' => 'required',
-            'hak_cipta' => 'required',
+        $validated = $req->validate([
+            'judul' => 'required|string|max:255',
+            'penulis' => 'required|string|max:255',
+            'konten' => 'required|string',
+            'hak_cipta' => 'required|string|max:255',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
@@ -111,13 +115,9 @@ class ManagePublicationController extends Controller
             $file->move(public_path('photo'), $namaFile);
         }
         
-        $artikel->update([
-            'judul' => $req->judul,
-            'penulis' => $req->penulis,
-            'konten' => $req->konten,
-            'hak_cipta' => $req->hak_cipta,
-            'gambar' => $namaFile,
-        ]);
+        $validated['gambar'] = $namaFile;
+
+        $artikel->update($validated);
 
         return redirect('/publication')->with('status_message', 'Artikel berhasil diupdate!');
     }

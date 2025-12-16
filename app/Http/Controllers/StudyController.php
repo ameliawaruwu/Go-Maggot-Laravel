@@ -7,10 +7,7 @@ use App\Models\Artikel;
 
 class StudyController extends Controller
 {
-    /**
-     * 
-     * 
-     */
+    
     private $studyTopics = [
         [
             'summary' => 'Mengenal Lebih Jauh Apa itu Maggot BSF',
