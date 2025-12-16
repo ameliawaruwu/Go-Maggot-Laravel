@@ -41,26 +41,28 @@ class DetailPesananApiController extends Controller
             ], 422);
         }
 
-        // Cek Pesanan
+        // Ambil pesanan & produk
         $pesanan = Pesanan::find($request->id_pesanan);
+        $produk  = Produk::find($request->id_produk);
+
         if (!$pesanan) {
             return response()->json(['message' => 'Pesanan tidak ditemukan'], 404);
         }
 
-        // Cek Produk & Stok
-        $produk = Produk::find($request->id_produk);
         if (!$produk) {
             return response()->json(['message' => 'Produk tidak ditemukan'], 404);
         }
 
         if ($produk->stok < $request->jumlah) {
-            return response()->json(['message' => 'Stok produk tidak mencukupi. Sisa: ' . $produk->stok], 400);
+            return response()->json([
+                'message' => 'Stok produk tidak mencukupi. Sisa: ' . $produk->stok
+            ], 400);
         }
 
-        // Gunakan Transaction agar aman
-        DB::beginTransaction();
-        try {
-            // Simpan Detail
+        // TRANSACTION TANPA TRY CATCH
+        DB::transaction(function () use ($request, $produk, $pesanan, &$detail) {
+
+            // Simpan detail pesanan
             $detail = DetailPesanan::create([
                 'id_detail' => $request->id_detail,
                 'id_pesanan' => $request->id_pesanan,
@@ -69,29 +71,26 @@ class DetailPesananApiController extends Controller
                 'harga_saat_pembelian' => $request->harga_saat_pembelian,
             ]);
 
-            // Mengurangi Stok Produk
+            // Kurangi stok produk
             $produk->decrement('stok', $request->jumlah);
 
-            // Update Total Harga di Tabel Pesanan 
+            // Hitung ulang total harga pesanan
             $totalBaru = DetailPesanan::where('id_pesanan', $request->id_pesanan)
                 ->sum(DB::raw('jumlah * harga_saat_pembelian'));
-            
-            $pesanan->update(['total_harga' => $totalBaru]);
 
-            DB::commit();
+            // Update total harga pesanan
+            $pesanan->update([
+                'total_harga' => $totalBaru
+            ]);
+        });
 
-            // Load relasi
-            $detail->load(['pesanan', 'produk']);
+        // Load relasi
+        $detail->load(['pesanan', 'produk']);
 
-            return response()->json([
-                'message' => 'Detail pesanan berhasil ditambahkan (Stok & Total Harga diupdate)',
-                'data' => $detail
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Gagal menyimpan transaksi: ' . $e->getMessage()], 500);
-        }
+        return response()->json([
+            'message' => 'Detail pesanan berhasil ditambahkan (stok & total harga diperbarui)',
+            'data' => $detail
+        ], 201);
     }
 
     // menampilkan detail pesanan berdasarkan id_detail
@@ -109,7 +108,7 @@ class DetailPesananApiController extends Controller
         ]);
     }
 
-    // memperbarui detail pesanan berdasarkan id_detail
+    // memperbarui detail pesanan
     public function update(Request $request, $id_detail)
     {
         $detail = DetailPesanan::find($id_detail);
@@ -117,7 +116,6 @@ class DetailPesananApiController extends Controller
             return response()->json(['message' => 'Detail pesanan tidak ditemukan'], 404);
         }
 
-        // Validasi
         $validator = Validator::make($request->all(), [
             'id_detail' => 'required|string|max:50|unique:detail_pesanan,id_detail,' . $id_detail . ',id_detail',
             'id_pesanan' => 'required|string|exists:pesanan,id_pesanan',
@@ -127,10 +125,12 @@ class DetailPesananApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Validasi gagal', 'errors' => $validator->errors()], 422);
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        // Update data
         $detail->update([
             'id_detail' => $request->id_detail,
             'id_pesanan' => $request->id_pesanan,
@@ -139,8 +139,6 @@ class DetailPesananApiController extends Controller
             'harga_saat_pembelian' => $request->harga_saat_pembelian,
         ]);
 
-       
-        $detail->refresh(); 
         $detail->load(['pesanan', 'produk']);
 
         return response()->json([
@@ -149,7 +147,7 @@ class DetailPesananApiController extends Controller
         ]);
     }
 
-   
+    // menghapus detail pesanan
     public function destroy($id_detail)
     {
         $detail = DetailPesanan::find($id_detail);
@@ -157,18 +155,18 @@ class DetailPesananApiController extends Controller
             return response()->json(['message' => 'Detail pesanan tidak ditemukan'], 404);
         }
 
-
         $detail->delete();
 
-        return response()->json(['message' => 'Detail pesanan berhasil dihapus']);
+        return response()->json([
+            'message' => 'Detail pesanan berhasil dihapus'
+        ]);
     }
 
- // menampilkan detail pesanan berdasarkan id_pesanan milik user yang login
+    // detail pesanan milik user login
     public function detailByPesanan($id_pesanan)
     {
         $user = auth()->user();
 
-        // Ambil pesanan milik user login
         $pesanan = Pesanan::where('id_pesanan', $id_pesanan)
             ->where('id_pengguna', $user->id_pengguna)
             ->first();
@@ -179,7 +177,6 @@ class DetailPesananApiController extends Controller
             ], 404);
         }
 
-        // Ambil detail pesanan
         $detailPesanan = DetailPesanan::with('produk')
             ->where('id_pesanan', $id_pesanan)
             ->get();
@@ -195,5 +192,4 @@ class DetailPesananApiController extends Controller
             'detail' => $detailPesanan
         ]);
     }
-
 }

@@ -43,11 +43,11 @@
                 </div>
 
                 <div class="d-flex justify-content-end mt-4 gap-2">
-                    <a href="/manageFAQ" class="btn btn-secondary">
+                    <a href="/manageFaq" class="btn btn-secondary">
                         Batal
                     </a>
 
-                    <button type="submit" class="btn btn-warning">
+                    <button type="submit" class="btn btn-success">
                         Update
                     </button>
                 </div>

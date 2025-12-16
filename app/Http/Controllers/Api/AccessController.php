@@ -59,7 +59,7 @@ class AccessController extends Controller
         $galeri = Galeri::all();    
     
         $pesananSaya = Pesanan::where('id_pengguna', $user->id_pengguna)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('tanggal_pesanan', 'desc')
             ->get();
 
         return response()->json([

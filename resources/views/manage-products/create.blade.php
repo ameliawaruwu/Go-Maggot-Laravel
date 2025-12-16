@@ -64,13 +64,7 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="berat" class="form-label">Berat</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="berat" name="berat" value="{{ old('berat') }}" min="0" required>
-                                    <select class="form-select bg-light" name="satuan_berat" style="max-width: 90px;">
-                                        <option value="gr" {{ old('satuan_berat') == 'gr' ? 'selected' : '' }}>gr</option>
-                                        <option value="kg" {{ old('satuan_berat') == 'kg' ? 'selected' : '' }}>kg</option>
-                                    </select>
-                            </div>
+                        <input type="text" class="form-control" id="berat" name="berat" value="{{ old('berat') }}" placeholder="Contoh: 500 gr atau 1 kg">
                     </div>
 
                     <div class="col-md-6 mb-3">

@@ -85,7 +85,7 @@
 
                 <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 5px; margin-top: 10px;">
                     <a href="/manageUser" class="btn btn-secondary" style="padding: 5px 10px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Batal</a>
-                    <button type="submit" class="btn btn-primary" style="padding: 5px 10px; background: #ffc107; color: white; border: none; border-radius: 4px; cursor: pointer;">Update</button>
+                    <button type="submit" class="btn btn-success" style="padding: 5px 10px; color: white; border: none; border-radius: 4px; cursor: pointer;">Update</button>
                 </div>
             </form>
         </div>

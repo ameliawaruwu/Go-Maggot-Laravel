@@ -29,7 +29,7 @@ class ManageProductsController extends Controller
             'merk' => 'nullable|string|max:100',
             'masa_penyimpanan' => 'nullable|string|max:50',
             'pengiriman' => 'nullable|string|max:50',
-            'berat' => 'nullable|numeric',
+            'berat' => 'nullable|string|max:50',
             'harga' => 'required|numeric',
             'stok' => 'required|integer',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -52,7 +52,7 @@ class ManageProductsController extends Controller
 
     // edit
     function edit($id_produk){
-        $produk = Produk::find($id_produk);
+        $produk = Produk::findOrFail($id_produk);
         return view('manage-products.edit', compact('produk'));
     }
 
@@ -69,7 +69,7 @@ class ManageProductsController extends Controller
             'merk' => 'nullable|string|max:100',
             'masa_penyimpanan' => 'nullable|string|max:50',
             'pengiriman' => 'nullable|string|max:50',
-            'berat' => 'nullable|numeric',
+            'berat' => 'nullable|string|max:50',
             'harga' => 'required|numeric',
             'stok' => 'required|integer',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
