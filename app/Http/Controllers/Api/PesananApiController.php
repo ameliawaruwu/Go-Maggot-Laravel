@@ -9,10 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class PesananApiController extends Controller
 {
-    /**
-     * Mengambil semua data pesanan (GET: /api/pesanan)
-     * Dapat disesuaikan untuk paginasi jika diperlukan.
-     */
+   
     public function index()
     {
         $pesanan = Pesanan::with(['pengguna', 'status', 'detailPesanan', 'pembayaran'])->get();
@@ -23,9 +20,6 @@ class PesananApiController extends Controller
         ]);
     }
 
-    /**
-     * Mengambil satu data pesanan (GET: /api/pesanan/{id_pesanan})
-     */
     public function show($id_pesanan)
     {
         $pesanan = Pesanan::with(['pengguna', 'status', 'detailPesanan', 'pembayaran'])->find($id_pesanan);
@@ -40,15 +34,11 @@ class PesananApiController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan data pesanan baru (POST: /api/pesanan)
-     */
+// simpan pesanan baru
     public function store(Request $request)
     {
-        // Aturan validasi disesuaikan dengan semua kolom di $fillable
-        // dan karakteristik Model (id_pesanan sebagai primary key non-incrementing)
         $validator = Validator::make($request->all(), [
-            'id_pesanan' => 'required|string|max:50|unique:pesanan,id_pesanan', // Wajib diisi dan unik karena non-incrementing
+            'id_pesanan' => 'required|string|max:50|unique:pesanan,id_pesanan', 
             'id_pengguna' => 'required|string|max:50',
             'nama_penerima' => 'required|string|max:255',
             'alamat_pengiriman' => 'required|string',
@@ -85,9 +75,7 @@ class PesananApiController extends Controller
         ], 201);
     }
 
-    /**
-     * Memperbarui data pesanan (PUT/PATCH: /api/pesanan/{id_pesanan})
-     */
+   
     public function update(Request $request, $id_pesanan)
     {
         $pesanan = Pesanan::find($id_pesanan);
@@ -96,9 +84,8 @@ class PesananApiController extends Controller
             return response()->json(['message' => 'Pesanan tidak ditemukan'], 404);
         }
 
-        // Aturan validasi untuk update
+        
         $validator = Validator::make($request->all(), [
-            // id_pesanan boleh sama dengan dirinya sendiri, tapi harus unik dari yang lain
             'id_pesanan' => 'required|string|max:50|unique:pesanan,id_pesanan,' . $id_pesanan . ',id_pesanan',
             'id_pengguna' => 'required|string|max:50',
             'nama_penerima' => 'required|string|max:255',
@@ -117,7 +104,6 @@ class PesananApiController extends Controller
             ], 422);
         }
 
-        // Siapkan data untuk update
         $dataUpdate = [
             'id_pesanan' => $request->id_pesanan,
             'id_pengguna' => $request->id_pengguna,
@@ -131,8 +117,7 @@ class PesananApiController extends Controller
         ];
 
         $pesanan->update($dataUpdate);
-
-        // Ambil data pesanan yang sudah diupdate
+        // ambil data pesanan 
         $updatedPesanan = Pesanan::with(['pengguna', 'status', 'detailPesanan', 'pembayaran'])->find($id_pesanan);
 
         return response()->json([
@@ -141,9 +126,7 @@ class PesananApiController extends Controller
         ]);
     }
 
-    /**
-     * Menghapus data pesanan (DELETE: /api/pesanan/{id_pesanan})
-     */
+   // hapus pesanan
     public function destroy($id_pesanan)
     {
         $pesanan = Pesanan::find($id_pesanan);
@@ -155,5 +138,18 @@ class PesananApiController extends Controller
         $pesanan->delete();
 
         return response()->json(['message' => 'Pesanan berhasil dihapus']);
+    }
+
+    public function riwayatPesanan(Request $request)
+    {
+        $user = $request->user();
+        $pesanan = Pesanan::with(['status', 'detailPesanan', 'pembayaran'])
+            ->where('id_pengguna', $user->id_pengguna)
+            ->orderBy('created_at', 'desc') ;
+
+        return response()->json([
+            'message' => 'Riwayat pesanan Anda',
+            'data' => $pesanan
+        ]);
     }
 }

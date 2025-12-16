@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ReviewsApiController extends Controller
 {
-    /**
-     * Mengambil semua data review (GET: /api/reviews)
-     */
+   // ambil semua data review
     public function index()
     {
         $reviews = Review::with('pengguna', 'produk')->get();
@@ -38,9 +36,7 @@ class ReviewsApiController extends Controller
         ]);
     }
 
-    /**
-     * Mengambil satu data review (GET: /api/reviews/{id_review})
-     */
+    // mengambil detail review berdasarkan id_review
     public function show($id_review)
     {
         $review = Review::with('pengguna', 'produk')->find($id_review);
@@ -67,9 +63,7 @@ class ReviewsApiController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan data review baru (POST: /api/reviews)
-     */
+   // menyimpan data review baru
     public function store(Request $request)
     {
         // Konversi nilai integer dari string jika diperlukan
@@ -78,7 +72,6 @@ class ReviewsApiController extends Controller
             $requestData['rating_seller'] = intval($request->rating_seller);
         }
 
-        // Aturan validasi disesuaikan dengan semua kolom di $fillable
         $validator = Validator::make($requestData, [
             'id_review' => 'required|string|max:50|unique:reviews,id_review',
             'id_pengguna' => 'required|string|max:50',
@@ -153,9 +146,7 @@ class ReviewsApiController extends Controller
         ], 201);
     }
 
-    /**
-     * Memperbarui data review (PUT/PATCH: /api/reviews/{id_review})
-     */
+    // memperbarui data review berdasarkan id_review
     public function update(Request $request, $id_review)
     {
         $review = Review::find($id_review);
@@ -170,7 +161,6 @@ class ReviewsApiController extends Controller
             $requestData['rating_seller'] = intval($request->rating_seller);
         }
 
-        // Aturan validasi untuk update
         $validator = Validator::make($requestData, [
             'id_review' => 'required|string|max:50|unique:reviews,id_review,' . $id_review . ',id_review',
             'id_pengguna' => 'required|string|max:50',
@@ -267,9 +257,7 @@ class ReviewsApiController extends Controller
         ]);
     }
 
-    /**
-     * Menghapus data review (DELETE: /api/reviews/{id_review})
-     */
+    // menghapus review
     public function destroy($id_review)
     {
         $review = Review::find($id_review);

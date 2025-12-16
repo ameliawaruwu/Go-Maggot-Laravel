@@ -10,14 +10,9 @@ use Illuminate\Support\Facades\Validator;
 
 class GaleriApiController extends Controller
 {
-    /**
-     * Mengambil semua data galeri (GET: /api/galeri)
-     */
     public function index()
     {
         $galeri = Galeri::all();
-
-        // Tambahkan URL gambar lengkap
         $data = $galeri->map(function($item) {
             if ($item->gambar) {
                 $item->gambar_url = asset('photo/' . $item->gambar);
@@ -33,9 +28,6 @@ class GaleriApiController extends Controller
         ]);
     }
 
-    /**
-     * Mengambil satu data galeri (GET: /api/galeri/{id_galeri})
-     */
     public function show($id_galeri)
     {
         $galeri = Galeri::find($id_galeri);
@@ -57,9 +49,7 @@ class GaleriApiController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan data galeri baru (POST: /api/galeri)
-     */
+    
     public function store(Request $request)
     {
         // Aturan validasi disesuaikan dengan semua kolom di $fillable
@@ -103,9 +93,7 @@ class GaleriApiController extends Controller
         ], 201);
     }
 
-    /**
-     * Memperbarui data galeri (PUT/PATCH: /api/galeri/{id_galeri})
-     */
+ 
     public function update(Request $request, $id_galeri)
     {
         $galeri = Galeri::find($id_galeri);
@@ -172,9 +160,7 @@ class GaleriApiController extends Controller
         ]);
     }
 
-    /**
-     * Menghapus data galeri (DELETE: /api/galeri/{id_galeri})
-     */
+    
     public function destroy($id_galeri)
     {
         $galeri = Galeri::find($id_galeri);

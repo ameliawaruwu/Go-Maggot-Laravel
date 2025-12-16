@@ -9,10 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class FaqApiController extends Controller
 {
-    /**
-     * Mengambil semua data FAQ (GET: /api/faq)
-     * Dapat disesuaikan untuk paginasi jika diperlukan.
-     */
+    // mengambil semua data FAQ 
     public function index()
     {
         $faq = Faq::all();
@@ -23,9 +20,7 @@ class FaqApiController extends Controller
         ]);
     }
 
-    /**
-     * Mengambil satu data FAQ (GET: /api/faq/{id_faq})
-     */
+    // menampilkan detail FAQ berdasarkan id_faq
     public function show($id_faq)
     {
         $faq = Faq::find($id_faq);
@@ -40,13 +35,9 @@ class FaqApiController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan data FAQ baru (POST: /api/faq)
-     */
+    // menyimpan data FAQ baru
     public function store(Request $request)
     {
-        // Aturan validasi disesuaikan dengan semua kolom di $fillable
-        // dan karakteristik Model (id_faq sebagai primary key non-incrementing)
         $validator = Validator::make($request->all(), [
             'id_faq' => 'required|string|max:50|unique:faq,id_faq', // Wajib diisi dan unik karena non-incrementing
             'pertanyaan' => 'required|string|max:255',
@@ -73,9 +64,7 @@ class FaqApiController extends Controller
         ], 201);
     }
 
-    /**
-     * Memperbarui data FAQ (PUT/PATCH: /api/faq/{id_faq})
-     */
+    // memperbarui data FAQ berdasarkan id_faq
     public function update(Request $request, $id_faq)
     {
         $faq = Faq::find($id_faq);
@@ -86,7 +75,6 @@ class FaqApiController extends Controller
 
         // Aturan validasi untuk update
         $validator = Validator::make($request->all(), [
-            // id_faq boleh sama dengan dirinya sendiri, tapi harus unik dari yang lain
             'id_faq' => 'required|string|max:50|unique:faq,id_faq,' . $id_faq . ',id_faq',
             'pertanyaan' => 'required|string|max:255',
             'jawaban' => 'required|string',
@@ -117,9 +105,7 @@ class FaqApiController extends Controller
         ]);
     }
 
-    /**
-     * Menghapus data FAQ (DELETE: /api/faq/{id_faq})
-     */
+  // menghapus data FAQ berdasarkan id_faq
     public function destroy($id_faq)
     {
         $faq = Faq::find($id_faq);

@@ -7,18 +7,21 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php', // Pastikan file api.php ada
         commands: __DIR__.'/../routes/console.php',
-        api: __DIR__.'/../routes/api.php', // pastikan baris ini ada 
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias([
-            'auth'  => \App\Http\Middleware\Authenticate::class,
-            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-            'role'  => \App\Http\Middleware\RoleMiddleware::class,
+    ->withMiddleware(function (Middleware $middleware) {
+        
+        // 1. Konfigurasi Sanctum (Stateful)
+        $middleware->api(prepend: [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
 
+        // 2. Daftarkan Alias Middleware (Role, dll)
+        $middleware->alias([
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+        ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
+    ->withExceptions(function (Exceptions $exceptions) {
+    })->create(); 

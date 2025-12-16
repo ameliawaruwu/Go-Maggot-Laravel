@@ -13,19 +13,24 @@ class ManageFaqController extends Controller
     }
 
     function input(){
-        $faq = Faq::all();
-        return view('manage-faq.create', compact('faq'));
+        // Halaman create biasanya kosong, tidak perlu ambil data
+        return view('manage-faq.create');
     }
 
-    function simpan(Request $a){
-        Faq::create(
-            [
-                "id_faq" => $a->id_faq,
-                "pertanyaan" => $a->pertanyaan,
-                "jawaban" => $a->jawaban
-            ]
-            );
-        return redirect('/manageFaq');
+    function simpan(Request $request){
+        // 1. Tambahkan Validasi
+        // Simpan data yang lolos validasi ke variabel $validated
+        $validated = $request->validate([
+            // Pastikan id_faq unik di tabel 'faq' (sesuaikan nama tabel di database)
+            'id_faq'     => 'required|unique:faqs,id_faq', 
+            'pertanyaan' => 'required|string',
+            'jawaban'    => 'required|string',
+        ]);
+
+        // 2. Gunakan variabel $validated untuk create
+        Faq::create($validated);
+
+        return redirect('/manageFaq')->with('success', 'FAQ berhasil ditambahkan!');
     }
 
     function edit($id_faq){
@@ -33,24 +38,29 @@ class ManageFaqController extends Controller
         return view('manage-faq.edit', compact('faq'));
     }
 
-    function update(Request $x, $id_faq){
+    function update(Request $request, $id_faq){
         $faq = Faq::findOrFail($id_faq);
-        Faq::where("id_faq", "$x->id_faq" )->update(
-            [
-                'id_faq' => $x->id_faq,
-                'pertanyaan' => $x->pertanyaan,
-                'jawaban' => $x->jawaban
-            ]
-            );
-        return redirect('/manageFaq');
+
+        // 1. Tambahkan Validasi
+        $validated = $request->validate([
+            // Saat update, kita harus 'ignore' ID milik data ini sendiri agar tidak error "sudah ada"
+            // Format: unique:nama_tabel,nama_kolom,id_yang_diabaikan,nama_primary_key
+            'id_faq'     => 'required|unique:faqs,id_faq,' . $id_faq . ',id_faq',
+            'pertanyaan' => 'required|string',
+            'jawaban'    => 'required|string',
+        ]);
+
+        // 2. Gunakan variabel $validated untuk update
+        // (Langsung pakai $faq->update() lebih efisien daripada Faq::where(...)->update())
+        $faq->update($validated);
+
+        return redirect('/manageFaq')->with('success', 'FAQ berhasil diperbarui!');
     }
 
     function delete($id_faq){
         $faq = Faq::findOrFail($id_faq);
         $faq->delete();
-        return redirect('/manageFaq');
+        
+        return redirect('/manageFaq')->with('success', 'FAQ berhasil dihapus!');
     }
-
-
-
 }

@@ -1,64 +1,63 @@
 <?php
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProdukApiController;
+use App\Http\Controllers\Api\PenggunaApiController;
+use App\Http\Controllers\Api\PembayaranApiController;
+use App\Http\Controllers\Api\DetailPesananApiController;
 use App\Http\Controllers\Api\StatusPesananApiController;
 use App\Http\Controllers\Api\PesananApiController;
 use App\Http\Controllers\Api\FaqApiController;
 use App\Http\Controllers\Api\GaleriApiController;
 use App\Http\Controllers\Api\ArtikelApiController;
 use App\Http\Controllers\Api\ReviewsApiController;
+use App\Http\Controllers\Api\AccessController;
+use App\Http\Controllers\Api\AuthController;
 
-Route::apiResource('produk', ProdukApiController::class);
-// Ini akan membuat rute:
-// GET    /api/produk         -> index
-// POST   /api/produk         -> store
-// GET    /api/produk/{produk} -> show
-// PUT    /api/produk/{produk} -> update (Anda mungkin perlu menggunakan POST dengan _method:PUT di form-data)
-// DELETE /api/produk/{produk} -> destroy
 
-Route::apiResource('status-pesanan', StatusPesananApiController::class);
-// Ini akan membuat rute:
-// GET    /api/status-pesanan         -> index
-// POST   /api/status-pesanan         -> store
-// GET    /api/status-pesanan/{status_pesanan} -> show
-// PUT    /api/status-pesanan/{status_pesanan} -> update
-// DELETE /api/status-pesanan/{status_pesanan} -> destroy
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::apiResource('pesanan', PesananApiController::class);
-// Ini akan membuat rute:
-// GET    /api/pesanan         -> index
-// POST   /api/pesanan         -> store
-// GET    /api/pesanan/{pesanan} -> show
-// PUT    /api/pesanan/{pesanan} -> update
-// DELETE /api/pesanan/{pesanan} -> destroy
+// Produk bisa diakses public (tanpa login)
+Route::get('/produk', [ProdukApiController::class, 'index']);
+Route::get('/produk/{id}', [ProdukApiController::class, 'show']);
+Route::get('/faq', [FaqApiController::class, 'index']);
+Route::get('/galeri', [GaleriApiController::class, 'index']);
+Route::get('/artikel', [ArtikelApiController::class, 'index']);
+Route::get('/artikel/{id}', [ArtikelApiController::class, 'show']);
+Route::get('/reviews', [ReviewsApiController::class, 'index']);
 
-Route::apiResource('faq', FaqApiController::class);
-// Ini akan membuat rute:
-// GET    /api/faq         -> index
-// POST   /api/faq         -> store
-// GET    /api/faq/{faq} -> show
-// PUT    /api/faq/{faq} -> update
-// DELETE /api/faq/{faq} -> destroy
+// setelah login 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 
-Route::apiResource('galeri', GaleriApiController::class);
-// Ini akan membuat rute:
-// GET    /api/galeri         -> index
-// POST   /api/galeri         -> store
-// GET    /api/galeri/{galeri} -> show
-// PUT    /api/galeri/{galeri} -> update
-// DELETE /api/galeri/{galeri} -> destroy
+// Admin routes 
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/dashboard/admin', [AccessController::class, 'admin']);
+    Route::apiResource('produk', ProdukApiController::class);
+    Route::apiResource('artikel', ArtikelApiController::class);
+    Route::apiResource('faq', FaqApiController::class);
+    Route::apiResource('galeri', GaleriApiController::class);
+    Route::apiResource('pengguna', PenggunaApiController::class);
+    Route::apiResource('pembayaran', PembayaranApiController::class);
+    Route::apiResource('pesanan', PesananApiController::class);
+    Route::apiResource('detail-pesanan', DetailPesananApiController::class);
+    Route::apiResource('status-pesanan', StatusPesananApiController::class);
+    Route::apiResource('reviews', ReviewsApiController::class);
+});
 
-Route::apiResource('artikel', ArtikelApiController::class);
-// Ini akan membuat rute:
-// GET    /api/artikel         -> index
-// POST   /api/artikel         -> store
-// GET    /api/artikel/{artikel} -> show
-// PUT    /api/artikel/{artikel} -> update
-// DELETE /api/artikel/{artikel} -> destroy
+// Routes  role pelanggan setelah login
+Route::middleware(['auth:sanctum', 'role:pelanggan'])->group(function () {
+    Route::get('/dashboard/pelanggan', [AccessController::class, 'pelanggan']);
 
-Route::apiResource('reviews', ReviewsApiController::class);
-// Ini akan membuat rute:
-// GET    /api/reviews         -> index
-// POST   /api/reviews         -> store
-// GET    /api/reviews/{reviews} -> show
-// PUT    /api/reviews/{reviews} -> update
-// DELETE /api/reviews/{reviews} -> destroy
+    // Pelanggan bisa lihat dan buat pesanan mereka sendiri
+    Route::get('/pesanan-saya', [PesananApiController::class, 'riwayatPesanan']); 
+    Route::get('/pesanan-saya/{id}', [PesananApiController::class, 'show']); 
+
+    // Pelanggan bisa lihat pembayaran mereka sendiri
+    Route::get('/pembayaran-saya', [PembayaranApiController::class, 'index']);
+    // Detail  Pesanan berdasarkan ID
+    Route::get('/pesanan/{id_pesanan}/detail', [DetailPesananApiController::class, 'detailByPesanan']);
+
+});
