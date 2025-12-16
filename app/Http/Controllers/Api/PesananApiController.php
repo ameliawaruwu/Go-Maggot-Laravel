@@ -140,16 +140,20 @@ class PesananApiController extends Controller
         return response()->json(['message' => 'Pesanan berhasil dihapus']);
     }
 
-    public function riwayatPesanan(Request $request)
+        public function riwayatPesanan(Request $request)
     {
         $user = $request->user();
+
         $pesanan = Pesanan::with(['status', 'detailPesanan', 'pembayaran'])
             ->where('id_pengguna', $user->id_pengguna)
-            ->orderBy('created_at', 'desc') ;
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json([
             'message' => 'Riwayat pesanan Anda',
             'data' => $pesanan
         ]);
     }
+
 }
+
