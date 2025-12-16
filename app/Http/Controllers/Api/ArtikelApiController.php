@@ -10,14 +10,9 @@ use Illuminate\Support\Facades\Validator;
 
 class ArtikelApiController extends Controller
 {
-    /**
-     * Mengambil semua data artikel (GET: /api/artikel)
-     */
     public function index()
     {
         $artikel = Artikel::all();
-
-        // Tambahkan URL gambar lengkap
         $data = $artikel->map(function($item) {
             if ($item->gambar) {
                 $item->gambar_url = asset('photo/' . $item->gambar);
@@ -33,9 +28,6 @@ class ArtikelApiController extends Controller
         ]);
     }
 
-    /**
-     * Mengambil satu data artikel (GET: /api/artikel/{id_artikel})
-     */
     public function show($id_artikel)
     {
         $artikel = Artikel::find($id_artikel);
@@ -57,12 +49,10 @@ class ArtikelApiController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan data artikel baru (POST: /api/artikel)
-     */
+   
     public function store(Request $request)
     {
-        // Aturan validasi disesuaikan dengan semua kolom di $fillable
+
         $validator = Validator::make($request->all(), [
             'id_artikel' => 'required|string|max:50|unique:artikel,id_artikel',
             'judul' => 'required|string|max:255',
@@ -111,9 +101,7 @@ class ArtikelApiController extends Controller
         ], 201);
     }
 
-    /**
-     * Memperbarui data artikel (PUT/PATCH: /api/artikel/{id_artikel})
-     */
+   
     public function update(Request $request, $id_artikel)
     {
         $artikel = Artikel::find($id_artikel);
@@ -142,9 +130,8 @@ class ArtikelApiController extends Controller
 
         $namaFile = $artikel->gambar;
         
-        // Cek jika ada file gambar baru diupload
+        
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama (jika ada)
             if ($artikel->gambar) {
                 $oldPath = public_path('photo/' . $artikel->gambar);
                 if (File::exists($oldPath)) {
@@ -152,13 +139,11 @@ class ArtikelApiController extends Controller
                 }
             }
             
-            // Upload gambar baru
             $file = $request->file('gambar');
             $namaFile = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('photo'), $namaFile);
         }
 
-        // Siapkan data untuk update
         $dataUpdate = [
             'id_artikel' => $request->id_artikel,
             'judul' => $request->judul,
@@ -171,10 +156,10 @@ class ArtikelApiController extends Controller
         
         $artikel->update($dataUpdate);
         
-        // Ambil data artikel yang sudah diupdate
+        
         $updatedArtikel = Artikel::find($id_artikel);
 
-        // Tambahkan URL gambar lengkap ke respons
+        
         if ($updatedArtikel->gambar) {
             $updatedArtikel->gambar_url = asset('photo/' . $updatedArtikel->gambar);
         } else {
@@ -187,9 +172,6 @@ class ArtikelApiController extends Controller
         ]);
     }
 
-    /**
-     * Menghapus data artikel (DELETE: /api/artikel/{id_artikel})
-     */
     public function destroy($id_artikel)
     {
         $artikel = Artikel::find($id_artikel);
@@ -198,7 +180,6 @@ class ArtikelApiController extends Controller
             return response()->json(['message' => 'Artikel tidak ditemukan'], 404);
         }
 
-        // Hapus file gambar terkait
         if ($artikel->gambar) {
             $path = public_path('photo/' . $artikel->gambar);
             if (File::exists($path)) {

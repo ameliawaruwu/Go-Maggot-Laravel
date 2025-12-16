@@ -10,10 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ProdukApiController extends Controller
 {
-    /**
-     * Mengambil semua data produk (GET: /api/produk)
-     * Dapat disesuaikan untuk paginasi jika diperlukan.
-     */
+   // mengambil semua data produk 
     public function index()
     {
         $produk = Produk::all();
@@ -34,9 +31,7 @@ class ProdukApiController extends Controller
         ]);
     }
 
-    /**
-     * Mengambil satu data produk (GET: /api/produk/{id_produk})
-     */
+   // menampilkan detail produk berdasarkan id_produk
     public function show($id_produk)
     {
         $produk = Produk::find($id_produk);
@@ -58,13 +53,10 @@ class ProdukApiController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan data produk baru (POST: /api/produk)
-     */
+    // menyimpan data produk baru
     public function store(Request $request)
     {
-        // Aturan validasi disesuaikan dengan semua kolom di $fillable
-        // dan karakteristik Model (id_produk sebagai primary key non-incrementing)
+       // validasi input
         $validator = Validator::make($request->all(), [
             'id_produk' => 'required|string|max:50|unique:produk,id_produk', // Wajib diisi dan unik karena non-incrementing
             'nama_produk' => 'required|string|max:255',
@@ -122,9 +114,7 @@ class ProdukApiController extends Controller
         ], 201);
     }
 
-    /**
-     * Memperbarui data produk (PUT/PATCH: /api/produk/{id_produk})
-     */
+// memperbarui data produk berdasarkan id_produk
     public function update(Request $request, $id_produk)
     {
         $produk = Produk::find($id_produk);
@@ -135,7 +125,6 @@ class ProdukApiController extends Controller
 
         // Aturan validasi untuk update
         $validator = Validator::make($request->all(), [
-            // id_produk boleh sama dengan dirinya sendiri, tapi harus unik dari yang lain
             'id_produk' => 'required|string|max:50|unique:produk,id_produk,' . $id_produk . ',id_produk',
             'nama_produk' => 'required|string|max:255',
             'deskripsi_produk' => 'nullable|string',
@@ -207,9 +196,7 @@ class ProdukApiController extends Controller
         ]);
     }
 
-    /**
-     * Menghapus data produk (DELETE: /api/produk/{id_produk})
-     */
+    // hapus data produk berdasarkan id_produk
     public function destroy($id_produk)
     {
         $produk = Produk::find($id_produk);

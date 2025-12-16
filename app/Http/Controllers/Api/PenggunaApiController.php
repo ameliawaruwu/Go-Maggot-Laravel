@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class PenggunaApiController extends Controller
 {
-    /**
-     * Menampilkan daftar pengguna
-     */
+    // menampilkan semua pengguna
     public function index()
     {
         $pengguna = Pengguna::all();
@@ -29,9 +27,7 @@ class PenggunaApiController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan pengguna baru
-     */
+   // menyimpan pengguna baru
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -80,9 +76,7 @@ class PenggunaApiController extends Controller
         ], 201);
     }
 
-    /**
-     * Menampilkan detail pengguna
-     */
+    // menampilkan detail pengguna
     public function show($id_pengguna)
     {
         $pengguna = Pengguna::find($id_pengguna);
@@ -99,9 +93,7 @@ class PenggunaApiController extends Controller
         ]);
     }
 
-    /**
-     * Memperbarui data pengguna
-     */
+    // memperbarui data pengguna
     public function update(Request $request, $id_pengguna)
     {
         $pengguna = Pengguna::find($id_pengguna);
@@ -166,9 +158,7 @@ class PenggunaApiController extends Controller
         ]);
     }
 
-    /**
-     * Menghapus pengguna
-     */
+   // menghapus pengguna
     public function destroy($id_pengguna)
     {
         $pengguna = Pengguna::find($id_pengguna);

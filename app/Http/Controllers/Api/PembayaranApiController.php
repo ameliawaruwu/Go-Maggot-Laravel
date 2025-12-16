@@ -12,17 +12,14 @@ use Illuminate\Support\Facades\Validator;
 
 class PembayaranApiController extends Controller
 {
-    /**
-     * Daftar pembayaran (Hanya milik User yang Login)
-     * GET: /api/pembayaran
-     */
+    // menampilkan semua pembayaran milik user yang login
     public function index(Request $request)
     {
-        // 1. Ambil user dari Token
+        // Ambil user dari Token
         $user = $request->user();
 
-        // 2. Filter pembayaran berdasarkan id_pengguna milik user tersebut
-        $pembayaran = Pembayaran::with(['pesanan']) // Tidak perlu load 'pengguna' lagi karena itu diri sendiri
+        // Filter pembayaran berdasarkan id_pengguna milik user tersebut
+        $pembayaran = Pembayaran::with(['pesanan']) 
             ->where('id_pengguna', $user->id_pengguna)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -38,17 +35,14 @@ class PembayaranApiController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan pembayaran baru (POST: /api/pembayaran)
-     */
+   // menyimpan pembayaran baru
     public function store(Request $request)
     {
-        $user = $request->user(); // Ambil user yang login
+        $user = $request->user(); 
 
         $validator = Validator::make($request->all(), [
             'id_pembayaran' => 'required|string|max:50|unique:pembayaran,id_pembayaran',
             'id_pesanan'    => 'required|string|exists:pesanan,id_pesanan',
-            // id_pengguna tidak perlu divalidasi dari input, kita ambil otomatis dari token biar aman
             'tanggal_bayar' => 'nullable|date',
             'bukti_bayar'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
@@ -60,7 +54,7 @@ class PembayaranApiController extends Controller
             ], 422);
         }
 
-        // Pastikan pesanan benar-benar milik user yang login
+  // memastikan pesanan milik user yang login
         $pesanan = Pesanan::where('id_pesanan', $request->id_pesanan)
                           ->where('id_pengguna', $user->id_pengguna)
                           ->first();
@@ -92,14 +86,10 @@ class PembayaranApiController extends Controller
         ], 201);
     }
 
-    /**
-     * Menampilkan detail pembayaran
-     */
+   // menampilkan detail pembayaran berdasarkan id_pembayaran milik user yang login
     public function show(Request $request, $id_pembayaran)
     {
         $user = $request->user();
-
-        // Cari pembayaran & pastikan milik user yang login
         $pembayaran = Pembayaran::with(['pesanan'])
             ->where('id_pengguna', $user->id_pengguna)
             ->find($id_pembayaran);
@@ -115,10 +105,7 @@ class PembayaranApiController extends Controller
             'data' => $pembayaran
         ]);
     }
-
-    /**
-     * Memperbarui pembayaran
-     */
+// memperbarui pembayaran berdasarkan id_pembayaran milik user yang login
     public function update(Request $request, $id_pembayaran)
     {
         $user = $request->user();
@@ -172,9 +159,7 @@ class PembayaranApiController extends Controller
         ]);
     }
 
-    /**
-     * Menghapus pembayaran
-     */
+   // menghapus pembayaran berdasarkan id_pembayaran milik user yang login
     public function destroy(Request $request, $id_pembayaran)
     {
         $user = $request->user();

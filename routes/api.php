@@ -17,7 +17,7 @@ use App\Http\Controllers\Api\AuthController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Produk bisa diakses public untuk katalog (hanya GET)
+// Produk bisa diakses public (tanpa login)
 Route::get('/produk', [ProdukApiController::class, 'index']);
 Route::get('/produk/{id}', [ProdukApiController::class, 'show']);
 Route::get('/faq', [FaqApiController::class, 'index']);
@@ -26,12 +26,13 @@ Route::get('/artikel', [ArtikelApiController::class, 'index']);
 Route::get('/artikel/{id}', [ArtikelApiController::class, 'show']);
 Route::get('/reviews', [ReviewsApiController::class, 'index']);
 
-// Untuk melalukan login register 
+// setelah login 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
-// Admin routes
+
+// Admin routes 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/dashboard/admin', [AccessController::class, 'admin']);
     Route::apiResource('produk', ProdukApiController::class);
@@ -43,19 +44,20 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource('pesanan', PesananApiController::class);
     Route::apiResource('detail-pesanan', DetailPesananApiController::class);
     Route::apiResource('status-pesanan', StatusPesananApiController::class);
-    Route::apiResource('reviews', ReviewsApiController::class);//->except(['index', 'show']);
+    Route::apiResource('reviews', ReviewsApiController::class);
 });
 
-// Routes  role pelanggan
+// Routes  role pelanggan setelah login
 Route::middleware(['auth:sanctum', 'role:pelanggan'])->group(function () {
     Route::get('/dashboard/pelanggan', [AccessController::class, 'pelanggan']);
+
     // Pelanggan bisa lihat dan buat pesanan mereka sendiri
     Route::get('/pesanan-saya', [PesananApiController::class, 'riwayatPesanan']); 
-    Route::post('/pesanan', [PesananApiController::class, 'store']);
+    Route::get('/pesanan-saya/{id}', [PesananApiController::class, 'show']); 
+
     // Pelanggan bisa lihat pembayaran mereka sendiri
-    Route::get('/pembayaran-saya', [PembayaranApiController::class, 'index']); 
-    Route::post('/pembayaran', [PembayaranApiController::class, 'store']);
-    // Pelanggan bisa buat review
-    Route::post('/reviews-simpan', [ReviewsApiController::class, 'store']);
-    Route::put('/reviews/{id}', [ReviewsApiController::class, 'update']); 
+    Route::get('/pembayaran-saya', [PembayaranApiController::class, 'index']);
+    // Detail  Pesanan berdasarkan ID
+    Route::get('/pesanan/{id_pesanan}/detail', [DetailPesananApiController::class, 'detailByPesanan']);
+
 });

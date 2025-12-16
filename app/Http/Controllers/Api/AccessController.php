@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
-// Models
 use App\Models\Produk;
 use App\Models\Pengguna;
 use App\Models\Pesanan;
@@ -14,7 +12,7 @@ use App\Models\Pembayaran;
 use App\Models\Artikel;
 use App\Models\Galeri;
 use App\Models\Faq;
-use App\Models\Review;  // Pastikan nama modelnya benar (Reviews atau Review)
+use App\Models\Review;  
 use App\Models\StatusPesanan;
 
 class AccessController extends Controller                                                                           
@@ -23,17 +21,13 @@ class AccessController extends Controller
     public function admin(Request $request)
     {
         $user = $request->user();
-
-        // --- PERBAIKAN DISINI ---
-        // Cek apakah role user ADALAH 'admin'. 
-        // Jika bukan (misal 'pelanggan'), tolak aksesnya.
         if ($user->role !== 'admin') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Akses Ditolak! Endpoint ini khusus untuk Admin.'
-            ], 403); // 403 Forbidden
+            ], 403); 
         }
-        // ------------------------
+     
 
         return response()->json([
             'status'  => 'success',

@@ -10,12 +10,10 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    /**
-     * REGISTER
-     */
+    
     public function register(Request $request) 
     { 
-        // 1. Validasi Input
+        // Validasi Input
         $validator = Validator::make($request->all(), [
             'name'     => 'required|string|max:255', // Input dari postman 'name'
             'email'    => 'required|email|unique:pengguna,email',
@@ -30,15 +28,14 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // 2. Generate ID Pengguna Otomatis (PG + Angka Acak)
-        // Karena di database kamu ID tidak auto-increment
+        // Generate ID Pengguna Otomatis 
         $randomId = rand(100, 999);
         $idPengguna = 'PG' . str_pad($randomId, 3, '0', STR_PAD_LEFT);
 
-        // 3. Simpan ke Database
+        // Simpan ke Database
         $pengguna = Pengguna::create([ 
-            'id_pengguna' => $idPengguna, // <--- WAJIB ADA
-            'username'    => $request->name, // Mapping: input 'name' ke kolom 'username'
+            'id_pengguna' => $idPengguna, 
+            'username'    => $request->name, 
             'email'       => $request->email, 
             'password'    => Hash::make($request->password), 
             'role'        => $request->role ?? 'pelanggan',
@@ -52,9 +49,7 @@ class AuthController extends Controller
         ], 201); 
     } 
 
-    /**
-     * LOGIN
-     */
+   // login
     public function login(Request $request)
     {
         // Validasi
@@ -84,9 +79,7 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * PROFILE (Hanya jika login)
-     */
+    // profile 
     public function profile(Request $request)
     {
         return response()->json([
@@ -95,9 +88,7 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * LOGOUT
-     */
+    // logout
     public function logout(Request $request)
     {
         if ($request->user()) {

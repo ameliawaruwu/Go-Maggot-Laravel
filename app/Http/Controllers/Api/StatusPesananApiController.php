@@ -9,10 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class StatusPesananApiController extends Controller
 {
-    /**
-     * Mengambil semua data status pesanan (GET: /api/status-pesanan)
-     * Dapat disesuaikan untuk paginasi jika diperlukan.
-     */
+    // mengambil semua data status pesanan
     public function index()
     {
         $statusPesanan = StatusPesanan::all();
@@ -23,9 +20,7 @@ class StatusPesananApiController extends Controller
         ]);
     }
 
-    /**
-     * Mengambil satu data status pesanan (GET: /api/status-pesanan/{id_status_pesanan})
-     */
+    // menampilkan detail status pesanan berdasarkan id_status_pesanan
     public function show($id_status_pesanan)
     {
         $statusPesanan = StatusPesanan::find($id_status_pesanan);
@@ -40,13 +35,9 @@ class StatusPesananApiController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan data status pesanan baru (POST: /api/status-pesanan)
-     */
+    // menyimpan data status pesanan baru
     public function store(Request $request)
     {
-        // Aturan validasi disesuaikan dengan semua kolom di $fillable
-        // dan karakteristik Model (id_status_pesanan sebagai primary key non-incrementing)
         $validator = Validator::make($request->all(), [
             'id_status_pesanan' => 'required|string|max:50|unique:status_pesanan,id_status_pesanan', // Wajib diisi dan unik karena non-incrementing
             'status' => 'required|string|max:255',
@@ -75,9 +66,7 @@ class StatusPesananApiController extends Controller
         ], 201);
     }
 
-    /**
-     * Memperbarui data status pesanan (PUT/PATCH: /api/status-pesanan/{id_status_pesanan})
-     */
+   // memperbarui data status pesanan berdasarkan id_status_pesanan
     public function update(Request $request, $id_status_pesanan)
     {
         $statusPesanan = StatusPesanan::find($id_status_pesanan);
@@ -88,7 +77,6 @@ class StatusPesananApiController extends Controller
 
         // Aturan validasi untuk update
         $validator = Validator::make($request->all(), [
-            // id_status_pesanan boleh sama dengan dirinya sendiri, tapi harus unik dari yang lain
             'id_status_pesanan' => 'required|string|max:50|unique:status_pesanan,id_status_pesanan,' . $id_status_pesanan . ',id_status_pesanan',
             'status' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
@@ -121,9 +109,7 @@ class StatusPesananApiController extends Controller
         ]);
     }
 
-    /**
-     * Menghapus data status pesanan (DELETE: /api/status-pesanan/{id_status_pesanan})
-     */
+    // menghapus data status pesanan berdasarkan id_status_pesanan
     public function destroy($id_status_pesanan)
     {
         $statusPesanan = StatusPesanan::find($id_status_pesanan);
