@@ -40,16 +40,7 @@ class ManagePublicationController extends Controller
 
    
     function simpan(Request $req)
-    {
-        // $req->validate([
-        //     'judul' => 'required',
-        //     'penulis' => 'required',
-        //     'konten' => 'required',
-        //     'hak_cipta' => 'required',
-        //     'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048' 
-        // ]);
-
-        
+    { 
         $namaFile =  null;
         if($req->hasFile('gambar')){
             $file = $req->file('gambar'); 
@@ -96,7 +87,7 @@ class ManagePublicationController extends Controller
     public function update(Request $req, $id_artikel)
     {
         $artikel = Artikel::findOrFail($id_artikel);
-        $namaFile = $artikel->gambar; // Mengambil nama file gambar lama
+        $namaFile = $artikel->gambar; 
         
         $req->validate([
             'judul' => 'required',
