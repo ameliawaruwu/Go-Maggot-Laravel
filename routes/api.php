@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Admin routes 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard/admin', [AccessController::class, 'admin']);
     Route::apiResource('produk', ProdukApiController::class);
     Route::apiResource('artikel', ArtikelApiController::class);
