@@ -65,10 +65,10 @@ class ProdukApiController extends Controller
             'merk' => 'nullable|string|max:100',
             'masa_penyimpanan' => 'nullable|string|max:50',
             'pengiriman' => 'nullable|string|max:50',
-            'berat' => 'nullable|numeric',
+            'berat' => 'nullable|string',
             'harga' => 'required|numeric',
             'stok' => 'required|integer',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Opsional, Maks 2MB
+            'gambar' => 'nullable', // Opsional, Maks 2MB
         ]);
 
         if ($validator->fails()) {
@@ -132,10 +132,10 @@ class ProdukApiController extends Controller
             'merk' => 'nullable|string|max:100',
             'masa_penyimpanan' => 'nullable|string|max:50',
             'pengiriman' => 'nullable|string|max:50',
-            'berat' => 'nullable|numeric',
+            'berat' => 'nullable|string',
             'harga' => 'required|numeric',
             'stok' => 'required|integer',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gambar' => 'nullable',
         ]);
 
         if ($validator->fails()) {

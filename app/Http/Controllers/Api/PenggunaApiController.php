@@ -37,7 +37,7 @@ class PenggunaApiController extends Controller
             'password' => 'required|string|min:6',
             'nomor_telepon' => 'nullable|string|max:30',
             'alamat' => 'nullable|string',
-            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_profil' => 'nullable',
             'role' => 'nullable|string|max:50',
             'tanggal_daftar' => 'nullable|date',
         ]);
@@ -108,7 +108,7 @@ class PenggunaApiController extends Controller
             'password' => 'nullable|string|min:6',
             'nomor_telepon' => 'nullable|string|max:30',
             'alamat' => 'nullable|string',
-            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_profil' => 'nullable',
             'role' => 'nullable|string|max:50',
             'tanggal_daftar' => 'nullable|date',
         ]);
