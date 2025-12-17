@@ -59,7 +59,7 @@ class DetailPesananApiController extends Controller
             ], 400);
         }
 
-        // TRANSACTION TANPA TRY CATCH
+       
         DB::transaction(function () use ($request, $produk, $pesanan, &$detail) {
 
             // Simpan detail pesanan
@@ -71,14 +71,13 @@ class DetailPesananApiController extends Controller
                 'harga_saat_pembelian' => $request->harga_saat_pembelian,
             ]);
 
-            // Kurangi stok produk
+          
             $produk->decrement('stok', $request->jumlah);
 
-            // Hitung ulang total harga pesanan
             $totalBaru = DetailPesanan::where('id_pesanan', $request->id_pesanan)
                 ->sum(DB::raw('jumlah * harga_saat_pembelian'));
 
-            // Update total harga pesanan
+           
             $pesanan->update([
                 'total_harga' => $totalBaru
             ]);
@@ -93,7 +92,7 @@ class DetailPesananApiController extends Controller
         ], 201);
     }
 
-    // menampilkan detail pesanan berdasarkan id_detail
+    
     public function show($id_detail)
     {
         $detail = DetailPesanan::with(['pesanan', 'produk'])->find($id_detail);
@@ -108,7 +107,7 @@ class DetailPesananApiController extends Controller
         ]);
     }
 
-    // memperbarui detail pesanan
+ 
     public function update(Request $request, $id_detail)
     {
         $detail = DetailPesanan::find($id_detail);

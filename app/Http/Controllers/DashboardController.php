@@ -47,7 +47,7 @@ class DashboardController extends Controller
     $pesanan = Pesanan::where('id_pesanan', $id)->firstOrFail();
     $pesanan->id_status_pesanan = $request->id_status_pesanan;
     $pesanan->save();
-    $pesanan->refresh(); // refresh agar status berubah
+    $pesanan->refresh(); 
     $namaStatusBaru = $pesanan->statusPesanan->status ?? 'Status Diperbarui';
 
     return back()->with('success', "Status pesanan berhasil diperbarui menjadi '$namaStatusBaru'.");

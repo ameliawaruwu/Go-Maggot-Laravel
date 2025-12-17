@@ -15,7 +15,7 @@ class AuthController extends Controller
     { 
         // Validasi Input
         $validator = Validator::make($request->all(), [
-            'name'     => 'required|string|max:255', // Input dari postman 'name'
+            'name'     => 'required|string|max:255', 
             'email'    => 'required|email|unique:pengguna,email',
             'password' => 'required|string|min:6',
         ]);

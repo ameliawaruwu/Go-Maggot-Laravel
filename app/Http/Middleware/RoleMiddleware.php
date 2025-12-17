@@ -25,9 +25,6 @@ class RoleMiddleware
             ], 401);
         }
 
-        // --- ADMIN BYPASS (PENTING) ---
-        // Jika role user adalah 'admin', langsung izinkan lewat.
-        // Admin tidak perlu dicek lagi, dia bebas akses ke mana saja.
         if ($user->role === 'admin') {
             return $next($request);
         }
