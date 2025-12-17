@@ -128,9 +128,7 @@ class ArtikelApiController extends Controller
             ], 422);
         }
 
-        $namaFile = $artikel->gambar;
-        
-        
+        $namaFile = $artikel->gambar;        
         if ($request->hasFile('gambar')) {
             if ($artikel->gambar) {
                 $oldPath = public_path('photo/' . $artikel->gambar);
@@ -155,7 +153,6 @@ class ArtikelApiController extends Controller
         ];
         
         $artikel->update($dataUpdate);
-        
         
         $updatedArtikel = Artikel::find($id_artikel);
 

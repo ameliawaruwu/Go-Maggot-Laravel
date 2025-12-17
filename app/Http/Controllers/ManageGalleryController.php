@@ -31,7 +31,7 @@ class ManageGalleryController extends Controller
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
             $namaFile = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('photo'), $namaFile); // ← DI SINI
+            $file->move(public_path('photo'), $namaFile); 
         }
 
         Galeri::create([
