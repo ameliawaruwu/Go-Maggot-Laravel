@@ -13,7 +13,7 @@ class ReviewsApiController extends Controller
    // ambil semua data review
     public function index()
     {
-        $reviews = Review::with('pengguna', 'produk')->get();
+        
 
         // Tambahkan URL file lengkap
         $data = $reviews->map(function($item) {
