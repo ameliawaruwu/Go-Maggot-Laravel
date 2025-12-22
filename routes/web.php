@@ -12,7 +12,7 @@ use App\Http\Controllers\QnaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManageProductsController;
-use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ManagePesananController;
 use App\Http\Controllers\ManageGalleryController;
 use App\Http\Controllers\ManagePublicationController;
 use App\Http\Controllers\ManageUserController;
@@ -135,9 +135,8 @@ Route::post('/checkout/process', [CheckoutController::class, 'process'])
 // middleware auth Admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/pesanan/status/{id}', [DashboardController::class, 'updateStatus'])
-    ->name('pesanan.updateStatus');
-    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::post('/manage-pesanan/{id}/update', [ManagePesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
+    Route::get('/managePesanan', [ManagePesananController::class, 'index'])->name('managePesanan.index');
     // MANAGE PRODUK
     Route::get('/manageProduk', [ManageProductsController::class, 'index']);
     Route::get('/manageProduk-input', [ManageProductsController::class, 'input']);
@@ -157,6 +156,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/manageReview', [ManageReviewController::class, 'index']);
     Route::post('/manageReview-approve/{id}', [ManageReviewController::class, 'approve']);
     Route::post('/manageReview-reject/{id}', [ManageReviewController::class, 'reject']);
+    Route::post('/manageReview-pending/{id}', [ManageReviewController::class, 'pending']);
 
     // MANAGE FAQ
     Route::get('/manageFaq', [ManageFaqController::class, 'index']);

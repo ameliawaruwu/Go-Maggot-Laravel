@@ -12,9 +12,9 @@
         </li>
 
         <li>
-            <a href="/analytics" class="text-decoration-none">
+            <a href="/managePesanan" class="text-decoration-none">
                 <i class='bx bx-bar-chart-alt-2'></i> 
-                <span class="text">Analitik</span>
+                <span class="text">Manajemen Pesanan</span>
             </a>
         </li>
 
@@ -56,7 +56,7 @@
         <li>
             <a href="/manageFaq" class="text-decoration-none">
                 <i class='bx bxs-message-dots'></i>
-                <span class="text">FAQ</span>
+                <span class="text">Manajemen FAQ</span>
             </a>
         </li>
     </ul>

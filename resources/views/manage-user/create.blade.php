@@ -2,68 +2,73 @@
 
 @section('content')
 <main>
-    <div class="head-title">
+    <div class="head-title d-flex justify-content-between align-items-center mb-4">
         <div class="left">
-            <h1>Tambah User Baru</h1>
-            <ul class="breadcrumb">
-                <li><a href="/dashboard" class="text-decoration-none">Dashboard</a></li>
-                <li><i class='bx bx-chevron-right'></i></li>
-                <li><a href="/manageUser" class="text-decoration-none">User</a></li>
-                <li><i class='bx bx-chevron-right'></i></li>
-                <li><a href="#" class="text-decoration-none">Tambah Baru</a></li>
-            </ul>
+            <h1 class="h3 mb-0 text-gray-800">Tambah User Baru</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/manageUser">User</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Tambah Baru</li>
+                </ol>
+            </nav>
         </div>
     </div>
 
-    <div class="table-data">
-        <div class="order">
-            <div class="head">
-                <h3>Form User</h3>
-            </div>
-
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Form User Baru</h6>
+        </div>
+        <div class="card-body">
             <form action="/manageUser-simpan" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="form-group mb-4">
-                    <label for="id_pengguna" style="font-weight: bold;">ID Pengguna</label>
-                    <input type="text" id="id_pengguna" name="id_pengguna" class="form-control" value="{{ old('id_pengguna') }}" placeholder="Contoh: PGN001" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group mb-4">
-                    <label for="username" style="font-weight: bold;">Nama User</label>
-                    <input type="text" id="username" name="username" class="form-control" value="{{ old('username') }}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group mb-4">
-                    <label for="email" style="font-weight: bold;">Email</label>
-                    <input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group mb-4">
-                    <label for="password" style="font-weight: bold;">Password</label>
-                    <input type="password" id="password" name="password" class="form-control" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group mb-4">
-                    <label for="nomor_telepon" style="font-weight: bold;">Nomor Telepon</label>
-                    <input type="text" id="nomor_telepon" name="nomor_telepon" class="form-control" value="{{ old('nomor_telepon') }}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group mb-4">
-                    <label for="alamat" style="font-weight: bold;">Alamat</label>
-                    <textarea id="alamat" name="alamat" class="form-control" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">{{ old('alamat') }}</textarea>
+                
+                {{-- ID PENGGUNA DIHAPUS KARENA OTOMATIS (PG001...) --}}
+
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-bold">Nama User</label>
+                    <input type="text" id="username" name="username" class="form-control" required placeholder="Masukkan nama lengkap">
                 </div>
 
-                <div class="form-group mb-4">
-                    <label for="role" style="font-weight: bold;">Role</label>
-                    <select id="role" name="role" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                        <option value="pelanggan" {{ old('role') == 'pelanggan' ? 'selected' : '' }}>Pelanggan</option>
-                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                    </select>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label fw-bold">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" required placeholder="email@contoh.com">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="password" class="form-label fw-bold">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" required minlength="6">
+                    </div>
                 </div>
-                <div class="form-group mb-4">
-                    <label for="foto_profil" style="font-weight: bold;">Foto Profil</label>
-                    <input type="file" id="foto_profil" name="foto_profil" class="form-control" accept="image/*" style="width: 100%; padding: 10px; border: 1px solid #ccc;">
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nomor_telepon" class="form-label fw-bold">Nomor Telepon</label>
+                        <input type="text" id="nomor_telepon" name="nomor_telepon" class="form-control" placeholder="08xxxxxxxxxx">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="role" class="form-label fw-bold">Role</label>
+                        <select id="role" name="role" class="form-select" required>
+                            <option value="pelanggan">Pelanggan</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="alamat" class="form-label fw-bold">Alamat</label>
+                    <textarea id="alamat" name="alamat" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="foto_profil" class="form-label fw-bold">Foto Profil</label>
+                    <input type="file" id="foto_profil" name="foto_profil" class="form-control" accept="image/*">
                     <small class="text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB.</small>
                 </div>
 
-                <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <a href="/manageUser" class="btn btn-secondary" style="padding: 5px 10px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Batal</a>
-                    <button type="submit" class="btn btn-primary" style="padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Simpan</button>
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="/manageUser" class="btn btn-secondary">Batal</a>
+                    <button type="submit" class="btn btn-primary">Simpan User</button>
                 </div>
             </form>
         </div>

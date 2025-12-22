@@ -24,17 +24,7 @@
             <form action="/manageFaq-simpan" method="POST">
                 @csrf
 
-                {{-- ID FAQ --}}
-                <div class="mb-3">
-                    <label for="id_faq" class="form-label fw-bold">ID FAQ</label>
-                    <input type="number"
-                           id="id_faq"
-                           name="id_faq"
-                           class="form-control"
-                           placeholder="Masukkan ID FAQ (contoh: 101)"
-                           value="{{ old('id_faq') }}"
-                           required>
-                </div>
+                {{-- INFO: ID FAQ DIHAPUS KARENA OTOMATIS (F01, F02...) --}}
 
                 {{-- PERTANYAAN --}}
                 <div class="mb-3">
@@ -61,7 +51,7 @@
 
                 {{-- BUTTON --}}
                 <div class="d-flex justify-content-end mt-4 gap-2">
-                    <a href="/manageFAQ" class="btn btn-secondary">Batal</a>
+                    <a href="/manageFaq" class="btn btn-secondary">Batal</a>
                     <button type="submit" class="btn btn-primary">Simpan FAQ</button>
                 </div>
 
