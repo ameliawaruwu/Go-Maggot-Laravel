@@ -13,6 +13,17 @@
         </div>
     </div>
     
+    {{-- ALERT SUKSES --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 border-start border-success border-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class='bx bxs-check-circle fs-4 me-2'></i>
+                <div>{{ session('success') }}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="card shadow-sm mt-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
@@ -23,44 +34,48 @@
                 <table class="table table-hover align-middle">
                     <thead class="text-center table-light">
                         <tr>
-                            <th>ID Review</th>
+                            <th>ID</th>
                             <th>Pelanggan</th>
                             <th>Produk</th>
-                            <th>Komentar</th>
-                            <th>Peringkat</th>
+                            <th style="width: 25%;">Komentar</th>
+                            <th>Rating</th>
                             <th>Status</th>
                             <th>Tanggal</th>
-                            <th style="width: 120px;">Aksi</th>
+                            <th style="width: 150px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($review as $rp) 
                             <tr>
-                                <td class="text-center fw-bold">{{ $rp->id_review }}</td>
+                                <td class="text-center fw-bold">#{{ $rp->id_review }}</td>
+                                
+                                {{-- Pelanggan --}}
                                 <td>
                                     @if($rp->tampilkan_username == 1)
-                                        {{ $rp->pengguna->username ?? 'User' }}
+                                        <span class="fw-bold">{{ $rp->pengguna->username ?? 'User' }}</span>
                                     @else
                                         <span class="text-muted fst-italic">Anonim</span>
                                     @endif
                                 </td>
 
+                                {{-- Produk --}}
                                 <td>
-                                    <span class="fw-bold text-black">
-                                        {{ $rp->produk->nama_produk ?? 'Produk Terhapus' }}
-                                    </span>
+                                    <span class="text-primary">{{ $rp->produk->nama_produk ?? '-' }}</span>
                                 </td>
                                 
+                                {{-- Komentar --}}
                                 <td>
-                                    <small class="text-muted">{{ Str::limit($rp->komentar, 50) }}</small>
+                                    <small class="text-muted">"{{ Str::limit($rp->komentar, 50) }}"</small>
                                 </td>
                                 
+                                {{-- Rating --}}
                                 <td class="text-center text-warning">
                                     @for ($i = 1; $i <= 5; $i++)
                                         <i class='bx {{ $i <= $rp->rating_seller ? 'bxs-star' : 'bx-star' }}'></i>
                                     @endfor
                                 </td>
 
+                                {{-- KOLOM STATUS --}}
                                 <td class="text-center">
                                     @if($rp->status == 'approved')
                                         <span class="badge bg-success">Disetujui</span>
@@ -71,29 +86,43 @@
                                     @endif
                                 </td>
 
-                                <td class="text-center">
-                                    {{ $rp->tanggal_review }}
+                                <td class="text-center small">
+                                    {{ \Carbon\Carbon::parse($rp->tanggal_review)->format('d M Y') }}
                                 </td>
 
+                                {{-- KOLOM AKSI (3 TOMBOL) --}}
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        @if($rp->status != 'approved')
-                                            <form action="/manageReview-approve/{{ $rp->id_review }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-success text-white" title="Setujui">
-                                                    <i class='bx bx-check'></i>
-                                                </button>
-                                            </form>
-                                        @endif
+                                    <div class="d-flex justify-content-center gap-1">
+                                        
+                                        {{-- 1. TOMBOL APPROVE (HIJAU) --}}
+                                        <form action="/manageReview-approve/{{ $rp->id_review }}" method="POST">
+                                            @csrf
+                                            {{-- Disable tombol jika statusnya sudah approved --}}
+                                            <button type="submit" class="btn btn-sm btn-success text-white" title="Setujui" 
+                                                {{ $rp->status == 'approved' ? 'disabled' : '' }}>
+                                                <i class='bx bx-check'></i>
+                                            </button>
+                                        </form>
 
-                                        @if($rp->status != 'rejected')
-                                            <form action="/manageReview-reject/{{ $rp->id_review }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Tolak">
-                                                    <i class='bx bx-x'></i>
-                                                </button>
-                                            </form>
-                                        @endif
+                                        {{-- 2. TOMBOL PENDING (KUNING) --}}
+                                        <form action="/manageReview-pending/{{ $rp->id_review }}" method="POST">
+                                            @csrf
+                                            {{-- Disable tombol jika statusnya sudah pending --}}
+                                            <button type="submit" class="btn btn-sm btn-warning text-dark" title="Kembalikan ke Pending"
+                                                {{ $rp->status == 'pending' || empty($rp->status) ? 'disabled' : '' }}>
+                                                <i class='bx bx-time-five'></i>
+                                            </button>
+                                        </form>
+
+                                        {{-- 3. TOMBOL REJECT (MERAH) --}}
+                                        <form action="/manageReview-reject/{{ $rp->id_review }}" method="POST">
+                                            @csrf
+                                            {{-- Disable tombol jika statusnya sudah rejected --}}
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Tolak"
+                                                {{ $rp->status == 'rejected' ? 'disabled' : '' }}>
+                                                <i class='bx bx-x'></i>
+                                            </button>
+                                        </form>
 
                                     </div>
                                 </td>

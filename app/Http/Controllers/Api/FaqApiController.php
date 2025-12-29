@@ -39,7 +39,7 @@ class FaqApiController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id_faq' => 'required|string|max:50|unique:faq,id_faq', // Wajib diisi dan unik karena non-incrementing
+            'id_faq' => 'required|string|max:50|unique:faq,id_faq', 
             'pertanyaan' => 'required|string|max:255',
             'jawaban' => 'required|string',
         ]);
