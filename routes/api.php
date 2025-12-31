@@ -60,4 +60,8 @@ Route::middleware(['auth:sanctum', 'role:pelanggan'])->group(function () {
     // Detail  Pesanan berdasarkan ID
     Route::get('/pesanan/{id_pesanan}/detail', [DetailPesananApiController::class, 'detailByPesanan']);
 
+    // Simpan review baru
+    Route::post('/reviews', [ReviewsApiController::class, 'store']);
+   
+
 });
