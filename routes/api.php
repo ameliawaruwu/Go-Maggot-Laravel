@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\AuthController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+
 // Produk bisa diakses public (tanpa login)
 Route::get('/produk', [ProdukApiController::class, 'index']);
 Route::get('/produk/{id}', [ProdukApiController::class, 'show']);
@@ -50,7 +51,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
 // Routes  role pelanggan setelah login
 Route::middleware(['auth:sanctum', 'role:pelanggan'])->group(function () {
     Route::get('/dashboard/pelanggan', [AccessController::class, 'pelanggan']);
-
+    Route::post('/checkout/process', [PesananApiController::class, 'submitCheckout']);
+    Route::post('/pembayaran/upload', [PesananApiController::class, 'uploadBukti']);
     // Pelanggan bisa lihat dan buat pesanan mereka sendiri
     Route::get('/pesanan-saya', [PesananApiController::class, 'riwayatPesanan']); 
     Route::get('/pesanan-saya/{id}', [PesananApiController::class, 'show']); 
