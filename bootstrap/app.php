@@ -7,21 +7,26 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php', // Pastikan file api.php ada
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        
-        // 1. Konfigurasi Sanctum (Stateful)
+        // ✅ TAMBAHKAN CORS untuk API
         $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \App\Http\Middleware\Cors::class,
         ]);
 
-        // 2. Daftarkan Alias Middleware (Role, dll)
+        // ✅ Register alias middleware
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+
+        // ✅ OPTIONAL: Jika mau disable CSRF untuk API
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-    })->create(); 
+        //
+    })->create();
