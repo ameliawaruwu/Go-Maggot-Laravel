@@ -13,7 +13,7 @@ class ReviewsApiController extends Controller
     // ambil semua data review
     public function index()
     {
-        $reviews = Review::with('pengguna', 'produk')->get();
+        
 
         $data = $reviews->map(function($item) {
             $item->foto_url = $item->foto ? asset('photo/' . $item->foto) : null;
