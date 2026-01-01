@@ -50,8 +50,11 @@ class Pengguna extends Authenticatable
     {
         return $this->hasMany(Pesanan::class, 'id_pengguna');
     }
+    // --- DI DALAM CLASS PENGGUNA ---
+
     public function reviews() {
-        return $this->hasMany(Review::class, 'id_review');
+        // Foreign key di tabel reviews seharusnya 'id_pengguna', bukan 'id_review'
+        return $this->hasMany(Review::class, 'id_pengguna', 'id_pengguna');
     }
     
 }
