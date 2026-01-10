@@ -8,6 +8,21 @@ use Illuminate\Support\Facades\File;
 
 class ManageGalleryController extends Controller
 {
+  
+    private function generateNewIdGaleri(): string
+    {
+        $latestGaleri = Galeri::where('id_galeri', 'like', 'GL%')
+            ->orderBy('id_galeri', 'desc')
+            ->first();
+
+        $lastNumber = 0;
+        if ($latestGaleri) {
+            $lastNumber = (int) substr($latestGaleri->id_galeri, 3);
+        }
+
+        return 'GL' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+    }
+
     public function index()
     {
         $galleries = Galeri::all();
@@ -21,26 +36,30 @@ class ManageGalleryController extends Controller
 
     public function store(Request $request)
     {
+        
         $request->validate([
-            'id_galeri'   => 'required|string|max:50|unique:galeri,id_galeri',
-            'keterangan'  => 'required|string|max:255',
-            'gambar'      => 'required|image|mimes:jpg,jpeg,png,webp|max:3048',
+            'keterangan' => 'required|string|max:255',
+            'gambar'     => 'required|image|mimes:jpg,jpeg,png,webp|max:3048',
         ]);
+
+
+        $idGaleriBaru = $this->generateNewIdGaleri();
 
         $namaFile = null;
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
             $namaFile = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('photo'), $namaFile); 
+            $file->move(public_path('photo'), $namaFile);
         }
 
         Galeri::create([
-            'id_galeri'  => $request->id_galeri,
+            'id_galeri'  => $idGaleriBaru,
             'keterangan' => $request->keterangan,
             'gambar'     => $namaFile,
         ]);
 
-        return redirect()->route('gallery.index')->with('status_message', 'Galeri berhasil ditambahkan!');
+        return redirect()->route('gallery.index')
+            ->with('status_message', 'Galeri berhasil ditambahkan!');
     }
 
     public function edit($id)
@@ -54,16 +73,13 @@ class ManageGalleryController extends Controller
         $galeri = Galeri::findOrFail($id);
 
         $request->validate([
-            'id_galeri'   => 'required|string|max:50|unique:galeri,id_galeri,' . $galeri->id_galeri . ',id_galeri',
-            'keterangan'  => 'required|string|max:255',
-            'gambar'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3048',
+            'keterangan' => 'required|string|max:255',
+            'gambar'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3048',
         ]);
 
         $namaFile = $galeri->gambar;
 
         if ($request->hasFile('gambar')) {
-
-            // Hapus file lama
             if ($galeri->gambar) {
                 $oldPath = public_path('photo/' . $galeri->gambar);
                 if (File::exists($oldPath)) {
@@ -73,23 +89,22 @@ class ManageGalleryController extends Controller
 
             $file = $request->file('gambar');
             $namaFile = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('photo'), $namaFile); // ← DI SINI
+            $file->move(public_path('photo'), $namaFile);
         }
 
         $galeri->update([
-            'id_galeri'  => $request->id_galeri,
             'keterangan' => $request->keterangan,
             'gambar'     => $namaFile,
         ]);
 
-        return redirect()->route('gallery.index')->with('status_message', 'Galeri berhasil diperbarui!');
+        return redirect()->route('gallery.index')
+            ->with('status_message', 'Galeri berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
         $galeri = Galeri::findOrFail($id);
 
-        // hapus file di /public/photo
         if ($galeri->gambar) {
             $path = public_path('photo/' . $galeri->gambar);
             if (File::exists($path)) {
@@ -99,6 +114,7 @@ class ManageGalleryController extends Controller
 
         $galeri->delete();
 
-        return redirect()->route('gallery.index')->with('status_message', 'Galeri berhasil dihapus!');
+        return redirect()->route('gallery.index')
+            ->with('status_message', 'Galeri berhasil dihapus!');
     }
 }
